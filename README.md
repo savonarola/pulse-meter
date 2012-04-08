@@ -1,6 +1,6 @@
-# Pulse::Meter
+# PulseMeter
 
-TODO: Write a gem description
+This is a gem for fast and convenient realtime aggregating of software internal stats through Redis. It is under heavy development and does not contain anything one could use. 
 
 ## Installation
 
