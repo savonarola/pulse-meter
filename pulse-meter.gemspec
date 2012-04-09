@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency('redis')
 
-  gem.add_development_dependency('rspec')
   gem.add_development_dependency('mock_redis')
+  gem.add_development_dependency('rake')
+  gem.add_development_dependency('rspec')
 end
