@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/savonarola/pulse-meter.png)](http://travis-ci.org/savonarola/pulse-meter)
+
 # PulseMeter
 
 This is a gem for fast and convenient realtime aggregating of software internal stats through Redis. It is under heavy development and does not contain anything one could use. 
