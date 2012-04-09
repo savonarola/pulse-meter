@@ -1,5 +1,6 @@
 require "pulse-meter/version"
 require "pulse-meter/sensor"
+require "pulse-meter/utils"
 
 module PulseMeter
   @@redis = nil

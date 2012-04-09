@@ -4,7 +4,7 @@ module PulseMeter
       attr_accessor :redis
       attr_reader :name
 
-      def initialize(name, options)
+      def initialize(name, options={})
         @name = name.to_s
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
         raise RedisNotInitialized unless PulseMeter.redis
@@ -12,7 +12,11 @@ module PulseMeter
       end
       
       def annotate(description)
-        redis.set(desc_key, name)
+        redis.set(desc_key, description)
+      end
+
+      def annotation
+        redis.get(desc_key)
       end
 
       def cleanup
