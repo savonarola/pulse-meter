@@ -24,4 +24,11 @@ describe PulseMeter::Utils do
       end
     end
   end
+
+  describe "#assert_positive_integer!" do
+    it "should extract integer value from hash" do
+      dummy.assert_positive_integer!({:val => 4}, :val).should == 4
+    end
+  end
+
 end

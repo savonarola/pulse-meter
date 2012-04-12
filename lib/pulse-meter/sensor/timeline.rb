@@ -35,13 +35,6 @@ module PulseMeter
 
     protected
     
-    def assert_positive_integer!(options, key)
-      value = options[key]
-      raise ArgumentError, "#{key} should be integer" unless value.respond_to?(:to_i)
-      raise ArgumentError, "#{key} should be positive" unless value.to_i > 0
-      options[key] = value.to_i
-    end
-
     @queue = :pulse_meter
 
     def current_buket_id_key
