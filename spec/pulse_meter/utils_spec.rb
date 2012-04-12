@@ -26,8 +26,28 @@ describe PulseMeter::Utils do
   end
 
   describe "#assert_positive_integer!" do
-    it "should extract integer value from hash" do
+    it "should extract integer value from hash by passed key" do
       dummy.assert_positive_integer!({:val => 4}, :val).should == 4
+    end
+
+    context "when the value by the passed key is not integer" do
+      it "should convert non-integers to integers" do
+        dummy.assert_positive_integer!({:val => 4.4}, :val).should == 4
+      end
+
+      it "should change the original value to the obtained integer" do
+        h = {:val => 4.4}
+        dummy.assert_positive_integer!(h, :val).should == 4
+        h[:val].should == 4
+      end
+
+      it "should raise exception if the original value cannot be converted to integer"do
+        expect{ dummy.assert_positive_integer!({:val => :bad_int}, :val) }.to raise_exception(ArgumentError)
+      end
+    end
+
+    it "should raise exception if the value is not positive" do
+        expect{ dummy.assert_positive_integer!({:val => -1}, :val) }.to raise_exception(ArgumentError)
     end
   end
 
