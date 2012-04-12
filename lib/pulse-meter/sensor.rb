@@ -1,5 +1,6 @@
 require 'pulse-meter/sensor/base'
 require 'pulse-meter/sensor/counter'
+require 'pulse-meter/sensor/indicator'
 
 module PulseMeter
 

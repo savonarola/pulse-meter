@@ -12,5 +12,7 @@ Dir['spec/support/**/*.rb'].each do |f|
 end
 
 RSpec.configure do |config|
+  config.before(:each) { PulseMeter.redis = MockRedis.new }
+
 end
 
