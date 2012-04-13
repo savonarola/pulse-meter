@@ -16,8 +16,10 @@ Gem::Specification.new do |gem|
   gem.version       = PulseMeter::VERSION
 
   gem.add_runtime_dependency('redis')
+  #gem.add_runtime_dependency('resque')
 
   gem.add_development_dependency('mock_redis')
   gem.add_development_dependency('rake')
   gem.add_development_dependency('rspec')
+  gem.add_development_dependency('timecop')
 end

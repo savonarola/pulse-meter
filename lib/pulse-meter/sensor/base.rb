@@ -8,7 +8,10 @@ module PulseMeter
         @name = name.to_s
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
         raise RedisNotInitialized unless PulseMeter.redis
-        @redis = PulseMeter.redis
+      end
+
+      def redis
+        PulseMeter.redis
       end
       
       def annotate(description)
