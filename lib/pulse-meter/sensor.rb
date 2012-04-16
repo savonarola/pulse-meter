@@ -5,6 +5,8 @@ require 'pulse-meter/sensor/timeline'
 
 module PulseMeter
 
+  SensorData = Struct.new(:start_time, :value)
+
   class SensorError < StandardError; end
 
   class BadSensorName < SensorError

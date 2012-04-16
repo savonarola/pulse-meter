@@ -17,17 +17,16 @@ module PulseMeter
 
       def cleanup
         keys = []
-        keys << current_buket_id_key
-        keys << current_buket_key
-        redis.keys(raw_completed_bucket_key('*')).each do |key|
+        redis.keys(raw_data_key('*')).each do |key|
           keys << key
         end
-        redis.keys(completed_bucket_key('*')).each do |key|
+        redis.keys(data_key('*')).each do |key|
           keys << key
         end
         multi do
           keys.each{|key| redis.del(key)}
         end
+        super
       end
 
       def event(value)
@@ -36,6 +35,48 @@ module PulseMeter
           aggregate_event(current_key, value)
           redis.expire(current_key, raw_data_ttl)
         end
+      end
+
+      def reduce(interval_id)
+        interval_raw_data_key = raw_data_key(interval_id)
+        return unless redis.exists(interval_raw_data_key)
+        value = summarize(interval_id)
+        interval_data_key = data_key(interval_id)
+        multi do
+          redis.del(interval_raw_data_key)
+          redis.set(interval_data_key, value)
+          redis.expire(interval_data_key, ttl)
+        end
+      end
+
+      def reduce_raw
+        min_time = Time.now - reduce_delay - interval
+        redis.keys(raw_data_key('*')).each do |key|
+          interval_id = key.split(':').last
+          next if Time.at(interval_id.to_i) > min_time
+          reduce(interval_id)
+        end
+      end
+
+      def timeline(time_ago)
+        raise ArgumentError unless time_ago.respond_to?(:to_i) && time_ago.to_i > 0
+        now = Time.now.to_i
+        start_time = now - time_ago.to_i
+        current_interval_id = get_interval_id(start_time) + interval
+        res = []
+        while current_interval_id < now
+          res << get_timeline_value(current_interval_id)
+          current_interval_id += interval
+        end
+        res
+      end
+
+      def get_timeline_value(interval_id) 
+        interval_data_key = data_key(interval_id)
+        return SensorData.new(Time.at(interval_id), redis.get(interval_data_key)) if redis.exists(interval_data_key)
+        interval_raw_data_key = raw_data_key(interval_id)
+        return SensorData.new(Time.at(interval_id), summarize(interval_id)) if redis.exists(interval_raw_data_key)
+        SensorData.new(:value => nil, :start_time => Time.at(interval_id))
       end
 
       def current_raw_data_key
@@ -50,8 +91,12 @@ module PulseMeter
         "data:#{name}:#{id}"
       end
 
+      def get_interval_id(time)
+        (time.to_i / interval) * interval
+      end
+
       def current_interval_id
-        (Time.now.to_i / interval) * interval
+        get_interval_id(Time.now)
       end
 
       def aggregate_event(key, value)
