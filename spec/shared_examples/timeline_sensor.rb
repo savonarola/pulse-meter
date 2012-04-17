@@ -85,14 +85,14 @@ shared_examples_for "timeline sensor" do
     end
   end
 
-  describe "#reduce_raw" do
+  describe "#reduce_all_raw" do
     it "should reduce all data older than reduce_delay" do
       Timecop.freeze(@t){ sensor.event(123) }
       val0 = sensor.summarize(@ts)
       Timecop.freeze(@t + interval){ sensor.event(123) }
       val1 = sensor.summarize(@ts + interval)
       expect{
-        Timecop.freeze(@t + interval + interval + reduce_delay + 1) { sensor.reduce_raw }
+        Timecop.freeze(@t + interval + interval + reduce_delay + 1) { sensor.reduce_all_raw }
       }.to change{ redis.keys(sensor.raw_data_key('*')).count }.from(2).to(0)
 
       redis.get(sensor.data_key(@ts)).should == val0.to_s
@@ -103,11 +103,11 @@ shared_examples_for "timeline sensor" do
       Timecop.freeze(@t){ sensor.event(123) }
 
       expect{
-        Timecop.freeze(@t + interval + reduce_delay - 1) { sensor.reduce_raw }
+        Timecop.freeze(@t + interval + reduce_delay - 1) { sensor.reduce_all_raw }
       }.not_to change{ redis.keys(sensor.raw_data_key('*')).count }
 
       expect{
-        Timecop.freeze(@t + interval + reduce_delay - 1) { sensor.reduce_raw }
+        Timecop.freeze(@t + interval + reduce_delay - 1) { sensor.reduce_all_raw }
       }.not_to change{ redis.keys(sensor.data_key('*')).count }
     end
   end

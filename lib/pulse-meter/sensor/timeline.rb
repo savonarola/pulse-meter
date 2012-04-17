@@ -16,13 +16,7 @@ module PulseMeter
       end
 
       def cleanup
-        keys = []
-        redis.keys(raw_data_key('*')).each do |key|
-          keys << key
-        end
-        redis.keys(data_key('*')).each do |key|
-          keys << key
-        end
+        keys = redis.keys(raw_data_key('*')) + redis.keys(data_key('*'))
         multi do
           keys.each{|key| redis.del(key)}
         end
@@ -49,7 +43,7 @@ module PulseMeter
         end
       end
 
-      def reduce_raw
+      def reduce_all_raw
         min_time = Time.now - reduce_delay - interval
         redis.keys(raw_data_key('*')).each do |key|
           interval_id = key.split(':').last
