@@ -34,7 +34,7 @@ module PulseMeter
       def reduce(interval_id)
         interval_raw_data_key = raw_data_key(interval_id)
         return unless redis.exists(interval_raw_data_key)
-        value = summarize(interval_id)
+        value = summarize(interval_raw_data_key)
         interval_data_key = data_key(interval_id)
         multi do
           redis.del(interval_raw_data_key)
@@ -65,11 +65,11 @@ module PulseMeter
         res
       end
 
-      def get_timeline_value(interval_id) 
+      def get_timeline_value(interval_id)
         interval_data_key = data_key(interval_id)
         return SensorData.new(Time.at(interval_id), redis.get(interval_data_key)) if redis.exists(interval_data_key)
         interval_raw_data_key = raw_data_key(interval_id)
-        return SensorData.new(Time.at(interval_id), summarize(interval_id)) if redis.exists(interval_raw_data_key)
+        return SensorData.new(Time.at(interval_id), summarize(interval_raw_data_key)) if redis.exists(interval_raw_data_key)
         SensorData.new(Time.at(interval_id), nil)
       end
 
@@ -98,9 +98,9 @@ module PulseMeter
         redis.set(key, value)
       end
 
-      def summarize(id)
+      def summarize(key)
         # simple
-        redis.get(raw_data_key(id))  
+        redis.get(key)
       end
 
     end
