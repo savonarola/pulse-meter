@@ -9,7 +9,7 @@ shared_examples_for "timeline sensor" do
   let(:redis){ PulseMeter.redis }
 
   before(:each) do
-    @ts = (Time.now.to_i / interval) * interval 
+    @ts = (Time.now.to_i / interval) * interval
     @t = Time.at(@ts)
   end
 
@@ -21,7 +21,7 @@ shared_examples_for "timeline sensor" do
     end
 
     it "should write data so that it totally expires after :raw_data_ttl" do
-      key_count = redis.keys('*').count 
+      key_count = redis.keys('*').count
       sensor.event(123)
       Timecop.freeze(Time.now + raw_data_ttl + 1) do
         redis.keys('*').count.should == key_count
@@ -61,7 +61,7 @@ shared_examples_for "timeline sensor" do
 
     it "should remove original raw_data_key" do
       Timecop.freeze(@t){ sensor.event(123) }
-      expect{ 
+      expect{
         sensor.reduce(@ts)
       }.to change{ redis.keys(sensor.raw_data_key(@ts)).count }.from(1).to(0)
     end
@@ -117,7 +117,7 @@ shared_examples_for "timeline sensor" do
       sensor.event(123)
       timeline = sensor.timeline(1)
       timeline.should be_kind_of(Array)
-      timeline.each{|i| i.should be_kind_of(SensorData) } 
+      timeline.each{|i| i.should be_kind_of(SensorData) }
     end
 
     it "should raise exception if passed interval is not a positive integer" do
@@ -127,9 +127,9 @@ shared_examples_for "timeline sensor" do
     end
 
     it "should return array of results containing as many results as there are sensor interval beginnings in the passed interval" do
-      Timecop.freeze(@t){ sensor.event(123) } 
-      Timecop.freeze(@t + interval){ sensor.event(123) } 
-      
+      Timecop.freeze(@t){ sensor.event(123) }
+      Timecop.freeze(@t + interval){ sensor.event(123) }
+
       Timecop.freeze(@t + interval + 1) do
         sensor.timeline(2).size.should == 1
       end
@@ -142,35 +142,42 @@ shared_examples_for "timeline sensor" do
     end
 
     describe "SensorData value for an interval" do
-      it "should contain summarized value stored by data_key for reduced intervals" do
-        Timecop.freeze(@t){ sensor.event(123) } 
-        sensor.reduce(@ts)
-        Timecop.freeze(@t + 1){ sensor.timeline(2).first.value.to_s.should == redis.get(sensor.data_key(@ts)) }
+      def check_sensor_data(sensor, value)
+        data = sensor.timeline(2).first
+        data.value.should == value
+        data.start_time.to_i.should == @ts
       end
-      
+
+      it "should contain summarized value stored by data_key for reduced intervals" do
+        Timecop.freeze(@t){ sensor.event(123) }
+        sensor.reduce(@ts)
+        Timecop.freeze(@t + 1){
+          check_sensor_data(sensor, redis.get(sensor.data_key(@ts)))
+        }
+      end
+
       it "should contain summarized value based on raw data for intervals not yet reduced" do
-        Timecop.freeze(@t){ sensor.event(123) } 
-        Timecop.freeze(@t + 1){ sensor.timeline(2).first.value.to_s.should == sensor.summarize(@ts).to_s }
+        Timecop.freeze(@t){ sensor.event(123) }
+        Timecop.freeze(@t + 1){
+          check_sensor_data(sensor, sensor.summarize(@ts).to_s)
+        }
       end
 
       it "should contain nil for intervals without any data" do
-        Timecop.freeze(@t + 1){ sensor.timeline(2).first.value.should be_nil }
-      end
- 
-      it "should contain start time of the interval it was calculated for" do
-        Timecop.freeze(@t){ sensor.event(123) } 
-        Timecop.freeze(@t + 1){ sensor.timeline(2).first.start_time.to_i.should == @ts }
+        Timecop.freeze(@t + 1) {
+          check_sensor_data(sensor, nil)
+        }
       end
     end
   end
 
   describe "#cleanup" do
     it "should remove all sensor data (raw data, redced data, annotations) from redis" do
-      Timecop.freeze(@t){ sensor.event(123) } 
+      Timecop.freeze(@t){ sensor.event(123) }
       sensor.reduce(@ts)
-      Timecop.freeze(@t + interval){ sensor.event(123) } 
+      Timecop.freeze(@t + interval){ sensor.event(123) }
       sensor.annotate("Fooo sensor")
-      
+
       sensor.cleanup
       redis.keys('*').should be_empty
     end

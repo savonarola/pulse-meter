@@ -70,7 +70,7 @@ module PulseMeter
         return SensorData.new(Time.at(interval_id), redis.get(interval_data_key)) if redis.exists(interval_data_key)
         interval_raw_data_key = raw_data_key(interval_id)
         return SensorData.new(Time.at(interval_id), summarize(interval_id)) if redis.exists(interval_raw_data_key)
-        SensorData.new(:value => nil, :start_time => Time.at(interval_id))
+        SensorData.new(Time.at(interval_id), nil)
       end
 
       def current_raw_data_key
