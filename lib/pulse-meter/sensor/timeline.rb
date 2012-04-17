@@ -23,7 +23,7 @@ module PulseMeter
         super
       end
 
-      def event(value)
+      def event(value = nil)
         multi do
           current_key = current_raw_data_key
           aggregate_event(current_key, value)
