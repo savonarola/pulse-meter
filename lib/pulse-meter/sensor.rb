@@ -4,6 +4,8 @@ require 'pulse-meter/sensor/indicator'
 require 'pulse-meter/sensor/timeline'
 require 'pulse-meter/sensor/timelined/average'
 require 'pulse-meter/sensor/timelined/counter'
+require 'pulse-meter/sensor/timelined/max'
+require 'pulse-meter/sensor/timelined/min'
 
 module PulseMeter
 
