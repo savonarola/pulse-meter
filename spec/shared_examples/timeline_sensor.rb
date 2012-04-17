@@ -31,11 +31,12 @@ shared_examples_for "timeline sensor" do
     end
 
     it "should write data to bucket indicated by truncated timestamp" do
+      key = sensor.raw_data_key(@interval_id)
       expect{
         Timecop.freeze(@start_of_interval) do
           sensor.event(123)
         end
-      }.to change{ redis.get(sensor.raw_data_key(@interval_id))}
+      }.to change{ redis.ttl(key) }
     end
   end
 
@@ -161,7 +162,7 @@ shared_examples_for "timeline sensor" do
       it "should contain summarized value based on raw data for intervals not yet reduced" do
         Timecop.freeze(@start_of_interval){ sensor.event(123) }
         Timecop.freeze(@start_of_interval + 1){
-          check_sensor_data(sensor, sensor.summarize(@raw_data_key).to_s)
+          check_sensor_data(sensor, sensor.summarize(@raw_data_key))
         }
       end
 

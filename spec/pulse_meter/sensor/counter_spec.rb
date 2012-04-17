@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::Counter do
-  before(:each){ PulseMeter.redis = MockRedis.new }
   let(:name){ :some_counter }
   let(:sensor){ described_class.new(name) }
   let(:redis){ PulseMeter.redis }

@@ -2,6 +2,7 @@ require 'pulse-meter/sensor/base'
 require 'pulse-meter/sensor/counter'
 require 'pulse-meter/sensor/indicator'
 require 'pulse-meter/sensor/timeline'
+require 'pulse-meter/sensor/average'
 
 module PulseMeter
 
