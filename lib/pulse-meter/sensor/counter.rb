@@ -1,6 +1,6 @@
 module PulseMeter
   module Sensor
-      class Counter < Base
+    class Counter < Base
 
       def cleanup
         redis.del(value_key)
@@ -26,4 +26,3 @@ module PulseMeter
     end
   end
 end
-

@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::Base do
-  before(:each){ PulseMeter.redis = MockRedis.new }
   let(:name){ :some_sensor }
+  let(:description) {"Le awesome description"}
   let(:sensor){ described_class.new(name) }
   let(:redis){ PulseMeter.redis }
 
   describe '#initialize' do
-    context 'when PulseMeter.redis is initialized' do
+    context 'when PulseMeter.redis is not initialized' do
       it "should raise RedisNotInitialized exception" do
         PulseMeter.redis = nil
         expect{ described_class.new(:foo) }.to raise_exception(PulseMeter::RedisNotInitialized)
@@ -28,7 +28,7 @@ describe PulseMeter::Sensor::Base do
         it "should successfully create object" do
           described_class.new(:foo).should_not be_nil
         end
-        
+
         it "should initialize attributes #redis and #name" do
           sensor = described_class.new(:foo)
           sensor.name.should == 'foo'
@@ -41,7 +41,7 @@ describe PulseMeter::Sensor::Base do
   describe '#annotate' do
 
     it "should store sensor annotation in redis" do
-      sensor.annotate("Le awesome description")      
+      sensor.annotate(description)
       redis.keys('*').count.should == 1
     end
 
@@ -50,8 +50,8 @@ describe PulseMeter::Sensor::Base do
   describe '#annotation' do
     context "when sensor was annotated" do
       it "should return stored annotation" do
-        sensor.annotate("Le awesome description")      
-        sensor.annotation.should == "Le awesome description"  
+        sensor.annotate(description)
+        sensor.annotation.should == description
       end
     end
 
@@ -63,7 +63,7 @@ describe PulseMeter::Sensor::Base do
 
     context "after sensor data was cleaned" do
       it "should return nil" do
-        sensor.annotate("Le awesome description")      
+        sensor.annotate(description)
         sensor.cleanup
         sensor.annotation.should be_nil
       end
@@ -73,7 +73,7 @@ describe PulseMeter::Sensor::Base do
   describe "#cleanup" do
     it "should remove from redis all sensor data" do
       sensor.event(123)
-      sensor.annotate("Annotation")
+      sensor.annotate(description)
       sensor.cleanup
       redis.keys('*').should be_empty
     end
@@ -86,4 +86,3 @@ describe PulseMeter::Sensor::Base do
   end
 
 end
-
