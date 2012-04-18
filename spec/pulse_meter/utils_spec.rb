@@ -47,8 +47,14 @@ describe PulseMeter::Utils do
     end
 
     it "should raise exception if the value is not positive" do
-        expect{ dummy.assert_positive_integer!({:val => -1}, :val) }.to raise_exception(ArgumentError)
+      expect{ dummy.assert_positive_integer!({:val => -1}, :val) }.to raise_exception(ArgumentError)
     end
   end
 
+  describe "#uniqid" do
+    it "should return uniq strings" do
+      uid1, uid2 = dummy.uniqid, dummy.uniqid
+      uid1.should_not == uid2
+    end
+  end
 end
