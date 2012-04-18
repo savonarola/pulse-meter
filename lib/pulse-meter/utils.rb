@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module PulseMeter
   module Utils
     def constantize(const_name)
@@ -14,5 +16,8 @@ module PulseMeter
       options[key] = value.to_i
     end
 
+    def uniqid
+      SecureRandom.hex(32)
+    end
   end
 end
