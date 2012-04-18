@@ -1,10 +1,10 @@
-shared_examples_for "timeline sensor" do
+shared_examples_for "timeline sensor" do |extra_init_values|
   let(:name){ :some_value_with_history }
   let(:ttl){ 100 }
   let(:raw_data_ttl){ 30 }
   let(:interval){ 5 }
   let(:reduce_delay){ 3 }
-  let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay} }
+  let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay}.merge(extra_init_values || {}) }
   let!(:sensor){ described_class.new(name, good_init_values) }
   let(:redis){ PulseMeter.redis }
 

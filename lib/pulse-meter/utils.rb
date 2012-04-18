@@ -11,9 +11,19 @@ module PulseMeter
 
     def assert_positive_integer!(options, key)
       value = options[key]
+      raise ArgumentError, "#{key} should be defined" unless value
       raise ArgumentError, "#{key} should be integer" unless value.respond_to?(:to_i)
       raise ArgumentError, "#{key} should be positive" unless value.to_i > 0
       options[key] = value.to_i
+    end
+
+    def assert_ranged_float!(options, key, from, to)
+      f = options[key]
+      raise ArgumentError, "#{key} should be defined" unless f
+      raise ArgumentError, "#{key} should be float" unless f.respond_to?(:to_f)
+      f = f.to_f
+      raise ArgumentError, "#{key} should be between #{from} and #{to}" unless f >= from && f <= to
+      options[key] = f
     end
 
     def uniqid

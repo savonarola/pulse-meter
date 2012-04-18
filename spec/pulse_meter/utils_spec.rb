@@ -49,6 +49,43 @@ describe PulseMeter::Utils do
     it "should raise exception if the value is not positive" do
       expect{ dummy.assert_positive_integer!({:val => -1}, :val) }.to raise_exception(ArgumentError)
     end
+
+    it "should raise exception if the value is not defined" do
+      expect{ dummy.assert_positive_integer!({}, :val) }.to raise_exception(ArgumentError)
+    end
+  end
+
+  describe "#assert_ranged_float!" do
+    let(:epsilon) {0.001}
+
+    it "should extract float value from hash by passed key" do
+      dummy.assert_ranged_float!({:val => 4}, :val, 0, 100).should be_within(epsilon).of(4)
+    end
+
+    context "when the value by the passed key is not float" do
+      it "should convert non-floats to floats" do
+        dummy.assert_ranged_float!({:val => "4.0000"}, :val, 0, 100).should be_within(epsilon).of(4)
+      end
+
+      it "should change the original value to the obtained float" do
+        h = {:val => "4.000"}
+        dummy.assert_ranged_float!(h, :val, 0, 100).should be_within(epsilon).of(4)
+        h[:val].should be_within(epsilon).of(4)
+      end
+
+      it "should raise exception if the original value cannot be converted to float" do
+        expect{ dummy.assert_ranged_float!({:val => :bad_float}, :val, 0, 100) }.to raise_exception(ArgumentError)
+      end
+    end
+
+    it "should raise exception if the value is not within range" do
+      expect{ dummy.assert_ranged_float!({:val => -0.1}, :val, 0, 100) }.to raise_exception(ArgumentError)
+      expect{ dummy.assert_ranged_float!({:val => 100.1}, :val, 0, 100) }.to raise_exception(ArgumentError)
+    end
+
+    it "should raise exception if the value is not defined" do
+      expect{ dummy.assert_ranged_float!({}, :val) }.to raise_exception(ArgumentError)
+    end
   end
 
   describe "#uniqid" do
