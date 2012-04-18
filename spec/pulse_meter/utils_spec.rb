@@ -90,8 +90,8 @@ describe PulseMeter::Utils do
 
   describe "#uniqid" do
     it "should return uniq strings" do
-      uid1, uid2 = dummy.uniqid, dummy.uniqid
-      uid1.should_not == uid2
+      uniq_values = (1..1000).map{|_| dummy.uniqid}
+      uniq_values.uniq.count.should == uniq_values.count
     end
   end
 end
