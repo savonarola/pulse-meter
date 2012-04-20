@@ -6,6 +6,7 @@ shared_examples_for "timeline sensor" do |extra_init_values|
   let(:reduce_delay){ 3 }
   let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay}.merge(extra_init_values || {}) }
   let!(:sensor){ described_class.new(name, good_init_values) }
+  let(:base_class){ PulseMeter::Sensor::Base }
   let(:redis){ PulseMeter.redis }
 
   before(:each) do
@@ -13,6 +14,31 @@ shared_examples_for "timeline sensor" do |extra_init_values|
     @raw_data_key = sensor.raw_data_key(@interval_id) 
     @next_raw_data_key = sensor.raw_data_key(@interval_id + interval)
     @start_of_interval = Time.at(@interval_id)
+  end
+
+  describe "#dump" do
+    it "should be dumped succesfully" do
+      expect {sensor.dump!}.not_to raise_exception
+    end
+  end
+
+  describe ".restore" do
+    before do
+      sensor.dump!
+      @restored = base_class.restore(sensor.name)
+    end
+
+    it "should restore #{described_class} instance" do
+      @restored.should be_instance_of(described_class)
+    end
+
+    it "should restored object with the same data" do
+      def inner_data(obj)
+        obj.instance_variables.sort.map {|v| obj.instance_variable_get(v)}
+      end
+      
+      inner_data(sensor).should == inner_data(@restored)
+    end
   end
 
   describe "#event" do

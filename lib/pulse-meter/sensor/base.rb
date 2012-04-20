@@ -1,11 +1,14 @@
 module PulseMeter
   module Sensor
     class Base
+      include PulseMeter::Mixins::Dumper
+
       attr_accessor :redis
       attr_reader :name
 
       def initialize(name, options={})
         @name = name.to_s
+        @options = options
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
         raise RedisNotInitialized unless PulseMeter.redis
       end

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe PulseMeter::Utils do
+describe PulseMeter::Mixins::Utils do
   class Dummy
-    include PulseMeter::Utils
+    include PulseMeter::Mixins::Utils
   end
 
   let(:dummy){ Dummy.new }
@@ -10,7 +10,7 @@ describe PulseMeter::Utils do
   describe '#constantize' do
     context "when argument is a string with a valid class name" do
       it "should return class" do
-        dummy.constantize("PulseMeter::Utils").should == PulseMeter::Utils
+        dummy.constantize("PulseMeter::Mixins::Utils").should == PulseMeter::Mixins::Utils
       end
     end
     context "when argument is a string with invalid class name" do

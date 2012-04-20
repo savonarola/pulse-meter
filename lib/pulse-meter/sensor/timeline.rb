@@ -3,7 +3,7 @@ require 'securerandom'
 module PulseMeter
   module Sensor
     class Timeline < Base
-      include PulseMeter::Utils
+      include PulseMeter::Mixins::Utils
 
       attr_reader :interval, :ttl, :raw_data_ttl, :reduce_delay
 
