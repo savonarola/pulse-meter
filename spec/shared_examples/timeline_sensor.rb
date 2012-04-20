@@ -32,7 +32,7 @@ shared_examples_for "timeline sensor" do |extra_init_values|
       @restored.should be_instance_of(described_class)
     end
 
-    it "should restored object with the same data" do
+    it "should restore object with the same data" do
       def inner_data(obj)
         obj.instance_variables.sort.map {|v| obj.instance_variable_get(v)}
       end
