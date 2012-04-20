@@ -7,6 +7,7 @@ require 'pulse-meter/sensor/timelined/counter'
 require 'pulse-meter/sensor/timelined/min'
 require 'pulse-meter/sensor/timelined/max'
 require 'pulse-meter/sensor/timelined/percentile'
+require 'pulse-meter/sensor/timelined/median'
 
 module PulseMeter
 
