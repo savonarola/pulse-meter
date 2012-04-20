@@ -1,5 +1,3 @@
-require 'securerandom'
-
 module PulseMeter
   module Mixins
     module Dumper
