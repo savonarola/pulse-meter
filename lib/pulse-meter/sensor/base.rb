@@ -8,7 +8,6 @@ module PulseMeter
 
       def initialize(name, options={})
         @name = name.to_s
-        @options = options
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
         raise RedisNotInitialized unless PulseMeter.redis
       end
