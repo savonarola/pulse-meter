@@ -8,11 +8,11 @@ module PulseMeter
       attr_reader :interval, :ttl, :raw_data_ttl, :reduce_delay
 
       def initialize(name, options)
-        super
         @interval = assert_positive_integer!(options, :interval)
         @ttl = assert_positive_integer!(options, :ttl)
         @raw_data_ttl = assert_positive_integer!(options, :raw_data_ttl)
         @reduce_delay = assert_positive_integer!(options, :reduce_delay)
+        super
       end
 
       def cleanup
