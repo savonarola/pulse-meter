@@ -3,7 +3,7 @@ require 'spec_helper'
 describe PulseMeter::Sensor::Base do
   let(:name){ :some_sensor }
   let(:description) {"Le awesome description"}
-  let(:sensor){ described_class.new(name) }
+  let!(:sensor){ described_class.new(name) }
   let(:redis){ PulseMeter.redis }
 
   describe '#initialize' do
@@ -11,6 +11,10 @@ describe PulseMeter::Sensor::Base do
       it "should raise RedisNotInitialized exception" do
         PulseMeter.redis = nil
         expect{ described_class.new(:foo) }.to raise_exception(PulseMeter::RedisNotInitialized)
+      end
+
+      it "should save dump to redis automatically to let the object be restored by name" do
+        described_class.restore(name).should be_instance_of(described_class)
       end
     end
 
@@ -41,8 +45,7 @@ describe PulseMeter::Sensor::Base do
   describe '#annotate' do
 
     it "should store sensor annotation in redis" do
-      sensor.annotate(description)
-      redis.keys('*').count.should == 1
+      expect {sensor.annotate(description)}.to change{redis.keys('*').count}.by(1)
     end
 
   end

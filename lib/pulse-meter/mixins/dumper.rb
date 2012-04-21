@@ -16,6 +16,10 @@ module PulseMeter
           raise DumpError, "#name attribute must be readable" unless self.respond_to?(:name)
           raise DumpError, "#redis attribute must be available" unless self.respond_to?(:redis) && self.redis
         end
+
+        def cleanup_dump
+          redis.del(DUMP_REDIS_KEY)
+        end
       end
 
       module ClassMethods
