@@ -12,10 +12,6 @@ describe PulseMeter::Sensor::Base do
         PulseMeter.redis = nil
         expect{ described_class.new(:foo) }.to raise_exception(PulseMeter::RedisNotInitialized)
       end
-
-      it "should save dump to redis automatically to let the object be restored by name" do
-        described_class.restore(name).should be_instance_of(described_class)
-      end
     end
 
     context 'when PulseMeter.redis is initialized' do
@@ -37,6 +33,10 @@ describe PulseMeter::Sensor::Base do
           sensor = described_class.new(:foo)
           sensor.name.should == 'foo'
           sensor.redis.should == PulseMeter.redis
+        end
+
+        it "should save dump to redis automatically to let the object be restored by name" do
+          described_class.restore(name).should be_instance_of(described_class)
         end
       end
     end
