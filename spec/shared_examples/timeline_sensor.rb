@@ -24,7 +24,8 @@ shared_examples_for "timeline sensor" do |extra_init_values|
 
   describe ".restore" do
     before do
-      @dumped = described_class.new(name, good_init_values)
+      # no need to call sensor.dump! explicitly for it
+      # will be called automatically after creation
       @restored = base_class.restore(sensor.name)
     end
 
@@ -37,7 +38,7 @@ shared_examples_for "timeline sensor" do |extra_init_values|
         obj.instance_variables.sort.map {|v| obj.instance_variable_get(v)}
       end
       
-      inner_data(@dumped).should == inner_data(@restored)
+      inner_data(sensor).should == inner_data(@restored)
     end
   end
 
