@@ -52,6 +52,12 @@ module PulseMeter
         end
       end
 
+      def self.reduce_all_raw
+        list_objects.each do |sensor|
+          sensor.reduce_all_raw if sensor.respond_to? :reduce_all_raw
+        end
+      end
+
       def timeline(time_ago)
         raise ArgumentError unless time_ago.respond_to?(:to_i) && time_ago.to_i > 0
         now = Time.now.to_i

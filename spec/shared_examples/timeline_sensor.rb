@@ -1,4 +1,10 @@
 shared_examples_for "timeline sensor" do |extra_init_values|
+  class Dummy
+    include PulseMeter::Mixins::Dumper
+    def name; :dummy end
+    def redis; PulseMeter.redis; end
+  end
+
   let(:name){ :some_value_with_history }
   let(:ttl){ 100 }
   let(:raw_data_ttl){ 30 }
@@ -6,6 +12,7 @@ shared_examples_for "timeline sensor" do |extra_init_values|
   let(:reduce_delay){ 3 }
   let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay}.merge(extra_init_values || {}) }
   let!(:sensor){ described_class.new(name, good_init_values) }
+  let(:dummy) {Dummy.new}
   let(:base_class){ PulseMeter::Sensor::Base }
   let(:redis){ PulseMeter.redis }
 
@@ -139,6 +146,18 @@ shared_examples_for "timeline sensor" do |extra_init_values|
       expect{
         Timecop.freeze(@start_of_interval + interval + reduce_delay - 1) { sensor.reduce_all_raw }
       }.not_to change{ redis.keys(sensor.data_key('*')).count }
+    end
+  end
+
+  describe ".reduce_all_raw" do
+    it "should silently skip objects without reduce logic" do
+      dummy.dump!
+      expect {described_class.reduce_all_raw}.not_to raise_exception
+    end
+
+    it "should send reduce_all_raw to all dumped objects" do
+      described_class.any_instance.should_receive(:reduce_all_raw)
+      described_class.reduce_all_raw
     end
   end
 
