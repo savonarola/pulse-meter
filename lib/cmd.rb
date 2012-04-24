@@ -34,9 +34,6 @@ module Cmd
     desc "sensors", "List all sensors available"
     def sensors
       init_redis!
-      init_values = {:ttl => 3600, :raw_data_ttl => 600, :interval => 10, :reduce_delay => 3}
-      max = PulseMeter::Sensor::Timelined::Max.new(:max, init_values)
-      median = PulseMeter::Sensor::Timelined::Median.new(:median, init_values)
       puts all_sensors_table('Registered sensors')
     end
 
