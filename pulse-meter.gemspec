@@ -2,10 +2,10 @@
 require File.expand_path('../lib/pulse-meter/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Ilya Averyanov"]
-  gem.email         = ["av@fun-box.ru"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.authors       = ["Ilya Averyanov", "Sergey Averyanov"]
+  gem.email         = ["av@fun-box.ru", "averyanov@gmail.com"]
+  gem.description   = %q{Lightweight metrics processor}
+  gem.summary       = %q{Lightweight metrics processor}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($\)
@@ -16,7 +16,8 @@ Gem::Specification.new do |gem|
   gem.version       = PulseMeter::VERSION
 
   gem.add_runtime_dependency('redis')
-  #gem.add_runtime_dependency('resque')
+  gem.add_runtime_dependency('thor')
+  gem.add_runtime_dependency('terminal-table')
 
   gem.add_development_dependency('mock_redis')
   gem.add_development_dependency('rake')
