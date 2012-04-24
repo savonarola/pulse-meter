@@ -19,7 +19,7 @@ module Cmd
       end
 
       def all_sensors_table(title = '')
-        table = Terminal::Table.new
+        table = Terminal::Table.new :title => title
         table << ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"]
         table << :separator
         all_sensors.each {|s| table << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]}
