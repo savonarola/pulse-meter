@@ -28,12 +28,7 @@ module PulseMeter
   end
 
   class DumpError < SensorError; end
-
-  class RestoreError < SensorError
-    def initialize
-      super("object cannot be restored")
-    end
-  end
+  class RestoreError < SensorError; end
 
 end
   

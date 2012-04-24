@@ -27,7 +27,22 @@ module PulseMeter
           serialized_obj = PulseMeter.redis.hget(DUMP_REDIS_KEY, name)
           Marshal.load(serialized_obj)
         rescue
-          raise RestoreError
+          raise RestoreError, "cannot restore #{name}"
+        end
+
+        def list_names
+          PulseMeter.redis.hkeys(DUMP_REDIS_KEY)
+        rescue
+          raise RestoreError, "cannot get data from redis"
+        end
+
+        def list_objects
+          list_names.each_with_object([]) do |name, objects|
+            begin
+              objects << restore(name)
+            rescue
+            end
+          end
         end
       end
 

@@ -19,7 +19,7 @@ describe PulseMeter::Mixins::Dumper do
 
   class Good < Base
     attr_accessor :foo
-    def name; :name; end
+    def name; foo.to_s; end
 
     def redis; PulseMeter.redis; end
 
@@ -31,6 +31,7 @@ describe PulseMeter::Mixins::Dumper do
   let(:bad_obj){ Bad.new }
   let(:undumpable_obj){ Undumpable.new }
   let(:good_obj){ Good.new(:foo) }
+  let(:another_good_obj){ Good.new(:bar) }
   let(:redis){ PulseMeter.redis }
 
   describe '#dump' do
@@ -102,6 +103,48 @@ describe PulseMeter::Mixins::Dumper do
         restored = Base.restore(good_obj.name)
         restored.foo.should == :bar
       end
+    end
+  end
+
+  describe ".list_names" do
+    context "when redis is not available" do
+      before do
+        PulseMeter.stub(:redis).and_return(nil)
+      end
+
+      it "should raise exception" do
+        expect {Base.list_names}.to raise_exception(PulseMeter::RestoreError)
+      end
+    end
+
+    context "when redis if fine" do
+      it "should return empty list if nothing is registered" do
+        Base.list_names.should == []
+      end
+
+      it "should return list of registered objects" do
+        good_obj.dump!
+        another_good_obj.dump!
+        Base.list_names.should =~ [good_obj.name, another_good_obj.name]
+      end
+    end
+  end
+
+  describe ".list_objects" do
+    before do
+      good_obj.dump!
+      another_good_obj.dump!
+    end
+
+    it "should return restored objects" do
+      objects = Base.list_objects
+      objects.map(&:name).should =~ [good_obj.name, another_good_obj.name]
+    end
+
+    it "should skip unrestorable objects" do
+      Base.stub(:list_names).and_return([good_obj.name, "scoundrel", another_good_obj.name])
+      objects = Base.list_objects
+      objects.map(&:name).should =~ [good_obj.name, another_good_obj.name]
     end
   end
 
