@@ -1,6 +1,6 @@
-require 'pulse-meter/web-visualize'
+require 'pulse-meter/visualizer'
 
-PulseMeter::WebVisualize.draw do
+visualizer = PulseMeter::Visualizer.draw do
   
   title "My Gauges"
   
@@ -45,3 +45,5 @@ PulseMeter::WebVisualize.draw do
 
 end
 
+require 'yaml'
+puts visualizer.to_yaml
