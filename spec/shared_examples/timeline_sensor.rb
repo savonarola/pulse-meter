@@ -1,11 +1,19 @@
-shared_examples_for "timeline sensor" do
+shared_examples_for "timeline sensor" do |extra_init_values|
+  class Dummy
+    include PulseMeter::Mixins::Dumper
+    def name; :dummy end
+    def redis; PulseMeter.redis; end
+  end
+
   let(:name){ :some_value_with_history }
   let(:ttl){ 100 }
   let(:raw_data_ttl){ 30 }
   let(:interval){ 5 }
   let(:reduce_delay){ 3 }
-  let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay} }
+  let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay}.merge(extra_init_values || {}) }
   let!(:sensor){ described_class.new(name, good_init_values) }
+  let(:dummy) {Dummy.new}
+  let(:base_class){ PulseMeter::Sensor::Base }
   let(:redis){ PulseMeter.redis }
 
   before(:each) do
@@ -13,6 +21,32 @@ shared_examples_for "timeline sensor" do
     @raw_data_key = sensor.raw_data_key(@interval_id) 
     @next_raw_data_key = sensor.raw_data_key(@interval_id + interval)
     @start_of_interval = Time.at(@interval_id)
+  end
+
+  describe "#dump" do
+    it "should be dumped succesfully" do
+      expect {sensor.dump!}.not_to raise_exception
+    end
+  end
+
+  describe ".restore" do
+    before do
+      # no need to call sensor.dump! explicitly for it
+      # will be called automatically after creation
+      @restored = base_class.restore(sensor.name)
+    end
+
+    it "should restore #{described_class} instance" do
+      @restored.should be_instance_of(described_class)
+    end
+
+    it "should restore object with the same data" do
+      def inner_data(obj)
+        obj.instance_variables.sort.map {|v| obj.instance_variable_get(v)}
+      end
+      
+      inner_data(sensor).should == inner_data(@restored)
+    end
   end
 
   describe "#event" do
@@ -112,6 +146,18 @@ shared_examples_for "timeline sensor" do
       expect{
         Timecop.freeze(@start_of_interval + interval + reduce_delay - 1) { sensor.reduce_all_raw }
       }.not_to change{ redis.keys(sensor.data_key('*')).count }
+    end
+  end
+
+  describe ".reduce_all_raw" do
+    it "should silently skip objects without reduce logic" do
+      dummy.dump!
+      expect {described_class.reduce_all_raw}.not_to raise_exception
+    end
+
+    it "should send reduce_all_raw to all dumped objects" do
+      described_class.any_instance.should_receive(:reduce_all_raw)
+      described_class.reduce_all_raw
     end
   end
 

@@ -4,8 +4,10 @@ require 'pulse-meter/sensor/indicator'
 require 'pulse-meter/sensor/timeline'
 require 'pulse-meter/sensor/timelined/average'
 require 'pulse-meter/sensor/timelined/counter'
-require 'pulse-meter/sensor/timelined/max'
 require 'pulse-meter/sensor/timelined/min'
+require 'pulse-meter/sensor/timelined/max'
+require 'pulse-meter/sensor/timelined/percentile'
+require 'pulse-meter/sensor/timelined/median'
 
 module PulseMeter
 
@@ -24,6 +26,9 @@ module PulseMeter
       super("PulseMeter.redis is not set")
     end
   end
+
+  class DumpError < SensorError; end
+  class RestoreError < SensorError; end
 
 end
   

@@ -1,6 +1,7 @@
 require "redis"
 require "pulse-meter/version"
-require "pulse-meter/utils"
+require "pulse-meter/mixins/dumper"
+require "pulse-meter/mixins/utils"
 require "pulse-meter/sensor"
 
 module PulseMeter

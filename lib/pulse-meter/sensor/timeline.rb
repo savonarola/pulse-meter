@@ -3,16 +3,16 @@ require 'securerandom'
 module PulseMeter
   module Sensor
     class Timeline < Base
-      include PulseMeter::Utils
+      include PulseMeter::Mixins::Utils
 
       attr_reader :interval, :ttl, :raw_data_ttl, :reduce_delay
 
       def initialize(name, options)
-        super
         @interval = assert_positive_integer!(options, :interval)
         @ttl = assert_positive_integer!(options, :ttl)
         @raw_data_ttl = assert_positive_integer!(options, :raw_data_ttl)
         @reduce_delay = assert_positive_integer!(options, :reduce_delay)
+        super
       end
 
       def cleanup
@@ -49,6 +49,12 @@ module PulseMeter
           interval_id = key.split(':').last
           next if Time.at(interval_id.to_i) > min_time
           reduce(interval_id)
+        end
+      end
+
+      def self.reduce_all_raw
+        list_objects.each do |sensor|
+          sensor.reduce_all_raw if sensor.respond_to? :reduce_all_raw
         end
       end
 

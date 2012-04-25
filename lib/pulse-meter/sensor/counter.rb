@@ -16,8 +16,7 @@ module PulseMeter
       end
 
       def value
-        val = redis.get(value_key)
-        val.nil? ? 0 : val.to_i
+        redis.get(value_key).to_i
       end
 
       def value_key

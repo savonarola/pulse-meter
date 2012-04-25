@@ -1,6 +1,8 @@
 module PulseMeter
   module Sensor
     class Base
+      include PulseMeter::Mixins::Dumper
+
       attr_accessor :redis
       attr_reader :name
 
@@ -8,6 +10,7 @@ module PulseMeter
         @name = name.to_s
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
         raise RedisNotInitialized unless PulseMeter.redis
+        dump!
       end
 
       def redis
@@ -24,6 +27,7 @@ module PulseMeter
 
       def cleanup
         redis.del(desc_key)
+        cleanup_dump
       end
 
       def event(value)

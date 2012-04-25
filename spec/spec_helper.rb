@@ -5,6 +5,7 @@ $:.unshift File.expand_path('../../lib/', __FILE__)
 ROOT = File.expand_path('../..', __FILE__)
 
 require 'pulse-meter'
+require 'test_helpers/matchers'
 
 Bundler.require(:default, :test, :development)
 
@@ -15,5 +16,6 @@ RSpec.configure do |config|
   config.before(:each) { PulseMeter.redis = MockRedis.new }
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
+  config.include(TestHelpers::Matchers)
 end
 

@@ -1,13 +1,7 @@
-require 'securerandom'
-
 module PulseMeter
   module Sensor
     module Timelined
       class Max < Timeline
-
-        def uniqid
-          SecureRandom.hex(32)
-        end
 
         def aggregate_event(key, value)
           redis.zadd(key, value, "#{value}::#{uniqid}")
