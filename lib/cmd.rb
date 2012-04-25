@@ -25,19 +25,23 @@ module Cmd
         all_sensors.each {|s| table << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]}
         table
       end
+
+      def self.common_options
+        method_option :host, :default => '127.0.0.1', :desc => "Redis host"
+        method_option :port, :default => 6379, :desc => "Redis port"
+        method_option :db, :default => 0, :desc => "Redis db"
+      end
     end
 
-    method_option :host, :default => '127.0.0.1', :desc => "Redis host"
-    method_option :port, :default => 6379, :desc => "Redis port"
-    method_option :db, :default => 0, :desc => "Redis db"
-
     desc "sensors", "List all sensors available"
+    common_options
     def sensors
       init_redis!
       puts all_sensors_table('Registered sensors')
     end
 
     desc "reduce", "Execute reduction for all sensors' raw data"
+    common_options
     def reduce
       init_redis!
       puts all_sensors_table('Registered sensors to be reduced')
@@ -47,6 +51,7 @@ module Cmd
     end
 
     desc "event NAME VALUE", "Send event VALUE to sensor NAME"
+    common_options
     def event(name, value)
       init_redis!
       sensor = PulseMeter::Sensor::Base.restore name
@@ -57,6 +62,7 @@ module Cmd
     end
 
     desc "timeline NAME SECONDS", "Get sensor's NAME timeline for last SECONDS"
+    common_options
     def timeline(name, seconds)
       init_redis!
       sensor = PulseMeter::Sensor::Timeline.restore name
