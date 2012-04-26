@@ -6,12 +6,16 @@ module PulseMeter
       include PulseMeter::Mixins::Utils
 
       attr_reader :interval, :ttl, :raw_data_ttl, :reduce_delay
+      DEFAULTS = {
+        :raw_data_ttl => 3600,
+        :reduce_delay => 60,
+      }
 
       def initialize(name, options)
         @interval = assert_positive_integer!(options, :interval)
         @ttl = assert_positive_integer!(options, :ttl)
-        @raw_data_ttl = assert_positive_integer!(options, :raw_data_ttl)
-        @reduce_delay = assert_positive_integer!(options, :reduce_delay)
+        @raw_data_ttl = assert_positive_integer!(options, :raw_data_ttl, DEFAULTS[:raw_data_ttl])
+        @reduce_delay = assert_positive_integer!(options, :reduce_delay, DEFAULTS[:reduce_delay])
         super
       end
 

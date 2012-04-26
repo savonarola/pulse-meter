@@ -10,8 +10,8 @@ module PulseMeter
         nil
       end
 
-      def assert_positive_integer!(options, key)
-        value = options[key]
+      def assert_positive_integer!(options, key, default = nil)
+        value = options[key] || default
         raise ArgumentError, "#{key} should be defined" unless value
         raise ArgumentError, "#{key} should be integer" unless value.respond_to?(:to_i)
         raise ArgumentError, "#{key} should be positive" unless value.to_i > 0
