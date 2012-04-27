@@ -93,4 +93,12 @@ describe PulseMeter::Mixins::Utils do
       uniq_values.uniq.count.should == uniq_values.count
     end
   end
+
+  describe "#titleize" do
+    it "should convert identificator to title" do
+      dummy.titleize("aaa_bbb").should == 'Aaa Bbb'
+      dummy.titleize(:aaa_bbb).should == 'Aaa Bbb'
+      dummy.titleize("aaa bbb").should == 'Aaa Bbb'
+    end
+  end
 end

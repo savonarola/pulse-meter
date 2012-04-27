@@ -1,19 +1,17 @@
 require 'pulse-meter/visualizer'
 
+PulseMeter.redis = Redis.new
+
 visualizer = PulseMeter::Visualizer.draw do
   
   title "My Gauges"
   
-  redis 'redis://192.168.1.3:12'
-
   chart :convertion do
     sensor :adv_clicks, color: :green
     sensor :adv_shows, color: :red
   end
 
-  redis 'redis://192.168.1.1:12'
-
-  pie :agents do
+  pie :agents, title: 'User Agents' do
     sensor :agent_ie
     sensor :agent_chrome
     sensor :agent_ff

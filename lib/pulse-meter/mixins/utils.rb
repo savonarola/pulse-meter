@@ -30,6 +30,11 @@ module PulseMeter
       def uniqid
         SecureRandom.hex(32)
       end
+
+      def titleize(str)
+        raise ArgumentError unless str.respond_to?(:to_s)
+        str.to_s.split(/[\s_]+/).map(&:capitalize).join(' ')
+      end
     end
   end
 end

@@ -1,20 +1,25 @@
 require 'pulse-meter'
 
-require 'pulse-meter/visualize/dsl/widget'
-require 'pulse-meter/visualize/dsl/pie'
-require 'pulse-meter/visualize/dsl/chart'
-
-require 'pulse-meter/visualize/dsl/layout'
-require 'pulse-meter/visualize/dsl/page'
+# DSL
 
 require 'pulse-meter/visualize/dsl/sensor'
+require 'pulse-meter/visualize/dsl/widget'
+require 'pulse-meter/visualize/dsl/page'
+require 'pulse-meter/visualize/dsl/layout'
+
+# Visualize
+
+require 'pulse-meter/visualize/sensor'
+require 'pulse-meter/visualize/widget'
+require 'pulse-meter/visualize/layout'
+require 'pulse-meter/visualize/page'
 
 module PulseMeter
   class Visualizer
     def self.draw(&block) 
-      layout = PulseMeter::Visualize::DSL::Layout.new
-      layout.instance_eval &block
-      layout
+      layout_cofigurator = PulseMeter::Visualize::DSL::Layout.new
+      layout_cofigurator.instance_eval &block
+      layout_cofigurator.to_layout
     end
   end
 end
