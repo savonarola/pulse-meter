@@ -73,5 +73,16 @@ module Cmd
       puts "Sensor #{name} is unknown or cannot be restored"
     end
 
+    desc "delete NAME", "Delete sensor by name"
+    common_options
+    def delete(name)
+      init_redis!
+      sensor = PulseMeter::Sensor::Timeline.restore name
+      sensor.cleanup
+      puts "Sensor #{name} deleted"
+    rescue PulseMeter::RestoreError
+      puts "Sensor #{name} is unknown or cannot be restored"
+    end
+
   end
 end

@@ -151,8 +151,8 @@ describe PulseMeter::Mixins::Dumper do
   describe "#cleanup_dump" do
     it "should remove data from redis" do
       good_obj.dump!
-      good_obj.cleanup_dump
-      redis.keys('*').count.should == 0
+      another_good_obj.dump!
+      expect {good_obj.cleanup_dump}.to change{good_obj.class.list_names.count}.by(-1)
     end
   end
 end

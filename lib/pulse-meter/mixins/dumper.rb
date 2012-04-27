@@ -18,7 +18,7 @@ module PulseMeter
         end
 
         def cleanup_dump
-          redis.del(DUMP_REDIS_KEY)
+          redis.hdel(DUMP_REDIS_KEY, self.name)
         end
       end
 
