@@ -7,10 +7,24 @@ describe PulseMeter::Visualize::DSL::Sensor do
 
   describe '.new' do
     it "should save passed name and create Visualize::Sensor with it" do
-      described_class.new(:foo).to_sensor.timeline(10)[:name].to_s.should == name
+      described_class.new(name).to_sensor.timeline(10)[:name].to_s.should == name
     end
   end
 
+  describe '#process_args' do
+    it "should pass args transparently to Visualize::Sensor" do
+      s = described_class.new(name)
+      s.process_args :color => :red
+      s.to_sensor.timeline(10)[:color].to_s.should == 'red'
+    end
+  end
+
+  describe '#to_sensor' do
+    # actually tested above
+    it "should convert dsl data to sensor" do
+      described_class.new(name).to_sensor.should be_kind_of(PulseMeter::Visualize::Sensor)
+    end
+  end
 
 end
 

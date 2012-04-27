@@ -24,7 +24,7 @@ module PulseMeter
       protected
 
       def real_sensor
-        # TODO add caching if this will be called too frequently
+        # TODO add !temporarily! caching if this will be called too frequently
         PulseMeter::Sensor::Base.restore(@name)
       rescue RestoreError
         nil

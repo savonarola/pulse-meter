@@ -2,6 +2,7 @@ require 'pulse-meter'
 
 # DSL
 
+require 'pulse-meter/visualize/dsl/errors'
 require 'pulse-meter/visualize/dsl/sensor'
 require 'pulse-meter/visualize/dsl/widget'
 require 'pulse-meter/visualize/dsl/page'

@@ -3,7 +3,7 @@ module PulseMeter
     module DSL
       class Sensor
         def initialize(name)
-          @name = name 
+          @args = {:sensor => name}
         end
 
         def process_args(args) 
@@ -11,10 +11,8 @@ module PulseMeter
         end
 
         def to_sensor
-          @args ||= {}
-          PulseMeter::Visualize::Sensor.new(@args.merge(:sensor => @name))
+          PulseMeter::Visualize::Sensor.new(@args)
         end
-
       end
     end
   end
