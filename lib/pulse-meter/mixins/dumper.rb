@@ -1,7 +1,7 @@
 module PulseMeter
   module Mixins
     module Dumper
-      DUMP_REDIS_KEY = "pulse_meter::dump" 
+      DUMP_REDIS_KEY = "pulse_meter:dump"
 
       module InstanceMethods
         def dump!
