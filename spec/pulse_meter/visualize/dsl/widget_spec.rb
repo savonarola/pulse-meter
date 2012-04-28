@@ -3,9 +3,11 @@ require 'spec_helper'
 describe PulseMeter::Visualize::DSL::Widget do
   let(:interval){ 100 }
   let(:name) { "some_sensor" }
-  let(:type) { :some_type }
   let!(:sensor){ PulseMeter::Sensor::Timelined::Max.new(name, :ttl => 1000, :interval => interval) }
-  let(:w){ described_class.new(type, name)  }
+  
+  let(:type) { :some_type }
+  let(:widget_name){ "some_widget" }
+  let(:w){ described_class.new(type, widget_name)  }
 
   describe '.new' do
     it "should raise exception if name arg is empty" do
@@ -13,15 +15,15 @@ describe PulseMeter::Visualize::DSL::Widget do
     end
 
     it "should raise exception if type arg is empty" do
-      lambda{ described_class.new('', name) }.should raise_exception(PulseMeter::Visualize::DSL::BadWidgetType)
+      lambda{ described_class.new('', widget_name) }.should raise_exception(PulseMeter::Visualize::DSL::BadWidgetType)
     end
 
     it "should set default values for name, title, width paprams" do
       wid = w.to_widget
-      wid.name.should == name
+      wid.name.should == widget_name
       wid.type.should == :some_type
       wid.width.should == PulseMeter::Visualize::DSL::Widget::DEFAULT_WIDTH
-      wid.title.should == "Some Sensor"
+      wid.title.should == "Some Widget"
       wid.sensors.should == []
     end
   end
