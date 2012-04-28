@@ -1,11 +1,6 @@
 require 'thor'
 require 'terminal-table'
 
-# Example:
-# init_values = {:ttl => 3600, :raw_data_ttl => 600, :interval => 10, :reduce_delay => 3}
-# max = PulseMeter::Sensor::Timelined::Max.new(:max, init_values)
-# median = PulseMeter::Sensor::Timelined::Median.new(:median, init_values)
-
 module Cmd
   class All < Thor
     include PulseMeter::Mixins::Utils
@@ -16,7 +11,10 @@ module Cmd
       end
 
       def with_safe_restore_of(name, &block)
-        with_redis(&block)
+        with_redis do
+          sensor = PulseMeter::Sensor::Base.restore(name)
+          block.call(sensor)
+        end
       rescue PulseMeter::RestoreError
         fail! "Sensor #{name} is unknown or cannot be restored"
       end
@@ -70,14 +68,13 @@ module Cmd
     desc "event NAME VALUE", "Send event VALUE to sensor NAME"
     common_options
     def event(name, value)
-      with_safe_restore_of(name) {PulseMeter::Sensor::Base.restore(name).event(value)}
+      with_safe_restore_of(name) {|sensor| sensor.event(value)}
     end
 
     desc "timeline NAME SECONDS", "Get sensor's NAME timeline for last SECONDS"
     common_options
     def timeline(name, seconds)
-      with_safe_restore_of(name) do
-        sensor = PulseMeter::Sensor::Timeline.restore name
+      with_safe_restore_of(name) do |sensor|
         table = Terminal::Table.new
         sensor.timeline(seconds).each {|data| table << [data.start_time, data.value || '-']}
         puts table
@@ -87,7 +84,7 @@ module Cmd
     desc "delete NAME", "Delete sensor by name"
     common_options
     def delete(name)
-      with_safe_restore_of(name) {PulseMeter::Sensor::Timeline.restore(name).cleanup}
+      with_safe_restore_of(name) {|sensor| sensor.cleanup}
       puts "Sensor #{name} deleted"
     end
 
@@ -123,8 +120,7 @@ module Cmd
 
     desc "value NAME", "Get value of non-timelined sensor"
     def value(name)
-      with_safe_restore_of(name) do
-        sensor = PulseMeter::Sensor::Timeline.restore(name)
+      with_safe_restore_of(name) do |sensor|
         fail! "Sensor #{name} has no value method" unless sensor.respond_to?(:value)
         puts "Value: #{sensor.value}"
       end
