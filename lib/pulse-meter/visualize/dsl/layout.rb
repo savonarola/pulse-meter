@@ -2,12 +2,13 @@ module PulseMeter
   module Visualize
     module DSL
       class Layout
+        DEFAULT_REDRAW_INTERVAL = 0
+        DEFAULT_TITLE = "Pulse Meter"
 
         def initialize
-          @widgets = {}
-          @ordered_widgets = []
-          WIDGETS.keys.each{|k| @widgets[k] = {}}
           @pages = []
+          @title = DEFAULT_TITLE
+          @redraw_interval = DEFAULT_REDRAW_INTERVAL
         end
 
         def title(title)
@@ -19,14 +20,14 @@ module PulseMeter
         end
 
         def page(title, &block)
-          page = PulseMeter::Visualize::DSL::Page.new(title, widgets: @widgets)
-          page.instance_eval &block
+          page = PulseMeter::Visualize::DSL::Page.new(title)
+          yield(page)
           @pages << page
         end
 
         def dashboard(&block)
-          page = PulseMeter::Visualize::DSL::Page.new('', widgets: @widgets)
-          page.instance_eval &block
+          page = PulseMeter::Visualize::DSL::Page.new
+          yield(page)
           @dashboard = page
         end
 
@@ -36,10 +37,7 @@ module PulseMeter
           dashboard = if @dashboard
             @dashboard.to_page
           else
-            raise PulseMeter::Visualize::NoWidgets if @ordered_widgets.empty?
-            dashboard_page = PulseMeter::Visualize::DSL::Page.new('', widgets: @widgets)
-            @ordered_widgets.each{ |(type, name)| dashboard_page.widget(type, name)}
-            dashboard_page.to_page
+            nil
           end
           redraw_interval = @redraw_interval || 0
           PulseMeter::Visualize::Layout.new( {

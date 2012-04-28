@@ -19,7 +19,7 @@ module PulseMeter
   class Visualizer
     def self.draw(&block) 
       layout_cofigurator = PulseMeter::Visualize::DSL::Layout.new
-      layout_cofigurator.instance_eval &block
+      yield(layout_cofigurator)
       layout_cofigurator.to_layout
     end
   end

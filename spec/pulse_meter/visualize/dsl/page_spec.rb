@@ -66,5 +66,11 @@ describe PulseMeter::Visualize::DSL::Page do
     end
   end
 
+  describe "#to_page" do
+    it "should convert DSL data to Visualize::Page" do
+      page.to_page.should be_kind_of(PulseMeter::Visualize::Page)
+    end
+  end
+
 end
 
