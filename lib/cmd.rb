@@ -28,7 +28,13 @@ module Cmd
         table = Terminal::Table.new :title => title
         table << ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"]
         table << :separator
-        all_sensors.each {|s| table << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]}
+        all_sensors.each do |s|
+          if s.kind_of? PulseMeter::Sensor::Timeline
+            table << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]
+          else
+            table << [s.name, s.class] + ['-'] * 4
+          end
+        end
         table
       end
 
@@ -90,7 +96,7 @@ module Cmd
       fail! "Sensor #{name} is unknown or cannot be restored"
     end
 
-    desc "create NAME TYPE", "create sensor of given type"
+    desc "create NAME TYPE", "Create sensor of given type"
     common_options
     method_option :interval, :required => true, :type => :numeric, :desc => "Rotation interval"
     method_option :ttl, :required => true, :type => :numeric, :desc => "How long summarized data will be stored"
@@ -99,12 +105,36 @@ module Cmd
     method_option :annotation, :type => :string, :desc => "Sensor annotation"
     def create(name, type)
       with_redis do
-        klass = constantize("PulseMeter::Sensor::Timelined::%s" % type.capitalize)
+        klass = constantize("PulseMeter::Sensor::Timelined::#{type.capitalize}")
         fail! "Unknown sensor type #{type}" unless klass
         sensor = klass.new(name, options.dup)
         puts "Sensor created"
         puts all_sensors_table
       end
+    end
+
+    desc "create_simple NAME TYPE", "Create simple non-timelined sensor of given type"
+    common_options
+    method_option :annotation, :type => :string, :desc => "Sensor annotation"
+    def create_simple(name, type)
+      with_redis do
+        klass = constantize("PulseMeter::Sensor::#{type.capitalize}")
+        fail! "Unknown sensor type #{type}" unless klass
+        sensor = klass.new(name, options.dup)
+        puts "Sensor created"
+        puts all_sensors_table
+      end
+    end
+
+    desc "value NAME", "Get value of non-timelined sensor"
+    def value(name)
+      with_redis do
+        sensor = PulseMeter::Sensor::Timeline.restore(name)
+        fail! "Sensor #{name} has no value method" unless sensor.respond_to?(:value)
+        puts "Value: #{sensor.value}"
+      end
+    rescue PulseMeter::RestoreError
+      fail! "Sensor #{name} is unknown or cannot be restored"
     end
 
   end
