@@ -116,7 +116,7 @@ module Cmd
     method_option :annotation, :type => :string, :desc => "Sensor annotation"
     def create_simple(name, type)
       with_redis do
-        klass = constantize("PulseMeter::Sensor::#{type.capitalize}")
+        klass = constantize("PulseMeter::Sensor::#{type}")
         fail! "Unknown sensor type #{type}" unless klass
         sensor = klass.new(name, options.dup)
         puts "Sensor created"

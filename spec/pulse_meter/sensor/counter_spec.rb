@@ -31,7 +31,7 @@ describe PulseMeter::Sensor::Counter do
     it "should store stringified value by value_key" do
       sensor.event(123)
       sensor.value.should == 123
-      redis.get(sensor.value_key) == '123'
+      redis.get(sensor.value_key).should == '123'
     end
   end
 
