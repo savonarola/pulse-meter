@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency('redis')
   gem.add_runtime_dependency('thor')
+  gem.add_runtime_dependency('json')
   gem.add_runtime_dependency('terminal-table')
 
   gem.add_development_dependency('mock_redis')

@@ -1,5 +1,6 @@
 require 'thor'
 require 'terminal-table'
+require 'json'
 
 module Cmd
   class All < Thor
@@ -67,7 +68,11 @@ module Cmd
 
     desc "event NAME VALUE", "Send event VALUE to sensor NAME"
     common_options
+    method_option :format, :default => :plain, :desc => "Event format: plain or json"
     def event(name, value)
+      if "json" == options[:format]
+        value = JSON.parse(value)
+      end
       with_safe_restore_of(name) {|sensor| sensor.event(value)}
     end
 
@@ -97,7 +102,8 @@ module Cmd
     method_option :annotation, :type => :string, :desc => "Sensor annotation"
     def create(name, type)
       with_redis do
-        klass = constantize("PulseMeter::Sensor::Timelined::#{type.capitalize}")
+        klass = constantize("PulseMeter::Sensor::Timelined::#{type}")
+        puts "PulseMeter::Sensor::Timelined::#{type}"
         fail! "Unknown sensor type #{type}" unless klass
         sensor = klass.new(name, options.dup)
         puts "Sensor created"
