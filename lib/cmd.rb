@@ -10,14 +10,15 @@ module Cmd
   class All < Thor
     include PulseMeter::Mixins::Utils
     no_tasks do
-      def init_redis!
-        redis = Redis.new :host => options[:host], :port => options[:port], :db => options[:db]
-        PulseMeter.redis = redis
+      def with_redis
+        PulseMeter.redis = Redis.new :host => options[:host], :port => options[:port], :db => options[:db]
+        yield
       end
 
-      def with_redis
-        init_redis!
-        yield
+      def with_safe_restore_of(name, &block)
+        with_redis(&block)
+      rescue PulseMeter::RestoreError
+        fail! "Sensor #{name} is unknown or cannot be restored"
       end
 
       def all_sensors
@@ -69,31 +70,25 @@ module Cmd
     desc "event NAME VALUE", "Send event VALUE to sensor NAME"
     common_options
     def event(name, value)
-      with_redis {PulseMeter::Sensor::Base.restore(name).event(value)}
-    rescue PulseMeter::RestoreError
-      fail! "Sensor #{name} is unknown or cannot be restored"
+      with_safe_restore_of(name) {PulseMeter::Sensor::Base.restore(name).event(value)}
     end
 
     desc "timeline NAME SECONDS", "Get sensor's NAME timeline for last SECONDS"
     common_options
     def timeline(name, seconds)
-      with_redis do
+      with_safe_restore_of(name) do
         sensor = PulseMeter::Sensor::Timeline.restore name
         table = Terminal::Table.new
         sensor.timeline(seconds).each {|data| table << [data.start_time, data.value || '-']}
         puts table
       end
-    rescue PulseMeter::RestoreError
-      fail! "Sensor #{name} is unknown or cannot be restored"
     end
 
     desc "delete NAME", "Delete sensor by name"
     common_options
     def delete(name)
-      with_redis {PulseMeter::Sensor::Timeline.restore(name).cleanup}
+      with_safe_restore_of(name) {PulseMeter::Sensor::Timeline.restore(name).cleanup}
       puts "Sensor #{name} deleted"
-    rescue PulseMeter::RestoreError
-      fail! "Sensor #{name} is unknown or cannot be restored"
     end
 
     desc "create NAME TYPE", "Create sensor of given type"
@@ -128,13 +123,11 @@ module Cmd
 
     desc "value NAME", "Get value of non-timelined sensor"
     def value(name)
-      with_redis do
+      with_safe_restore_of(name) do
         sensor = PulseMeter::Sensor::Timeline.restore(name)
         fail! "Sensor #{name} has no value method" unless sensor.respond_to?(:value)
         puts "Value: #{sensor.value}"
       end
-    rescue PulseMeter::RestoreError
-      fail! "Sensor #{name} is unknown or cannot be restored"
     end
 
   end
