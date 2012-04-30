@@ -18,8 +18,10 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency('redis')
   gem.add_runtime_dependency('thor')
   gem.add_runtime_dependency('terminal-table')
+  gem.add_runtime_dependency('sinatra')
 
   gem.add_development_dependency('mock_redis')
+  gem.add_development_dependency('rack-test')
   gem.add_development_dependency('rake')
   gem.add_development_dependency('rspec')
   gem.add_development_dependency('timecop')
