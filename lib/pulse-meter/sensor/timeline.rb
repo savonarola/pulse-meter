@@ -88,11 +88,11 @@ module PulseMeter
       end
 
       def raw_data_key(id)
-        "raw:#{name}:#{id}"
+        "pulse_meter:raw:#{name}:#{id}"
       end
 
       def data_key(id)
-        "data:#{name}:#{id}"
+        "pulse_meter:data:#{name}:#{id}"
       end
 
       def get_interval_id(time)
@@ -116,4 +116,3 @@ module PulseMeter
     end
   end
 end
-

@@ -18,8 +18,8 @@ describe PulseMeter::Sensor::Counter do
   end
 
   describe "#value_key" do
-    it "should be composed of sensor name and :value suffix" do
-      sensor.value_key.should == "#{name}:value"
+    it "should be composed of sensor name and pulse_meter:value: prefix" do
+      sensor.value_key.should == "pulse_meter:value:#{name}"
     end
   end
 
@@ -31,7 +31,7 @@ describe PulseMeter::Sensor::Counter do
     it "should store stringified value by value_key" do
       sensor.event(123)
       sensor.value.should == 123
-      redis.get(sensor.value_key) == '123'
+      redis.get(sensor.value_key).should == '123'
     end
   end
 
