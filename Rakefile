@@ -8,7 +8,7 @@ task :default => :spec
 
 desc "Complile coffee to js"
 task :coffee do
-	FileList['lib/pulse-meter/visualize/public/*.coffee'].each do |f|
+	FileList['lib/pulse-meter/visualize/public/js/*.coffee'].each do |f|
 		puts "Compiling #{f}..."
 		system 'coffee', '-c', f
 	end

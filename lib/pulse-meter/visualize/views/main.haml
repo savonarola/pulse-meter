@@ -1,6 +1,8 @@
 !!!
 %head
   %title= @title
-  %script{:type => "text/javascript", :src => url('/application.js')}
+  %script{:type => 'text/javascript', :src => url('/js/application.js')}
+  %script{:type => 'text/javascript', :src => url('/js/bootstrap.js')}
+  %link{:rel => 'stylesheet', :href => url('/css/bootstrap.css'), :type => 'text/css', :media => 'screen'}
 %body
   %h1= @title
