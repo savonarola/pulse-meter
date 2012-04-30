@@ -15,6 +15,9 @@ module PulseMeter
         @redraw_interval = args[:redraw_interval] or raise ArgumentError, ":redraw_interval not specified"
       end
 
+      def page_list
+      end
+
     end
   end
 end

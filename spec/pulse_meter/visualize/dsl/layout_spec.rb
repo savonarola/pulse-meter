@@ -19,8 +19,8 @@ describe PulseMeter::Visualize::DSL::Layout do
   describe "#page" do
     it "should add page constructed by block to pages" do
       layout.page "My Foo Page" do |p|
-        p.pie :foo_widget, sensor: sensor_name
-        p.chart :bar_widget do |w|
+        p.pie "foo_widget", sensor: sensor_name
+        p.chart "bar_widget" do |w|
           w.sensor(sensor_name)
         end
       end
@@ -29,8 +29,8 @@ describe PulseMeter::Visualize::DSL::Layout do
       p = l.pages.first
       p.title.should == "My Foo Page"
       p.widgets.size.should == 2
-      p.widgets.first.name.should == :foo_widget
-      p.widgets.last.name.should == :bar_widget
+      p.widgets.first.title.should == "foo_widget"
+      p.widgets.last.title.should == "bar_widget"
     end
   end
 
@@ -45,8 +45,8 @@ describe PulseMeter::Visualize::DSL::Layout do
       l = layout.to_layout
       p = l.dashboard
       p.widgets.size.should == 2
-      p.widgets.first.name.should == :foo_widget
-      p.widgets.last.name.should == :bar_widget
+      p.widgets.first.title.should == "foo_widget"
+      p.widgets.last.title.should == "bar_widget"
     end
   end
 

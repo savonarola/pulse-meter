@@ -10,20 +10,15 @@ describe PulseMeter::Visualize::DSL::Widget do
   let(:w){ described_class.new(type, widget_name)  }
 
   describe '.new' do
-    it "should raise exception if name arg is empty" do
-      lambda{ described_class.new(:chart, '') }.should raise_exception(PulseMeter::Visualize::DSL::BadWidgetName)
-    end
-
     it "should raise exception if type arg is empty" do
       lambda{ described_class.new('', widget_name) }.should raise_exception(PulseMeter::Visualize::DSL::BadWidgetType)
     end
 
     it "should set default values for name, title, width paprams" do
       wid = w.to_widget
-      wid.name.should == widget_name
       wid.type.should == :some_type
       wid.width.should == PulseMeter::Visualize::DSL::Widget::DEFAULT_WIDTH
-      wid.title.should == "Some Widget"
+      wid.title.should == widget_name
       wid.sensors.should == []
     end
   end

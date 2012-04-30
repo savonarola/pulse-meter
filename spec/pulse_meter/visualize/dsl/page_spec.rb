@@ -21,7 +21,7 @@ describe PulseMeter::Visualize::DSL::Page do
       w = page.to_page.widgets.first
       w.width.should == 77
       w.type.should == :some_widget_type
-      w.name.should == :some_widget_name
+      w.title.should == "some_widget_name"
       w.sensors.first.name.should == sensor_name
     end
     
@@ -34,7 +34,6 @@ describe PulseMeter::Visualize::DSL::Page do
       end
       w = page.to_page.widgets.first
       w.type.should == :some_widget_type
-      w.name.should == :some_widget_name
       w.width.should == 77
       w.title.should == "foo_widget"
       w.sensors.size.should == 2

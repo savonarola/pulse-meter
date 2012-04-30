@@ -6,12 +6,10 @@ module PulseMeter
 
         DEFAULT_WIDTH = 100
 
-        def initialize(type, name)
+        def initialize(type, title = '')
           raise BadWidgetType, type if type.to_s.empty?
-          raise BadWidgetName, name if name.to_s.empty?
-          @name = name 
           @type = type
-          @title = titleize(name)
+          @title = title.to_s || ''
           @width = DEFAULT_WIDTH
           @sensors = []
         end
@@ -22,7 +20,7 @@ module PulseMeter
             @sensors = [s]
           end
           if args[:title]
-            @title = args[:title]
+            @title = args[:title].to_s
           end
           if args[:width]
             @width = args[:width]
@@ -30,7 +28,7 @@ module PulseMeter
         end
 
         def title(new_title)
-          @title = new_title || ''
+          @title = new_title.to_s || ''
         end
 
         def width(new_width)
@@ -50,7 +48,6 @@ module PulseMeter
           args = {
             title: @title,
             type: @type,
-            name: @name,
             width: @width,
             sensors: @sensors.map(&:to_sensor)
           }

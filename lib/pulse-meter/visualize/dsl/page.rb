@@ -9,18 +9,17 @@ module PulseMeter
           @widgets = []
         end
 
-        def widget(type, name, widget_args = nil, &block) 
-          w = PulseMeter::Visualize::DSL::Widget.new(type, name)
+        def widget(type, title = '', widget_args = nil, &block) 
+          w = PulseMeter::Visualize::DSL::Widget.new(type, title)
           w.process_args(widget_args) if widget_args
-          #w.instance_eval &block if block_given?
           yield(w) if block_given?
           @widgets << w
         end
 
         WIDGETS.each do |wtype|
           class_eval <<-EVAL
-            def #{wtype}(name, args = nil, &block)
-              widget(:#{wtype}, name, args, &block)
+            def #{wtype}(title = '', args = nil, &block)
+              widget(:#{wtype}, title, args, &block)
             end
           EVAL
         end
