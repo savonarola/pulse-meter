@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'haml'
 
 module PulseMeter
   module Visualize
@@ -13,7 +14,8 @@ module PulseMeter
       end
 
       get '/' do
-        "Hello"
+        @title = @layout.title
+        haml :main
       end
 
       get '/pages' do
