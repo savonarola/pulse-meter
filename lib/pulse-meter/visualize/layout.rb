@@ -15,7 +15,8 @@ module PulseMeter
         @redraw_interval = args[:redraw_interval] or raise ArgumentError, ":redraw_interval not specified"
       end
 
-      def page_list
+      def to_app
+        PulseMeter::Visualize::App.new(self)
       end
 
     end
