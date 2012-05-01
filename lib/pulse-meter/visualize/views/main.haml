@@ -3,9 +3,15 @@
   %title= @title
   :javascript
     var ROOT = "#{url('/')}";
+  = include_gon
   - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
     %script{:type => 'text/javascript', :src => url("/js/#{jsfile}")}
   %link{:rel => 'stylesheet', :href => url('/css/bootstrap.css'), :type => 'text/css', :media => 'screen'}
+		
 %body
-  .container
-    %ul.nav.nav-tabs#page-titles
+  .row
+    .span10.offset1
+      .navbar
+        .navbar-inner
+          .container
+            %ul.nav#page-titles

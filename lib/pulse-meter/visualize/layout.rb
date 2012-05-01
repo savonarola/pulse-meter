@@ -23,7 +23,7 @@ module PulseMeter
 				res = []
 				pages.each_with_index do |p, i|
 					res << {
-						id: i,
+						id: i + 1,
 						title: p.title
 					}
 				end

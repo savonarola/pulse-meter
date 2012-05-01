@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = PulseMeter::VERSION
 
+  gem.add_runtime_dependency('gon-sinatra')
   gem.add_runtime_dependency('haml')
   gem.add_runtime_dependency('json')
   gem.add_runtime_dependency('redis')
