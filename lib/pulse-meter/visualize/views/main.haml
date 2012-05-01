@@ -7,7 +7,5 @@
     %script{:type => 'text/javascript', :src => url("/js/#{jsfile}")}
   %link{:rel => 'stylesheet', :href => url('/css/bootstrap.css'), :type => 'text/css', :media => 'screen'}
 %body
-  %h1= @title
-  #pulse-app
-
-    #page-titles
+  .container
+    %ul.nav.nav-tabs#page-titles

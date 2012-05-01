@@ -21,9 +21,15 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   end
 
-  l.page "Request stats" do |p|
+  l.page "Page 1" do |p|
     p.chart :rph_total, sensor: :rph_total
+  end
+
+  l.page "Page 2" do |p|
     p.chart :rph_main_page, sensor: :rph_main_page
+  end
+
+  l.page "Page 3" do |p|
     p.chart :request_time_p95_hour
   
     p.pie :success_vs_fail_total_hourly do |w|

@@ -1,11 +1,14 @@
 PageTitle = Backbone.Model.extend {
-	defaults: ->
-		{ title: "" }
+	defaults: -> {
+		title: ""
+		selected: false
+	}
 	initialize: ->
 		if !@get('title')
 			@set {
 				'title': @defaults.title
 			}
+		@set('selected', @defaults.selected)
 	clear: ->
 		@destroy()
 }
@@ -13,6 +16,14 @@ PageTitle = Backbone.Model.extend {
 PageTitleList = Backbone.Collection.extend {
 	model: PageTitle
 	url: ROOT + 'page_titles'
+
+	selectFirst: (args) ->
+		@at(0).set('selected', true) if @length > 0
+
+	selectPage: (model) ->
+		@each (m) ->
+			m.set 'selected', m.id == model.id
+			
 }
 
 PageTitles = new PageTitleList
@@ -20,10 +31,10 @@ PageTitles = new PageTitleList
 PageTitleView = Backbone.View.extend {
 	tagName: 'li'
 	
-	template: _.template('<%= title %>')
+	template: _.template('<a href="#"><%= title %></a>')
 		
 	events: {
-		'click': 'doAlert'
+		'click': 'selectPage'
 	}
 
 	initialize: ->
@@ -32,34 +43,32 @@ PageTitleView = Backbone.View.extend {
 
 	render: ->
 		@$el.html @template(@model.toJSON())
+		if @model.get('selected')
+			@$el.addClass('active')
+		else
+			@$el.removeClass('active')
 
-	doAlert: ->
-		alert "HI!"
+	selectPage: ->
+		PageTitles.selectPage(@model)
 }
 
-AppView = Backbone.View.extend {
-	el: $('#pulse-app')
+PageTitlesView = Backbone.View.extend {
 	initialize: ->
-		PageTitles.bind 'add', @addOne, this
-		PageTitles.bind 'reset', @addAll, this
-		PageTitles.bind 'all', @render, this
-
+		PageTitles.bind 'reset', @render, this
 		PageTitles.fetch()
-
-	render: ->
-		# Nothing to do here!
 
 	addOne: (page_title) ->
 		view = new PageTitleView {
 			model: page_title
 		}
 		view.render()
-		console.log(page_title, view, view.el)
 		@$('#page-titles').append(view.el)
 
-	addAll: ->
+	render: ->
+		@$('#page-titles').empty()
 		PageTitles.each(@addOne)
+		PageTitles.selectFirst()
 
 }
 
-App = new AppView
+PageTitlesApp = new PageTitlesView
