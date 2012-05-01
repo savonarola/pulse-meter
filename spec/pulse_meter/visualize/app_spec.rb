@@ -21,7 +21,8 @@ describe PulseMeter::Visualize::App do
   end
 
   it "responds to /application.js" do
-    get '/application.js'
+    get '/js/application.js'
+    puts last_response.body.to_s, last_response.status.to_s, last_response.errors.inspect
     last_response.should be_ok
   end
 end
