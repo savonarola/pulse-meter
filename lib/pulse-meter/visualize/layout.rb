@@ -19,6 +19,17 @@ module PulseMeter
         PulseMeter::Visualize::App.new(self)
       end
 
+			def page_titles
+				res = []
+				pages.each_with_index do |p, i|
+					res << {
+						id: i,
+						title: p.title
+					}
+				end
+				res
+			end
+	
     end
   end
 end

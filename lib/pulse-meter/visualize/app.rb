@@ -18,9 +18,9 @@ module PulseMeter
         haml :main
       end
 
-      get '/pages' do
+      get '/page_titles' do
         content_type :json
-        @layout.page_list.to_json
+        @layout.page_titles.to_json
       end
 
     end

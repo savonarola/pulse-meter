@@ -22,6 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency('terminal-table')
   gem.add_runtime_dependency('thor')
 
+  gem.add_development_dependency('foreman')
   gem.add_development_dependency('mock_redis')
   gem.add_development_dependency('rack-test')
   gem.add_development_dependency('rake')
