@@ -1,4 +1,5 @@
 $ ->
+
 	PageTitle = Backbone.Model.extend {
 		defaults: -> {
 			title: ""
@@ -16,6 +17,10 @@ $ ->
 
 	PageTitleList = Backbone.Collection.extend {
 		model: PageTitle
+		selected: ->
+			@find (m) ->
+				m.get 'selected'
+			
 
 		selectFirst: ->
 			@at(0).set('selected', true) if @length > 0
@@ -64,6 +69,50 @@ $ ->
 
 	pageTitles.reset gon.pageTitles
 
+	Widget = Backbone.Model.extend {
+		
+	}
+
+	WidgetList = Backbone.Collection.extend {
+		model: Widget
+		url: ->
+			ROOT + 'pages/' + pageTitles.selected().id + '/widgets'
+	}
+
+	WidgetView = Backbone.View.extend {
+		tagName: 'div'
+		template: _.template """
+			<div class="well">
+				Widget: <%= title %> of type <%= type %>
+			</div>
+		"""
+
+		initialize: ->
+			@model.bind 'change', @render, this
+			@model.bind 'destroy', @remove, this
+
+		render: ->
+			@$el.html @template(@model.toJSON())
+	}
+
+	widgetList = new WidgetList
+
+	WidgetListView = Backbone.View.extend {
+		initialize: ->
+			widgetList.bind 'reset', @render, this
+			
+		render: ->
+			container = $('#widgets')
+			container.empty()
+			widgetList.each (w) ->
+				view = new WidgetView {
+					model: w
+				}
+				view.render()
+				container.append(view.el)
+	}
+
+	widgetListApp = new WidgetListView
 
 	AppRouter = Backbone.Router.extend {
 		routes: {
@@ -71,12 +120,15 @@ $ ->
 			'pages/:id': 'getPage'
 			'*actions': 'defaultRoute'
 		}
-		getPage: (id) ->
-			pageTitles.selectPage(parseInt(id))
+		getPage: (ids) ->
+			id = parseInt(ids)
+			pageTitles.selectPage(id)
+			widgetList.fetch()
 		defaultRoute: (actions) ->
 			AppRouter.navigate('//pages/1') if pageTitles.length > 0
 	}
 
 	appRouter = new AppRouter
+
 	Backbone.history.start()
 

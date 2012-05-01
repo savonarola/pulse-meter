@@ -22,6 +22,25 @@ module PulseMeter
         haml :main
       end
 
+			get '/pages/:id/widgets' do
+				id = params[:id].to_i 
+				content_type :json
+				[
+					{
+						title: "Widget 1 on page #{id}",
+						type: :pie
+					},
+					{
+						title: "Widget 2 on page #{id}",
+						type: :chart
+					},
+					{
+						title: "Widget 3 on page #{id}",
+						type: :chart
+					}
+				].to_json
+			end
+
     end
   end
 end
