@@ -81,18 +81,33 @@ $ ->
 
 	WidgetView = Backbone.View.extend {
 		tagName: 'div'
-		template: _.template """
-			<div class="well">
-				Widget: <%= title %> of type <%= type %>
-			</div>
-		"""
 
 		initialize: ->
 			@model.bind 'change', @render, this
 			@model.bind 'destroy', @remove, this
 
 		render: ->
-			@$el.html @template(@model.toJSON())
+			@$el.addClass "span#{@model.get('width')}"
+
+		renderChart: ->
+			@chart = new Highcharts.Chart {
+				chart: {
+					renderTo: @el
+					type: 'spline'
+				}
+				title: {
+					text: @model.get('title')
+				}
+				xAxis: {
+					type: 'datetime'
+				}
+				yAxis: {
+					title: {
+						text: @model.get('valuesTitle')
+					}
+				}
+				series: @model.get('series')
+			}
 	}
 
 	widgetList = new WidgetList
@@ -110,6 +125,7 @@ $ ->
 				}
 				view.render()
 				container.append(view.el)
+				view.renderChart()
 	}
 
 	widgetListApp = new WidgetListView

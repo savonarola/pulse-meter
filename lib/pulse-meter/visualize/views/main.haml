@@ -4,18 +4,18 @@
   :javascript
     var ROOT = "#{url('/')}";
   = include_gon
-  - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
+  - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js highcharts.js application.js bootstrap.js}.each do |jsfile|
     %script{:type => 'text/javascript', :src => url("/js/#{jsfile}")}
-  %link{:rel => 'stylesheet', :href => url('/css/bootstrap.css'), :type => 'text/css', :media => 'screen'}
-  %link{:rel => 'stylesheet', :href => url('/css/application.css'), :type => 'text/css', :media => 'screen'}
+  - %w{bootstrap.min.css application.css}.each do |cssfile|
+    %link{:rel => 'stylesheet', :href => url("/css/#{cssfile}"), :type => 'text/css', :media => 'screen'}
 		
 %body
-
-  #main.row
-    .span10.offset1
-      .navbar
-        .navbar-inner
-          .container
-            %span.brand= @title 
-            %ul.nav#page-titles
-      #widgets
+  .container#main
+    .row
+      .span10.offset1
+        .navbar
+          .navbar-inner
+            .container
+              %span.brand= @title 
+              %ul.nav#page-titles
+        #widgets.row

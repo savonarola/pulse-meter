@@ -24,21 +24,76 @@ module PulseMeter
 
 			get '/pages/:id/widgets' do
 				id = params[:id].to_i 
-				content_type :json
-				[
+
+        
+				widget_data = [
 					{
 						title: "Widget 1 on page #{id}",
-						type: :pie
+						type: :pie,
+            valuesTitle: 'Rabbit Count',
+            width: 6,
+            series: [
+              {
+                name: 'Sensor 1',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]},
+              },
+              {
+                name: 'Sensor 2',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]}
+              }
+            ]
 					},
 					{
 						title: "Widget 2 on page #{id}",
-						type: :chart
+						type: :pie,
+            valuesTitle: 'Croco Count',
+            width: 4,
+            series: [
+              {
+                name: 'Sensor 1',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]},
+              },
+              {
+                name: 'Sensor 2',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]}
+              }
+            ]
 					},
 					{
 						title: "Widget 3 on page #{id}",
-						type: :chart
+						type: :pie,
+            valuesTitle: 'Rhino Count',
+            width: 3,
+            series: [
+              {
+                name: 'Sensor 1',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]},
+              },
+              {
+                name: 'Sensor 2',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]}
+              }
+            ]
+					},
+					{
+						title: "Widget 4 on page #{id}",
+						type: :pie,
+            valuesTitle: 'Lama Count',
+            width: 7,
+            series: [
+              {
+                name: 'Sensor 1',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]},
+              },
+              {
+                name: 'Sensor 2',
+                data: 10.downto(1).map{|i| [ (Time.now.to_i - i*3600)*1000, Random.rand(100) ]}
+              }
+            ]
 					}
-				].to_json
+				]
+				content_type :json
+        widget_data.to_json
 			end
 
     end
