@@ -25,7 +25,7 @@ $ ->
 				m.set 'selected', m.id == id
 	}
 
-	PageTitles = new PageTitleList
+	pageTitles = new PageTitleList
 
 	PageTitleView = Backbone.View.extend {
 		tagName: 'li'
@@ -46,7 +46,7 @@ $ ->
 
 	PageTitlesView = Backbone.View.extend {
 		initialize: ->
-			PageTitles.bind 'reset', @render, this
+			pageTitles.bind 'reset', @render, this
 
 		addOne: (page_title) ->
 			view = new PageTitleView {
@@ -57,25 +57,26 @@ $ ->
 
 		render: ->
 			$('#page-titles').empty()
-			PageTitles.each(@addOne)
+			pageTitles.each(@addOne)
 	}
 
-	PageTitlesApp = new PageTitlesView
+	pageTitlesApp = new PageTitlesView
 
-	PageTitles.reset gon.pageTitles
+	pageTitles.reset gon.pageTitles
 
-	PageRouter = Backbone.Router.extend {
+
+	AppRouter = Backbone.Router.extend {
 		routes: {
 			'help' : 'help'
 			'pages/:id': 'getPage'
 			'*actions': 'defaultRoute'
 		}
 		getPage: (id) ->
-			PageTitles.selectPage(parseInt(id))
+			pageTitles.selectPage(parseInt(id))
 		defaultRoute: (actions) ->
-			AppRouter.navigate('//pages/1') if PageTitles.length > 0
+			AppRouter.navigate('//pages/1') if pageTitles.length > 0
 	}
 
-	AppRouter = new PageRouter
+	appRouter = new AppRouter
 	Backbone.history.start()
 
