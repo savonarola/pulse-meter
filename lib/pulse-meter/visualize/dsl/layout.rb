@@ -9,6 +9,7 @@ module PulseMeter
           @pages = []
           @title = DEFAULT_TITLE
           @redraw_interval = DEFAULT_REDRAW_INTERVAL
+          @use_utc = true
         end
 
         def title(title)
@@ -17,6 +18,10 @@ module PulseMeter
 
         def redraw_interval(interval)
           @redraw_interval = interval
+        end
+
+        def use_utc(use = true)
+          @use_utc = use
         end
 
         def page(title, &block)
@@ -44,7 +49,8 @@ module PulseMeter
             pages: pages,
             title: title,
             dashboard: dashboard,
-            redraw_interval: redraw_interval
+            redraw_interval: redraw_interval,
+            use_utc: @use_utc
           } )
         end
 

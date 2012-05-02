@@ -7,12 +7,13 @@ describe PulseMeter::Visualize::DSL::Layout do
   let(:layout){ described_class.new }
 
   describe '.new' do
-    it "should initialize pages, title, redraw_interval" do
+    it "should initialize pages, title, redraw_interval, use_utc" do
       l = layout.to_layout
       l.title.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_TITLE
       l.redraw_interval.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_REDRAW_INTERVAL
       l.pages.should == []
       l.dashboard.should be_nil
+      l.use_utc.should be_true
     end
   end
 
@@ -61,6 +62,13 @@ describe PulseMeter::Visualize::DSL::Layout do
     it "should set global redraw_interval" do
       layout.redraw_interval 12345
       layout.to_layout.redraw_interval.should == 12345
+    end
+  end
+  
+  describe "#use_utc" do
+    it "should set use_utc" do
+      layout.use_utc false
+      layout.to_layout.use_utc.should be_false
     end
   end
 

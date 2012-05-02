@@ -40,6 +40,7 @@ layout = PulseMeter::Visualizer.draw do |l|
   end
 
   l.redraw_interval 10
+  l.use_utc false
 end
 
 run layout.to_app

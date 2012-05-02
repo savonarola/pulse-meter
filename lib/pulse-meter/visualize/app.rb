@@ -5,6 +5,7 @@ require 'gon-sinatra'
 module PulseMeter
   module Visualize
     class App < Sinatra::Base
+      include PulseMeter::Mixins::Utils
       register Gon::Sinatra
 
       def initialize(layout)
@@ -19,6 +20,7 @@ module PulseMeter
       get '/' do
         @title = @layout.title
         gon.pageTitles = @layout.page_titles
+				gon.options = camelize_keys(@layout.options)
         haml :main
       end
 
@@ -30,7 +32,7 @@ module PulseMeter
 					{
 						title: "Widget 1 on page #{id}",
 						type: :pie,
-            valuesTitle: 'Rabbit Count',
+            values_title: 'Rabbit Count',
             width: 6,
             series: [
               {
@@ -46,7 +48,7 @@ module PulseMeter
 					{
 						title: "Widget 2 on page #{id}",
 						type: :pie,
-            valuesTitle: 'Croco Count',
+            values_title: 'Croco Count',
             width: 4,
             series: [
               {
@@ -62,7 +64,7 @@ module PulseMeter
 					{
 						title: "Widget 3 on page #{id}",
 						type: :pie,
-            valuesTitle: 'Rhino Count',
+            values_title: 'Rhino Count',
             width: 3,
             series: [
               {
@@ -78,7 +80,7 @@ module PulseMeter
 					{
 						title: "Widget 4 on page #{id}",
 						type: :pie,
-            valuesTitle: 'Lama Count',
+            values_title: 'Lama Count',
             width: 7,
             series: [
               {
@@ -93,7 +95,7 @@ module PulseMeter
 					}
 				]
 				content_type :json
-        widget_data.to_json
+        camelize_keys(widget_data).to_json
 			end
 
     end

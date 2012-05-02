@@ -1,5 +1,11 @@
 $ ->
 
+	Highcharts.setOptions {
+		global: {
+			useUTC: gon.options.useUtc
+		}
+	}
+
 	PageTitle = Backbone.Model.extend {
 		defaults: -> {
 			title: ""
@@ -141,7 +147,7 @@ $ ->
 			pageTitles.selectPage(id)
 			widgetList.fetch()
 		defaultRoute: (actions) ->
-			AppRouter.navigate('//pages/1') if pageTitles.length > 0
+			@navigate('//pages/1') if pageTitles.length > 0
 	}
 
 	appRouter = new AppRouter

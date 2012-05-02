@@ -5,7 +5,8 @@ module PulseMeter
       attr_reader :dashboard
 
       attr_reader :title
-      attr_accessor :redraw_interval
+      attr_reader :redraw_interval
+      attr_reader :use_utc
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
@@ -13,6 +14,7 @@ module PulseMeter
         @dashboard = args[:dashboard]
         @pages = args[:pages] or raise ArgumentError, ":pages not specified"
         @redraw_interval = args[:redraw_interval] or raise ArgumentError, ":redraw_interval not specified"
+        @use_utc = args[:use_utc]
       end
 
       def to_app
@@ -28,6 +30,13 @@ module PulseMeter
 					}
 				end
 				res
+			end
+
+			def options
+				{
+					redraw_interval: @redraw_interval,
+					use_utc: @use_utc
+				}
 			end
 	
     end
