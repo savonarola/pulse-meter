@@ -19,7 +19,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
 
   before(:each) do
     @interval_id = (Time.now.to_i / interval) * interval
-    @raw_data_key = sensor.raw_data_key(@interval_id) 
+    @raw_data_key = sensor.raw_data_key(@interval_id)
     @next_raw_data_key = sensor.raw_data_key(@interval_id + interval)
     @start_of_interval = Time.at(@interval_id)
   end
@@ -45,7 +45,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       def inner_data(obj)
         obj.instance_variables.sort.map {|v| obj.instance_variable_get(v)}
       end
-      
+
       inner_data(sensor).should == inner_data(@restored)
     end
   end
@@ -162,17 +162,60 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     end
   end
 
-  describe "#timeline" do
+  describe "#timeline_within" do
+    it "shoulde raise exception unless both arguments are Time objects" do
+      [:q, nil, -1].each do |bad_value|
+        expect{ sensor.timeline_within(Time.now, bad_value) }.to raise_exception(ArgumentError)
+        expect{ sensor.timeline_within(bad_value, Time.now) }.to raise_exception(ArgumentError)
+      end
+    end
+
     it "should return an array of SensorData objects corresponding to stored data for passed interval" do
       sensor.event(sample_event)
-      timeline = sensor.timeline(1)
+      now = Time.now
+      timeline = sensor.timeline_within(now - 1, now)
       timeline.should be_kind_of(Array)
       timeline.each{|i| i.should be_kind_of(SensorData) }
     end
 
+    it "should return array of results containing as many results as there are sensor interval beginnings in the passed interval" do
+      Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
+      Timecop.freeze(@start_of_interval + interval){ sensor.event(sample_event) }
+
+      future = @start_of_interval + 3600
+      Timecop.freeze(future) do
+        sensor.timeline_within(
+          Time.at(@start_of_interval + interval - 1),
+          Time.at(@start_of_interval + interval + 1)
+        ).size.should == 1
+
+        sensor.timeline_within(
+          Time.at(@start_of_interval - 1),
+          Time.at(@start_of_interval + interval + 1)
+        ).size.should == 2
+      end
+
+      Timecop.freeze(@start_of_interval + interval + 2) do
+        sensor.timeline_within(
+          Time.at(@start_of_interval + interval + 1),
+          Time.at(@start_of_interval + interval + 2)
+        ).size.should == 0
+      end
+    end
+  end
+
+  describe "#timeline" do
     it "should raise exception if passed interval is not a positive integer" do
       [:q, nil, -1].each do |bad_interval|
         expect{ sensor.timeline(bad_interval) }.to raise_exception(ArgumentError)
+      end
+    end
+
+    it "should request timeline within interval from given number of seconds ago till now" do
+      Timecop.freeze do
+        now = Time.now
+        ago = interval * 100
+        sensor.timeline(ago).should == sensor.timeline_within(now - ago, now)
       end
     end
 
@@ -190,34 +233,34 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
         sensor.timeline(2 + interval).size.should == 2
       end
     end
+  end
 
-    describe "SensorData value for an interval" do
-      def check_sensor_data(sensor, value)
-        data = sensor.timeline(2).first
-        data.value.should == value
-        data.start_time.to_i.should == @interval_id
-      end
+  describe "SensorData value for an interval" do
+    def check_sensor_data(sensor, value)
+      data = sensor.timeline(2).first
+      data.value.should == value
+      data.start_time.to_i.should == @interval_id
+    end
 
-      it "should contain summarized value stored by data_key for reduced intervals" do
-        Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
-        sensor.reduce(@interval_id)
-        Timecop.freeze(@start_of_interval + 1){
-          check_sensor_data(sensor, redis.get(sensor.data_key(@interval_id)))
-        }
-      end
+    it "should contain summarized value stored by data_key for reduced intervals" do
+      Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
+      sensor.reduce(@interval_id)
+      Timecop.freeze(@start_of_interval + 1){
+        check_sensor_data(sensor, redis.get(sensor.data_key(@interval_id)))
+      }
+    end
 
-      it "should contain summarized value based on raw data for intervals not yet reduced" do
-        Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
-        Timecop.freeze(@start_of_interval + 1){
-          check_sensor_data(sensor, sensor.summarize(@raw_data_key))
-        }
-      end
+    it "should contain summarized value based on raw data for intervals not yet reduced" do
+      Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
+      Timecop.freeze(@start_of_interval + 1){
+        check_sensor_data(sensor, sensor.summarize(@raw_data_key))
+      }
+    end
 
-      it "should contain nil for intervals without any data" do
-        Timecop.freeze(@start_of_interval + 1) {
-          check_sensor_data(sensor, nil)
-        }
-      end
+    it "should contain nil for intervals without any data" do
+      Timecop.freeze(@start_of_interval + 1) {
+        check_sensor_data(sensor, nil)
+      }
     end
   end
 

@@ -64,11 +64,16 @@ module PulseMeter
 
       def timeline(time_ago)
         raise ArgumentError unless time_ago.respond_to?(:to_i) && time_ago.to_i > 0
-        now = Time.now.to_i
-        start_time = now - time_ago.to_i
+        now = Time.now
+        timeline_within(now - time_ago.to_i, now)
+      end
+
+      def timeline_within(from, till)
+        raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
+        start_time, end_time = from.to_i, till.to_i
         current_interval_id = get_interval_id(start_time) + interval
         res = []
-        while current_interval_id < now
+        while current_interval_id < end_time
           res << get_timeline_value(current_interval_id)
           current_interval_id += interval
         end
