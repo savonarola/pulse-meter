@@ -10,6 +10,14 @@
     %link{:rel => 'stylesheet', :href => url("/css/#{cssfile}"), :type => 'text/css', :media => 'screen'}
 		
 %body
+  %script#widget-template{type: 'text/template'}
+    #plotarea
+    #chart-controls
+      %span#refresh.btn.btn-mini{href: '#'}
+        %i.icon-refresh
+        Refresh
+    %hr
+
   .container#main
     .row
       .span10.offset1

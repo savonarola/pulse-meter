@@ -76,7 +76,19 @@ $ ->
 	pageTitles.reset gon.pageTitles
 
 	Widget = Backbone.Model.extend {
-		
+		initialize: ->
+			@setNextFetch()
+
+		time: -> (new Date()).getTime()
+
+		setNextFetch: ->
+			@set('nextFetch', @time() + @get('interval') * 1000)
+
+		refetch: ->
+			#console.log @time(), @get('nextFetch'), @get('nextFetch') - @time()
+			if @time() > @get('nextFetch')
+				@fetch()
+				@setNextFetch()
 	}
 
 	WidgetList = Backbone.Collection.extend {
@@ -88,16 +100,22 @@ $ ->
 	WidgetView = Backbone.View.extend {
 		tagName: 'div'
 
-		template: _.template """
-			<div id="plotarea" />
-			<div id="chart-controls">
-				Some controls and legends here
-			</div>
-		"""
+		template: _.template($('#widget-template').html())
 
 		initialize: ->
-			@model.bind 'change', @render, this
+			@model.bind 'change', @reRender, this
 			@model.bind 'destroy', @remove, this
+
+		events: {
+			"click #refresh": 'refresh'
+		}
+
+		refresh: ->
+			@model.fetch()
+	
+		reRender: ->
+			@render()
+			@renderChart()
 
 		render: ->
 			@$el.html @template(@model.toJSON())
@@ -111,6 +129,7 @@ $ ->
 					spacingLeft: 0
 					spacingRight: 0
 					type: 'spline'
+					animation: false
 				}
 				credits: {
 					enabled: false
@@ -127,10 +146,19 @@ $ ->
 					}
 				}
 				series: @model.get('series')
+				plotOptions: {
+					series: {
+						animation: false
+					}
+				}
 			}
 	}
 
 	widgetList = new WidgetList
+	setInterval( ->
+		widgetList.each (w) ->
+			w.refetch()
+	, 100)
 
 	WidgetListView = Backbone.View.extend {
 		initialize: ->
