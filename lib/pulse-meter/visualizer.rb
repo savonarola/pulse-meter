@@ -21,7 +21,7 @@ require 'pulse-meter/visualize/app'
 
 module PulseMeter
   class Visualizer
-    def self.draw(&block) 
+    def self.draw(&block)
       layout_cofigurator = PulseMeter::Visualize::DSL::Layout.new
       yield(layout_cofigurator)
       layout_cofigurator.to_layout

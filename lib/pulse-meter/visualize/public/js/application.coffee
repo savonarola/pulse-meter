@@ -88,18 +88,32 @@ $ ->
 	WidgetView = Backbone.View.extend {
 		tagName: 'div'
 
+		template: _.template """
+			<div id="plotarea" />
+			<div id="chart-controls">
+				Some controls and legends here
+			</div>
+		"""
+
 		initialize: ->
 			@model.bind 'change', @render, this
 			@model.bind 'destroy', @remove, this
 
 		render: ->
+			@$el.html @template(@model.toJSON())
 			@$el.addClass "span#{@model.get('width')}"
 
 		renderChart: ->
 			@chart = new Highcharts.Chart {
 				chart: {
-					renderTo: @el
+					renderTo: @$el.find('#plotarea')[0]
+					plotBorderWidth: 1
+					spacingLeft: 0
+					spacingRight: 0
 					type: 'spline'
+				}
+				credits: {
+					enabled: false
 				}
 				title: {
 					text: @model.get('title')
