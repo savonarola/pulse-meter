@@ -22,6 +22,12 @@ module PulseMeter
           super("Bad widget type: `#{type}'")
         end
       end
+
+      class BadWidgetWidth < Error
+        def initialize(width)
+          super("Bad widget width: `#{width}'")
+        end
+      end
     end
   end
 end

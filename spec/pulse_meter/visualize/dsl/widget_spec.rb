@@ -14,12 +14,13 @@ describe PulseMeter::Visualize::DSL::Widget do
       lambda{ described_class.new('', widget_name) }.should raise_exception(PulseMeter::Visualize::DSL::BadWidgetType)
     end
 
-    it "should set default values for name, title, width paprams" do
+    it "should set default values for name, title, width, values_label paprams" do
       wid = w.to_widget
       wid.type.should == :some_type
       wid.width.should == PulseMeter::Visualize::DSL::Widget::DEFAULT_WIDTH
       wid.title.should == widget_name
       wid.sensors.should == []
+      wid.values_label.should == ''
     end
   end
 
@@ -37,8 +38,13 @@ describe PulseMeter::Visualize::DSL::Widget do
     end
 
     it "should set width by :width param" do
-      w.process_args :width => 55
-      w.to_widget.width.should == 55
+      w.process_args :width => 5
+      w.to_widget.width.should == 5
+    end
+
+    it "should set values_label by :values_label param" do
+      w.process_args :values_label => "some y-axis legend"
+      w.to_widget.values_label.should == "some y-axis legend"
     end
   end
 
@@ -64,8 +70,20 @@ describe PulseMeter::Visualize::DSL::Widget do
 
   describe "#width" do
     it "should set width" do
-      w.width 66
-      w.to_widget.width.should == 66
+      w.width 6
+      w.to_widget.width.should == 6
+    end
+
+    it "should raise exception if width is invalid" do
+      expect { w.width -1 }.to raise_exception(PulseMeter::Visualize::DSL::BadWidgetWidth)
+      expect { w.width 11 }.to raise_exception(PulseMeter::Visualize::DSL::BadWidgetWidth)
+    end
+  end
+
+  describe "#values_label" do
+    it "should set values_label" do
+      w.values_label "some y-axis legend"
+      w.to_widget.values_label.should == "some y-axis legend"
     end
   end
 

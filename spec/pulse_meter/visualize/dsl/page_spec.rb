@@ -17,9 +17,9 @@ describe PulseMeter::Visualize::DSL::Page do
 
   describe '#widget' do
     it "should add widget initialized by args to widgets" do
-      page.widget(:some_widget_type, :some_widget_name, sensor: sensor_name, width: 77)
+      page.widget(:some_widget_type, :some_widget_name, sensor: sensor_name, width: 7)
       w = page.to_page.widgets.first
-      w.width.should == 77
+      w.width.should == 7
       w.type.should == :some_widget_type
       w.title.should == "some_widget_name"
       w.sensors.first.name.should == sensor_name
@@ -30,11 +30,11 @@ describe PulseMeter::Visualize::DSL::Page do
         w.sensor(sensor_name)
         w.sensor(sensor_name)
         w.title "foo_widget"
-        w.width 77
+        w.width 7
       end
       w = page.to_page.widgets.first
       w.type.should == :some_widget_type
-      w.width.should == 77
+      w.width.should == 7
       w.title.should == "foo_widget"
       w.sensors.size.should == 2
       w.sensors.first.name.should == sensor_name
