@@ -13,6 +13,8 @@ module PulseMeter
           @values_label = ''
           @width = DEFAULT_WIDTH
           @sensors = []
+          @show_last_point = false
+          @redraw_interval = nil
         end
 
         def process_args(args) 
@@ -28,6 +30,23 @@ module PulseMeter
           if args[:values_label]
             values_label(args[:values_label])
           end
+          if args[:show_last_point]
+            show_last_point(args[:show_last_point])
+          end
+          if args[:redraw_interval]
+            redraw_interval(args[:redraw_interval])
+          end
+
+        end
+
+        def redraw_interval(new_redraw_interval)
+          new_redraw_interval = new_redraw_interval.to_i
+          raise BadWidgetRedrawInterval, new_redraw_interval unless new_redraw_interval > 0
+          @redraw_interval = new_redraw_interval
+        end
+
+        def show_last_point(new_show_last_point)
+          @show_last_point = !!new_show_last_point
         end
 
         def values_label(new_label)
@@ -57,7 +76,9 @@ module PulseMeter
             type: @type,
             values_label: @values_label,
             width: @width,
-            sensors: @sensors.map(&:to_sensor)
+            sensors: @sensors.map(&:to_sensor),
+            redraw_interval: @redraw_interval,
+            show_last_point: @show_last_point
           }
           PulseMeter::Visualize::Widget.new(args)
         end

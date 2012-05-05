@@ -14,13 +14,15 @@ describe PulseMeter::Visualize::DSL::Widget do
       lambda{ described_class.new('', widget_name) }.should raise_exception(PulseMeter::Visualize::DSL::BadWidgetType)
     end
 
-    it "should set default values for name, title, width, values_label paprams" do
+    it "should set default values for name, title, width, values_label. redraw_interval, show_last_point paprams" do
       wid = w.to_widget
       wid.type.should == :some_type
       wid.width.should == PulseMeter::Visualize::DSL::Widget::DEFAULT_WIDTH
       wid.title.should == widget_name
       wid.sensors.should == []
       wid.values_label.should == ''
+      wid.redraw_interval.should be_nil
+      wid.show_last_point.should be_false
     end
   end
 
@@ -85,6 +87,24 @@ describe PulseMeter::Visualize::DSL::Widget do
       w.values_label "some y-axis legend"
       w.to_widget.values_label.should == "some y-axis legend"
     end
+  end
+
+  describe "#show_last_point" do
+    it "should set show_last_point" do
+      w.show_last_point true
+      w.to_widget.show_last_point.should be_true
+    end
+  end
+
+  describe "#redraw_interval" do
+    it "should set redraw_interval" do
+      w.redraw_interval 5
+      w.to_widget.redraw_interval.should == 5
+    end
+    it "should raise exception if redraw_interval is negative" do
+      expect{ w.redraw_interval(-1) }.to raise_exception(PulseMeter::Visualize::DSL::BadWidgetRedrawInterval)
+    end
+
   end
 
   describe "#to_widget" do
