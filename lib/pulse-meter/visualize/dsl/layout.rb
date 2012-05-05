@@ -2,22 +2,16 @@ module PulseMeter
   module Visualize
     module DSL
       class Layout
-        DEFAULT_REDRAW_INTERVAL = 0
         DEFAULT_TITLE = "Pulse Meter"
 
         def initialize
           @pages = []
           @title = DEFAULT_TITLE
-          @redraw_interval = DEFAULT_REDRAW_INTERVAL
           @use_utc = true
         end
 
         def title(title)
           @title = title
-        end
-
-        def redraw_interval(interval)
-          @redraw_interval = interval
         end
 
         def use_utc(use = true)
@@ -33,11 +27,9 @@ module PulseMeter
         def to_layout
           pages = @pages.map(&:to_page)
           title = @title || ''
-          redraw_interval = @redraw_interval || 0
           PulseMeter::Visualize::Layout.new( {
             pages: pages,
             title: title,
-            redraw_interval: redraw_interval,
             use_utc: @use_utc
           } )
         end

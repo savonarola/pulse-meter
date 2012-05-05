@@ -34,7 +34,6 @@ describe PulseMeter::Visualizer do
 
         end
 
-        l.redraw_interval 10
       end
       layout.should be_kind_of(PulseMeter::Visualize::Layout)
     end
