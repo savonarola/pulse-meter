@@ -8,6 +8,7 @@ module PulseMeter
       attr_reader :values_label
       attr_reader :show_last_point
       attr_reader :redraw_interval
+      attr_reader :timespan
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
@@ -18,6 +19,7 @@ module PulseMeter
         @values_label = args[:values_label]
         @show_last_point = args[:show_last_point] || false
         @redraw_interval = args[:redraw_interval]
+        @timespan = args[:timespan]
       end
     end
   end

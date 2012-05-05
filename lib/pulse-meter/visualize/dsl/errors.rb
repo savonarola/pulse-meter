@@ -28,9 +28,16 @@ module PulseMeter
           super("Bad widget width: `#{width}'")
         end
       end
+
       class BadWidgetRedrawInterval < Error
         def initialize(redraw_interval)
           super("Bad widget redraw_interval: `#{redraw_interval}'")
+        end
+      end
+
+      class BadWidgetTimeSpan < Error
+        def initialize(timespan)
+          super("Bad widget timespan: `#{timespan}'")
         end
       end
     end

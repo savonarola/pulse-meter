@@ -5,6 +5,7 @@ module PulseMeter
         include PulseMeter::Mixins::Utils
 
         DEFAULT_WIDTH = 10
+        DEFAULT_TIMESPAN = 60 * 60 * 24 # One day
 
         def initialize(type, title = '')
           raise BadWidgetType, type if type.to_s.empty?
@@ -15,28 +16,15 @@ module PulseMeter
           @sensors = []
           @show_last_point = false
           @redraw_interval = nil
+          @timespan = DEFAULT_TIMESPAN
         end
 
-        def process_args(args) 
-          if args[:sensor]
-            sensor(args[:sensor])
+        def process_args(args)
+          [:sensor, :title, :width, :values_label, :show_last_point, :redraw_interval, :timespan].each do |arg|
+            if args.has_key?(arg)
+              send(arg, args[arg])
+            end
           end
-          if args[:title]
-            title(args[:title])
-          end
-          if args[:width]
-            width(args[:width])
-          end
-          if args[:values_label]
-            values_label(args[:values_label])
-          end
-          if args[:show_last_point]
-            show_last_point(args[:show_last_point])
-          end
-          if args[:redraw_interval]
-            redraw_interval(args[:redraw_interval])
-          end
-
         end
 
         def redraw_interval(new_redraw_interval)
@@ -47,6 +35,12 @@ module PulseMeter
 
         def show_last_point(new_show_last_point)
           @show_last_point = !!new_show_last_point
+        end
+
+        def timespan(new_timespan)
+          new_timespan = new_timespan.to_i
+          raise BadWidgetTimeSpan, new_timespan unless new_timespan > 0
+          @timespan = new_timespan
         end
 
         def values_label(new_label)
@@ -78,7 +72,8 @@ module PulseMeter
             width: @width,
             sensors: @sensors.map(&:to_sensor),
             redraw_interval: @redraw_interval,
-            show_last_point: @show_last_point
+            show_last_point: @show_last_point,
+            timespan: @timespan
           }
           PulseMeter::Visualize::Widget.new(args)
         end

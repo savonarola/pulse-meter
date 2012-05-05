@@ -107,6 +107,17 @@ describe PulseMeter::Visualize::DSL::Widget do
 
   end
 
+  describe "#timespan" do
+    it "should set timespan" do
+      w.timespan 5
+      w.to_widget.timespan.should == 5
+    end
+    it "should raise exception if timespan is negative" do
+      expect{ w.timespan(-1) }.to raise_exception(PulseMeter::Visualize::DSL::BadWidgetTimeSpan)
+    end
+
+  end
+
   describe "#to_widget" do
     it "should convert dsl data to widget" do
       w.to_widget.should be_kind_of(PulseMeter::Visualize::Widget)
