@@ -1,7 +1,7 @@
 module PulseMeter
   module Visualize
     module DSL
-      WIDGETS = %w(pie chart)
+      WIDGETS = %w(pie spline line)
 
       class Page
         def initialize(title = nil)

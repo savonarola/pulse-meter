@@ -128,7 +128,7 @@ $ ->
 					plotBorderWidth: 1
 					spacingLeft: 0
 					spacingRight: 0
-					type: 'spline'
+					type: @model.get('type')
 					animation: false
 				}
 				credits: {

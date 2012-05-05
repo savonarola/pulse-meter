@@ -52,9 +52,9 @@ describe PulseMeter::Visualize::DSL::Page do
 
   describe "#chart" do
     it "should create widget width type :chart" do
-      page.chart(:some_widget_name)
+      page.spline(:some_widget_name)
       w = page.to_page.widgets.first
-      w.type.should == :chart
+      w.type.should == :spline
     end
   end
 

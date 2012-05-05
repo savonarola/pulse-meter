@@ -19,7 +19,7 @@ describe PulseMeter::Visualize::DSL::Layout do
     it "should add page constructed by block to pages" do
       layout.page "My Foo Page" do |p|
         p.pie "foo_widget", sensor: sensor_name
-        p.chart "bar_widget" do |w|
+        p.spline "bar_widget" do |w|
           w.sensor(sensor_name)
         end
       end

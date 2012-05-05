@@ -6,8 +6,8 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   l.title "My Gauges"
 
-  l.dashboard do |d|
-    d.chart :convertion do |c|
+  l.page "Dashboard" do |d|
+    d.spline :convertion do |c|
       c.sensor :adv_clicks, color: :green
       c.sensor :adv_shows, color: :red
     end
@@ -22,15 +22,15 @@ layout = PulseMeter::Visualizer.draw do |l|
   end
 
   l.page "Page 1" do |p|
-    p.chart :rph_total, sensor: :rph_total
+    p.spline :rph_total, sensor: :rph_total
   end
 
   l.page "Page 2" do |p|
-    p.chart :rph_main_page, sensor: :rph_main_page
+    p.spline :rph_main_page, sensor: :rph_main_page
   end
 
   l.page "Page 3" do |p|
-    p.chart :request_time_p95_hour
+    p.spline :request_time_p95_hour
   
     p.pie :success_vs_fail_total_hourly do |w|
       w.sensor :success_total_hourly
@@ -39,7 +39,6 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   end
 
-  l.redraw_interval 10
   l.use_utc false
 end
 
