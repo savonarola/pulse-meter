@@ -30,25 +30,13 @@ module PulseMeter
           @pages << page
         end
 
-        def dashboard(&block)
-          page = PulseMeter::Visualize::DSL::Page.new
-          yield(page)
-          @dashboard = page
-        end
-
         def to_layout
           pages = @pages.map(&:to_page)
           title = @title || ''
-          dashboard = if @dashboard
-            @dashboard.to_page
-          else
-            nil
-          end
           redraw_interval = @redraw_interval || 0
           PulseMeter::Visualize::Layout.new( {
             pages: pages,
             title: title,
-            dashboard: dashboard,
             redraw_interval: redraw_interval,
             use_utc: @use_utc
           } )

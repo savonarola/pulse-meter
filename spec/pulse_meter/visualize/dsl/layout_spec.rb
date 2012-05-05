@@ -12,7 +12,6 @@ describe PulseMeter::Visualize::DSL::Layout do
       l.title.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_TITLE
       l.redraw_interval.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_REDRAW_INTERVAL
       l.pages.should == []
-      l.dashboard.should be_nil
       l.use_utc.should be_true
     end
   end
@@ -29,22 +28,6 @@ describe PulseMeter::Visualize::DSL::Layout do
       l.pages.size.should == 1
       p = l.pages.first
       p.title.should == "My Foo Page"
-      p.widgets.size.should == 2
-      p.widgets.first.title.should == "foo_widget"
-      p.widgets.last.title.should == "bar_widget"
-    end
-  end
-
-  describe "#dashboard" do
-    it "should set dashboard constructed by block to pages" do
-      layout.dashboard do |p|
-        p.pie :foo_widget, sensor: sensor_name
-        p.chart :bar_widget do |w|
-          w.sensor(sensor_name)
-        end
-      end
-      l = layout.to_layout
-      p = l.dashboard
       p.widgets.size.should == 2
       p.widgets.first.title.should == "foo_widget"
       p.widgets.last.title.should == "bar_widget"

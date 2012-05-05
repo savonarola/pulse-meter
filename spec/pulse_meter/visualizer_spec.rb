@@ -7,13 +7,13 @@ describe PulseMeter::Visualizer do
 
         l.title "My Gauges"
 
-        l.dashboard do |d|
-          d.chart :convertion do |c|
+        l.page "Dashboard" do |p|
+          p.chart :convertion do |c|
             c.sensor :adv_clicks, color: :green
             c.sensor :adv_shows, color: :red
           end
 
-          d.pie :agents, title: 'User Agents' do |c|
+          p.pie :agents, title: 'User Agents' do |c|
             c.sensor :agent_ie
             c.sensor :agent_chrome
             c.sensor :agent_ff
