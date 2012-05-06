@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+$: << File.join(File.absolute_path(__FILE__), '..', 'lib')
+require 'pulse-meter'
+require 'eventmachine'
+
+PulseMeter::Server.start do
+  remote do
+    client :udp do
+      host "127.0.0.1"
+      port 9090
+    end
+
+    sensor :megafone do
+      client :udp
+      ttl 20
+    end
+  end
+
+  client :redis do
+    host "127.0.0.1"
+    port 9090
+  end
+
+  sensor :agent_ie => PulseMeter::Sensor::Timelined::Median do
+    client :second
+  end
+end
