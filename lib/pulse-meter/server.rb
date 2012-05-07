@@ -1,48 +1,29 @@
-require 'pulse-meter/listener/dsl'
+require 'pulse-meter/configuration/dsl'
 require 'eventmachine'
 
 module PulseMeter
-    def options=(options)
-      @@options = options
-    end
 
-    def options
-      @@options
-    end
+    class ListenerServer < EventMachine::Connection
+      def post_init
+       puts "-- someone connected to the echo server!"
+      end
 
-    class ProxyConnection
-      def initialize(client, request)
-         @client, @request = client, request
-       end
-
-       def post_init
-         EM::enable_proxy(self, @client)
-       end
-
-       def connection_completed
-         send_data @request
-       end
-
-       def proxy_target_unbound
-         close_connection
+       def receive_data(data)
+         puts "Recieved: #{data}"
        end
 
        def unbind
-         @client.close_connection_after_writing
+         close_connection
        end
     end
 
     class Server < ::EventMachine::Connection
       def self.start(&block)
-        PulseMeter.options = PulseMeter::Listener::DSL.new(&block)
+        PulseMeter.configuration = PulseMeter::Configuration::DSL.new(&block)
 
         EM.run do
-          EM.open_datagram_socket(PulseMeter.options.server.host, PulseMeter.options.server.port, self)
+          EM.open_datagram_socket(PulseMeter.configuration.server.host, PulseMeter.configuration.server.port, ListenerServer)
         end
-      end
-
-      def receive_data(data)
-        EM.connect("10.0.0.15", 80, ProxyConnection, self, data)
       end
     end
 end

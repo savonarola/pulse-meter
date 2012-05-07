@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::Indicator do
-  let(:name){ :some_value }
+  include_context :dsl
+
+  let(:name){ :sensor_name }
   let(:sensor){ described_class.new(name) }
-  let(:redis){ PulseMeter.redis }
 
   describe "#event" do
     it "should set sensor value to passed value" do
@@ -26,7 +27,7 @@ describe PulseMeter::Sensor::Indicator do
     it "should store stringified value by value_key" do
       sensor.event(123)
       sensor.value.should == 123
-      redis.get(sensor.value_key) == '123'
+      sensor.redis.get(sensor.value_key) == '123'
     end
   end
 
@@ -35,7 +36,7 @@ describe PulseMeter::Sensor::Indicator do
       sensor.annotate("My Indicator")
       sensor.event(123)
       sensor.cleanup
-      redis.keys('*').should be_empty
+      sensor.redis.keys('*').should be_empty
     end
   end
 

@@ -1,15 +1,15 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::Base do
-  let(:name){ :some_sensor }
+  include_context :dsl
+
+  let(:name){ :sensor_name }
   let(:description) {"Le awesome description"}
-  let!(:sensor){ described_class.new(name) }
-  let(:redis){ PulseMeter.redis }
+  let!(:sensor) { described_class.new(name) }
 
   describe '#initialize' do
     context 'when PulseMeter.redis is not initialized' do
       it "should raise RedisNotInitialized exception" do
-        PulseMeter.redis = nil
         expect{ described_class.new(:foo) }.to raise_exception(PulseMeter::RedisNotInitialized)
       end
     end
@@ -26,18 +26,18 @@ describe PulseMeter::Sensor::Base do
 
       context 'when passed sensor name is valid' do
         it "should successfully create object" do
-          described_class.new(:foo).should_not be_nil
+          described_class.new(name).should_not be_nil
         end
 
         it "should initialize attributes #redis and #name" do
-          sensor = described_class.new(:foo)
-          sensor.name.should == 'foo'
-          sensor.redis.should == PulseMeter.redis
+          sensor = described_class.new(name)
+          sensor.name.should == name.to_s
+          sensor.redis.should == PulseMeter::Client::Manager.find_for_sensor(name)
         end
 
-        it "should save dump to redis automatically to let the object be restored by name" do
-          described_class.restore(name).should be_instance_of(described_class)
-        end
+        #it "should save dump to redis automatically to let the object be restored by name" do
+        #  described_class.restore(name).should be_instance_of(described_class)
+        #end
       end
     end
   end
@@ -45,7 +45,7 @@ describe PulseMeter::Sensor::Base do
   describe '#annotate' do
 
     it "should store sensor annotation in redis" do
-      expect {sensor.annotate(description)}.to change{redis.keys('*').count}.by(1)
+      expect {sensor.annotate(description)}.to change{sensor.redis.keys('*').count}.by(1)
     end
 
   end
@@ -78,7 +78,7 @@ describe PulseMeter::Sensor::Base do
       sensor.event(123)
       sensor.annotate(description)
       sensor.cleanup
-      redis.keys('*').should be_empty
+      sensor.redis.keys('*').should be_empty
     end
   end
 

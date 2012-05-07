@@ -1,7 +1,7 @@
 module PulseMeter
   module Mixins
     module Dumper
-      DUMP_REDIS_KEY = "pulse_meter::dump" 
+      DUMP_REDIS_KEY = "pulse_meter::dump"
 
       module InstanceMethods
         def dump!
@@ -24,14 +24,14 @@ module PulseMeter
 
       module ClassMethods
         def restore(name)
-          serialized_obj = PulseMeter.redis.hget(DUMP_REDIS_KEY, name)
+          serialized_obj = redis.hget(DUMP_REDIS_KEY, name)
           Marshal.load(serialized_obj)
         rescue
           raise RestoreError, "cannot restore #{name}"
         end
 
         def list_names
-          PulseMeter.redis.hkeys(DUMP_REDIS_KEY)
+          redis.hkeys(DUMP_REDIS_KEY)
         rescue
           raise RestoreError, "cannot get data from redis"
         end
@@ -50,7 +50,6 @@ module PulseMeter
         base.send :include, InstanceMethods
         base.send :extend, ClassMethods
       end
-
     end
   end
 end

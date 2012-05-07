@@ -1,5 +1,5 @@
 module PulseMeter
-  module Listener
+  module Configuration
     module Dsl
       class Client
         attr_reader :name, :remote

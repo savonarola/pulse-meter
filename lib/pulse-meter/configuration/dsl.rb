@@ -1,10 +1,10 @@
-require 'pulse-meter/listener/dsl/client'
-require 'pulse-meter/listener/dsl/sensor'
+require 'pulse-meter/configuration/dsl/client'
+require 'pulse-meter/configuration/dsl/sensor'
 
 module PulseMeter
-    module Listener
+    module Configuration
         class DSL
-          attr_reader :clients, :sensors, :remoted
+          attr_reader :clients, :sensors, :remoted, :server
 
           def initialize(&block)
             @remoted = false
@@ -20,9 +20,17 @@ module PulseMeter
             @remoted = false
           end
 
+          def server(&block)
+            if block_given?
+              @server = PulseMeter::Configuration::Dsl::Client.new(:server, false, &block)
+            else
+              @server
+            end
+          end
+
           def client(name, &block)
             if block_given?
-              @clients[name] = PulseMeter::Listener::Dsl::Client.new(name, @remoted, &block)
+              @clients[name] = PulseMeter::Configuration::Dsl::Client.new(name, @remoted, &block)
             else
               @clients[name]
             end
@@ -36,7 +44,7 @@ module PulseMeter
             end
 
             if block_given?
-              @sensors[name] = PulseMeter::Listener::Dsl::Sensor.new(name, klass, @remoted, &block)
+              @sensors[name] = PulseMeter::Configuration::Dsl::Sensor.new(name, klass, @remoted, &block)
             else
               @sensors[name]
             end

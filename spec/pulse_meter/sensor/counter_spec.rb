@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::Counter do
-  let(:name){ :some_counter }
-  let(:sensor){ described_class.new(name) }
-  let(:redis){ PulseMeter.redis }
+  include_context :dsl
+
+  let(:name) { :sensor_name }
+  let(:sensor) { described_class.new(name) }
 
   describe "#event" do
     it "should increment sensor value by passed value" do
@@ -31,7 +32,7 @@ describe PulseMeter::Sensor::Counter do
     it "should store stringified value by value_key" do
       sensor.event(123)
       sensor.value.should == 123
-      redis.get(sensor.value_key) == '123'
+      sensor.redis.get(sensor.value_key) == '123'
     end
   end
 
@@ -47,7 +48,7 @@ describe PulseMeter::Sensor::Counter do
       sensor.annotate("My Counter")
       sensor.event(123)
       sensor.cleanup
-      redis.keys('*').should be_empty
+      sensor.redis.keys('*').should be_empty
     end
   end
 

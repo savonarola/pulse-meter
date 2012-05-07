@@ -1,4 +1,4 @@
-class PulseMeter::Listener::Dsl::Sensor
+class PulseMeter::Configuration::Dsl::Sensor
   attr_reader :name, :class_name, :remote, :options
 
   def initialize(name, class_name, remote, &block)
@@ -7,7 +7,7 @@ class PulseMeter::Listener::Dsl::Sensor
     instance_eval(&block)
   end
 
-  def method_missing(name, value)
+  def method_missing(name, value = nil)
     if unexpected_params_for_local_client?(name)
       raise "Not valid parameter: #{name} for local client"
     end

@@ -23,7 +23,7 @@ module PulseMeter
 
   class RedisNotInitialized < SensorError
     def initialize
-      super("PulseMeter.redis is not set")
+      super("Sensor not mapped to client")
     end
   end
 
@@ -31,4 +31,4 @@ module PulseMeter
   class RestoreError < SensorError; end
 
 end
-  
+

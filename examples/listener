@@ -2,9 +2,13 @@
 
 $: << File.join(File.absolute_path(__FILE__), '..', 'lib')
 require 'pulse-meter'
-require 'eventmachine'
 
 PulseMeter::Server.start do
+  server do
+    host "127.0.0.1"
+    port 9090
+  end
+
   remote do
     client :udp do
       host "127.0.0.1"

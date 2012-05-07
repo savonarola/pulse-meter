@@ -1,30 +1,9 @@
 require 'spec_helper'
 
-describe PulseMeter::Listener::DSL do
-  before do
-    @dsl = described_class.new do
-      remote do
-        client :udp do
-          host "udp-host"
-          port 1234
-        end
+describe PulseMeter::Configuration::DSL do
+  include_context :configuration
 
-        sensor :udp_sensor do
-          client :udp
-          ttl 10
-        end
-      end
-
-      client :first do
-        host "localhost"
-        port 1234
-      end
-
-      sensor :sensor_name => PulseMeter::Sensor::Timelined::Median do
-        client :first
-      end
-    end
-  end
+  before { @dsl = PulseMeter.configuration }
 
   describe "remote client" do
     it "should have remote flag with true value" do

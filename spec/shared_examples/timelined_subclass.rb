@@ -1,5 +1,7 @@
 shared_examples_for "timelined subclass" do |events, result, extra_options|
-  let(:name){ :counter }
+  include_context :dsl
+
+  let(:name){ :sensor_name }
   let(:ttl){ 100 }
   let(:raw_data_ttl){ 10 }
   let(:interval){ 5 }
