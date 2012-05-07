@@ -1,5 +1,6 @@
 require 'thor'
 require 'terminal-table'
+require 'time'
 require 'json'
 
 module Cmd
@@ -82,6 +83,19 @@ module Cmd
       with_safe_restore_of(name) do |sensor|
         table = Terminal::Table.new
         sensor.timeline(seconds).each {|data| table << [data.start_time, data.value || '-']}
+        puts table
+      end
+    end
+
+    desc "timeline_within NAME FROM TILL", "Get sensor's NAME timeline in interval. Time format: YYYY-MM-DD HH:MM:SS"
+    common_options
+    def timeline_within(name, from, till)
+      with_safe_restore_of(name) do |sensor|
+        table = Terminal::Table.new
+        sensor.timeline_within(
+          Time.parse(from),
+          Time.parse(till)
+        ).each {|data| table << [data.start_time, data.value || '-']}
         puts table
       end
     end
