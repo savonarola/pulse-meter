@@ -2,8 +2,6 @@ require 'sinatra/base'
 require 'haml'
 require 'gon-sinatra'
 
-require 'pulse-meter/visualize/visualize_faker'
-
 module PulseMeter
   module Visualize
     class App < Sinatra::Base
@@ -30,7 +28,7 @@ module PulseMeter
 				id = params[:id].to_i 
 
 				content_type :json
-        camelize_keys(VisualizeFaker.widgets(id)).to_json
+        camelize_keys(@layout.widgets(id)).to_json
 			end
 
 			get '/pages/:page_id/widgets/:id' do
@@ -38,7 +36,7 @@ module PulseMeter
 				id = params[:id].to_i 
 
 				content_type :json
-        camelize_keys(VisualizeFaker.widget(page_id, id)).to_json
+        camelize_keys(@layout.widget(page_id, id)).to_json
 			end
     end
   end
