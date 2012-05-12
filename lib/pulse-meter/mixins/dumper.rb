@@ -24,9 +24,7 @@ module PulseMeter
 
       module ClassMethods
         def restore(name)
-          #STDERR.puts "Redis: #{PulseMeter.redis.inspect}, DUMP_REDIS_KEY: #{DUMP_REDIS_KEY}, name: #{name}"
           serialized_obj = PulseMeter.redis.hget(DUMP_REDIS_KEY, name)
-          STDERR.puts "serialized_obj: #{serialized_obj.inspect}"
           Marshal.load(serialized_obj)
         rescue
           raise RestoreError, "cannot restore #{name}"
