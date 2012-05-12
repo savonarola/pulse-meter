@@ -29,7 +29,7 @@ rhino_average_age = PulseMeter::Sensor::Timelined::Average.new(:rhino_average_ag
 )
 
 while true
-  sleep(1)
+  sleep(Random.rand)
   STDERR.puts "tick"
   lama_counter.event(1)
   rhino_counter.event(2)
