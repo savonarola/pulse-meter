@@ -33,6 +33,8 @@ module PulseMeter
         }
       end
 
+      protected
+
       def series_data
         case type
           when :spline

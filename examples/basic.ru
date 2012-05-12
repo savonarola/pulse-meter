@@ -33,8 +33,8 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.show_last_point true
       c.timespan 120
 
-      c.sensor :rhino_count
-      c.sensor :lama_count
+      c.sensor :rhino_count, color: '#FF0000'
+      c.sensor :lama_count, color: '#00FF00'
     end
 
     p.pie "Rhino & Lama count comparison" do |c|
@@ -44,8 +44,8 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.show_last_point true
       c.timespan 120
 
-      c.sensor :rhino_count
-      c.sensor :lama_count
+      c.sensor :rhino_count, color: '#FF0000'
+      c.sensor :lama_count, color: '#00FF00'
     end
 
   end

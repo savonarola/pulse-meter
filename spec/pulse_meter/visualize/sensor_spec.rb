@@ -6,6 +6,10 @@ describe PulseMeter::Visualize::Sensor do
   let(:annotation) { 'sensor descr' }
   let!(:real_sensor){ PulseMeter::Sensor::Timelined::Counter.new(name, ttl: 1000, interval: interval, annotation: annotation) }
   let(:sensor) { described_class.new(sensor: name) }
+
+  let(:color){ '#ABCDEF' }
+  let(:sensor_with_color) { described_class.new(sensor: name, color: color) }
+
   let(:bad_sensor) { described_class.new(sensor: "bad_sensor_name") }
   let(:interval_start){ Time.at((Time.now.to_i / interval) * interval) }
 
@@ -60,13 +64,15 @@ describe PulseMeter::Visualize::Sensor do
       end
     end
 
-    it "should return last value with annotation" do
+    it "should return last value with annotation (and color)" do
       Timecop.freeze(interval_start) do
         real_sensor.event(101)
       end
       Timecop.freeze(interval_start + 1) do
-        sensor.last_point_data(true).should == [annotation, 101]
-        sensor.last_point_data.should == [annotation, nil]
+        sensor.last_point_data(true).should == {name: annotation, y: 101}
+        sensor.last_point_data.should == {name: annotation, y: nil}
+        sensor_with_color.last_point_data(true).should == {name: annotation, y: 101, color: color}
+        sensor_with_color.last_point_data.should == {name: annotation, y: nil, color: color}
       end
     end
   end
@@ -94,6 +100,12 @@ describe PulseMeter::Visualize::Sensor do
           sensor.timeline_data(interval)[:name].should == annotation
         end
       end
+      it "should contain sensor color" do
+        Timecop.freeze(interval_start + interval + 1) do
+          sensor_with_color.timeline_data(interval)[:color].should == color
+        end
+      end
+
       it "should contain [interval_start, value] pairs for each interval" do
         Timecop.freeze(interval_start + interval + 1) do
           data = sensor.timeline_data(interval * 2)
