@@ -2,6 +2,7 @@ module PulseMeter
   module Visualize
     class Sensor
       attr_reader :name
+      attr_reader :color
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
@@ -9,25 +10,15 @@ module PulseMeter
         @color = args[:color]
       end
 
-      def timeline(ago)
-        sensor = real_sensor
-        return nil unless sensor
-        res = { 
-          :interval => sensor.interval,
-          :name => name,
-          :values => sensor.timeline(ago)
-        }
-        res[:color] = @color if @color
-        res
-      end
-
       def last_value(need_incomplete=false)
         sensor = real_sensor
+
         sensor_data = if need_incomplete
           sensor.timeline(sensor.interval).first
         else
           sensor.timeline(sensor.interval * 2).first
         end
+
         if sensor_data.is_a?(PulseMeter::SensorData)
           sensor_data.value
         else
@@ -54,8 +45,6 @@ module PulseMeter
       def real_sensor
         # TODO add !temporarily! caching if this will be called too frequently
         PulseMeter::Sensor::Base.restore(@name)
-      rescue RestoreError
-        nil
       end
 
     end
