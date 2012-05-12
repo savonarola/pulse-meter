@@ -28,7 +28,7 @@ module PulseMeter
 				id = params[:id].to_i 
 
 				content_type :json
-        camelize_keys(@layout.widgets(id)).to_json
+        camelize_keys(@layout.widgets(id - 1)).to_json
 			end
 
 			get '/pages/:page_id/widgets/:id' do
@@ -36,7 +36,7 @@ module PulseMeter
 				id = params[:id].to_i 
 
 				content_type :json
-        camelize_keys(@layout.widget(page_id, id)).to_json
+        camelize_keys(@layout.widget(page_id - 1, id - 1)).to_json
 			end
     end
   end

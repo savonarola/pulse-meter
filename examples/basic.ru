@@ -2,39 +2,92 @@ $: << File.join(File.absolute_path(__FILE__), '..', 'lib')
 
 require 'pulse-meter/visualizer'
 
+PulseMeter.redis = Redis.new
+
 layout = PulseMeter::Visualizer.draw do |l|
 
-  l.title "My Gauges"
+  l.title "WunderZoo Stats"
 
-  l.page "Dashboard" do |d|
-    d.spline :convertion do |c|
-      c.sensor :adv_clicks, color: :green
-      c.sensor :adv_shows, color: :red
+  l.page "Counts" do |p|
+
+    p.spline "Lama count", sensor: :lama_count do |c|
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
     end
 
-    d.pie :agents, title: 'User Agents' do |c|
-      c.sensor :agent_ie
-      c.sensor :agent_chrome
-      c.sensor :agent_ff
-      c.sensor :agent_other
+    p.spline "Rhino count", sensor: :rhino_count do |c|
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+    end
+
+    p.spline "Rhino & Lama count comparison" do |c|
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+
+      c.sensor :rhino_count
+      c.sensor :lama_count
+    end
+
+    p.pie "Rhino & Lama count comparison" do |c|
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+
+      c.sensor :rhino_count
+      c.sensor :lama_count
     end
 
   end
 
-  l.page "Page 1" do |p|
-    p.spline :rph_total, sensor: :rph_total
-  end
+  l.page "Ages" do |p|
 
-  l.page "Page 2" do |p|
-    p.spline :rph_main_page, sensor: :rph_main_page
-  end
+    p.spline "Lama average age", sensor: :lama_average_age do |c|
+      c.redraw_interval 5
+      c.values_label 'Age'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+    end
 
-  l.page "Page 3" do |p|
-    p.spline :request_time_p95_hour
-  
-    p.pie :success_vs_fail_total_hourly do |w|
-      w.sensor :success_total_hourly
-      w.sensor :fail_total_hourly
+    p.spline "Rhino average age", sensor: :rhino_average_age do |c|
+      c.redraw_interval 5
+      c.values_label 'Age'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+    end
+
+    p.spline "Rhino & Lama average age comparison" do |c|
+      c.redraw_interval 5
+      c.values_label 'Age'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+
+      c.sensor :lama_average_age
+      c.sensor :rhino_average_age
+    end
+
+    p.pie "Rhino & Lama average age comparison" do |c|
+      c.redraw_interval 5
+      c.values_label 'Age'
+      c.width 5
+      c.show_last_point true
+      c.timespan 120
+
+      c.sensor :lama_average_age
+      c.sensor :rhino_average_age
     end
 
   end

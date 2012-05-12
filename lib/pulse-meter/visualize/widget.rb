@@ -21,6 +21,43 @@ module PulseMeter
         @redraw_interval = args[:redraw_interval]
         @timespan = args[:timespan]
       end
+
+      def data
+        {
+          title: title,
+          type: type,
+          values_title: values_label,
+          width: width,
+          interval: redraw_interval,
+          series: series_data
+        }
+      end
+
+      def series_data
+        case type
+          when :spline
+            line_series_data
+          when :line
+            line_series_data
+          when :pie
+            pie_series_data
+        end
+      end
+
+      def line_series_data
+        sensors.map do |s|
+          s.timeline_data(timespan, show_last_point)
+        end
+      end
+
+      def pie_series_data
+        [{
+          type: type,
+          name: values_label,
+          data: sensors.map{|s| s.last_point_data(show_last_point)}
+        }]
+      end
+
     end
   end
 end

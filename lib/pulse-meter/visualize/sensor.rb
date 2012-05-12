@@ -21,6 +21,34 @@ module PulseMeter
         res
       end
 
+      def last_value(need_incomplete=false)
+        sensor = real_sensor
+        sensor_data = if need_incomplete
+          sensor.timeline(sensor.interval).first
+        else
+          sensor.timeline(sensor.interval * 2).first
+        end
+        if sensor_data.is_a?(PulseMeter::SensorData)
+          sensor_data.value
+        else
+          nil
+        end
+      end
+
+      def last_point_data(need_incomplete=false)
+        [real_sensor.annotation, last_value(need_incomplete)]
+      end
+
+      def timeline_data(time_span, need_incomplete = false)
+        sensor = real_sensor
+        data = sensor.timeline(time_span).map{|sd| [sd.start_time.to_i*1000, sd.value]}
+        data.pop unless need_incomplete
+        {
+            name: sensor.annotation,
+            data: data
+        }
+      end
+
       protected
 
       def real_sensor

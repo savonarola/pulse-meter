@@ -155,10 +155,10 @@ $ ->
 	}
 
 	widgetList = new WidgetList
-	setInterval( ->
-		widgetList.each (w) ->
-			w.refetch()
-	, 100)
+#	setInterval( ->
+#		widgetList.each (w) ->
+#			w.refetch()
+#	, 100)
 
 	WidgetListView = Backbone.View.extend {
 		initialize: ->
