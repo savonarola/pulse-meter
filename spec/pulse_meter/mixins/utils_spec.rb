@@ -110,4 +110,25 @@ describe PulseMeter::Mixins::Utils do
       uniq_values.uniq.count.should == uniq_values.count
     end
   end
+
+  describe "#titleize" do
+    it "should convert identificator to title" do
+      dummy.titleize("aaa_bbb").should == 'Aaa Bbb'
+      dummy.titleize(:aaa_bbb).should == 'Aaa Bbb'
+      dummy.titleize("aaa bbb").should == 'Aaa Bbb'
+    end
+  end
+
+  describe "#camelize" do
+    it "should camelize string" do
+      dummy.camelize("aa_bb_cc").should == "aaBbCc"
+      dummy.camelize("aa_bb_cc", true).should == "AaBbCc"
+    end
+  end
+
+  describe "#camelize_keys" do
+    it "should deeply camelize keys in hashes" do
+      dummy.camelize_keys({ :aa_bb_cc => [ { :dd_ee => 123 }, 456 ] }).should =={ 'aaBbCc' => [ { 'ddEe' => 123 }, 456 ] }
+    end
+  end
 end

@@ -1,0 +1,29 @@
+!!!
+%head
+  %title= @title
+  :javascript
+    var ROOT = "#{url('/')}";
+  = include_gon
+  - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js highcharts.js application.js bootstrap.js}.each do |jsfile|
+    %script{:type => 'text/javascript', :src => url("/js/#{jsfile}")}
+  - %w{bootstrap.min.css application.css}.each do |cssfile|
+    %link{:rel => 'stylesheet', :href => url("/css/#{cssfile}"), :type => 'text/css', :media => 'screen'}
+		
+%body
+  %script#widget-template{type: 'text/template'}
+    #plotarea
+    #chart-controls
+      %span#refresh.btn.btn-mini{href: '#'}
+        %i.icon-refresh
+        Refresh
+    %hr
+
+  .container#main
+    .row
+      .span10.offset1
+        .navbar
+          .navbar-inner
+            .container
+              %span.brand= @title 
+              %ul.nav#page-titles
+        #widgets.row
