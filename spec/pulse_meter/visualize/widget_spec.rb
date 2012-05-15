@@ -84,7 +84,6 @@ describe PulseMeter::Visualize::Widget do
 
         end
 
-
         context "line, spline widgets" do
 
           it "should contain valid series" do
