@@ -4,7 +4,6 @@ module PulseMeter
       attr_reader :pages
 
       attr_reader :title
-      attr_reader :redraw_interval
       attr_reader :use_utc
 
       def initialize(args) 

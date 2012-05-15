@@ -56,6 +56,14 @@ describe PulseMeter::Visualize::Page do
   end
 
   describe "#widget_data" do
+
+    it "should generate correct data of single widget" do
+      Timecop.freeze(interval_start + 2 * interval - 1) do
+        page.widget_data(0)[:id].should == 1
+        page.widget_data(1)[:id].should == 2
+      end
+    end
+
     it "should generate correct data of single widget" do
       Timecop.freeze(interval_start + 2 * interval - 1) do
         page.widget_data(0)[:series].should ==
@@ -95,8 +103,15 @@ describe PulseMeter::Visualize::Page do
   end
 
   describe "#widget_datas" do
-    it "should generate correct data of all widgets" do
+    it "should generate correct ids for all widgets" do
       Timecop.freeze(interval_start + 2 * interval - 1) do
+        page.widget_datas.map{|h| h[:id]}.should == [1,2]
+      end
+    end
+
+    it "should generate correct series data of all widgets" do
+      Timecop.freeze(interval_start + 2 * interval - 1) do
+
         page.widget_datas.map{|h| h[:series]}.should == [
           [
             {
