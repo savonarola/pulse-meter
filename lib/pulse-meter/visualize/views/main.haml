@@ -13,9 +13,17 @@
   %script#widget-template{type: 'text/template'}
     #plotarea
     #chart-controls
-      %span#refresh.btn.btn-mini{href: '#'}
-        %i.icon-refresh
-        Refresh
+      .form-inline
+        %span#refresh.btn.btn-mini
+          %i.icon-refresh
+          Refresh
+        %span.space
+        Cutoff max:
+        %input.btn-mini
+        %span.space
+        Cutoff min:
+        %input.btn-mini
+
     %hr
 
   .container#main

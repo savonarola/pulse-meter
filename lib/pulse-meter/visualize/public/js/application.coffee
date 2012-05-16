@@ -97,34 +97,17 @@ $ ->
 			ROOT + 'pages/' + pageTitles.selected().id + '/widgets'
 	}
 
-	WidgetView = Backbone.View.extend {
+	WidgetChartView = Backbone.View.extend {
 		tagName: 'div'
 
-		template: _.template($('#widget-template').html())
-
 		initialize: ->
-			@model.bind 'change', @reRender, this
+			@model.bind 'change', @render, this
 			@model.bind 'destroy', @remove, this
 
-		events: {
-			"click #refresh": 'refresh'
-		}
-
-		refresh: ->
-			@model.fetch()
-	
-		reRender: ->
-			@render()
-			@renderChart()
-
 		render: ->
-			@$el.html @template(@model.toJSON())
-			@$el.addClass "span#{@model.get('width')}"
-
-		renderChart: ->
 			@chart = new Highcharts.Chart {
 				chart: {
-					renderTo: @$el.find('#plotarea')[0]
+					renderTo: @el
 					plotBorderWidth: 1
 					spacingLeft: 0
 					spacingRight: 0
@@ -152,6 +135,36 @@ $ ->
 					}
 				}
 			}
+
+  }
+
+	WidgetView = Backbone.View.extend {
+		tagName: 'div'
+
+		template: _.template($('#widget-template').html())
+
+		initialize: ->
+      @model.bind 'destroy', @remove, this
+
+		events: {
+			"click #refresh": 'refresh'
+		}
+
+		refresh: ->
+			@model.fetch()
+	
+		renderChart: ->
+			@chartView.render()
+
+
+		render: ->
+			@$el.html @template(@model.toJSON())
+			@chartView = new WidgetChartView {
+        model: @model
+      }
+      @$el.find("#plotarea").append(@chartView.el)
+      @$el.addClass "span#{@model.get('width')}"
+
 	}
 
 	widgetList = new WidgetList
