@@ -6,12 +6,16 @@ module PulseMeter
       include PulseMeter::Mixins::Utils
 
       attr_reader :interval, :ttl, :raw_data_ttl, :reduce_delay
+      DEFAULTS = {
+        :raw_data_ttl => 3600,
+        :reduce_delay => 60,
+      }
 
       def initialize(name, options)
         @interval = assert_positive_integer!(options, :interval)
         @ttl = assert_positive_integer!(options, :ttl)
-        @raw_data_ttl = assert_positive_integer!(options, :raw_data_ttl)
-        @reduce_delay = assert_positive_integer!(options, :reduce_delay)
+        @raw_data_ttl = assert_positive_integer!(options, :raw_data_ttl, DEFAULTS[:raw_data_ttl])
+        @reduce_delay = assert_positive_integer!(options, :reduce_delay, DEFAULTS[:reduce_delay])
         super
       end
 
@@ -60,11 +64,16 @@ module PulseMeter
 
       def timeline(time_ago)
         raise ArgumentError unless time_ago.respond_to?(:to_i) && time_ago.to_i > 0
-        now = Time.now.to_i
-        start_time = now - time_ago.to_i
+        now = Time.now
+        timeline_within(now - time_ago.to_i, now)
+      end
+
+      def timeline_within(from, till)
+        raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
+        start_time, end_time = from.to_i, till.to_i
         current_interval_id = get_interval_id(start_time) + interval
         res = []
-        while current_interval_id < now
+        while current_interval_id < end_time
           res << get_timeline_value(current_interval_id)
           current_interval_id += interval
         end
@@ -84,11 +93,11 @@ module PulseMeter
       end
 
       def raw_data_key(id)
-        "raw:#{name}:#{id}"
+        "pulse_meter:raw:#{name}:#{id}"
       end
 
       def data_key(id)
-        "data:#{name}:#{id}"
+        "pulse_meter:data:#{name}:#{id}"
       end
 
       def get_interval_id(time)
@@ -112,4 +121,3 @@ module PulseMeter
     end
   end
 end
-

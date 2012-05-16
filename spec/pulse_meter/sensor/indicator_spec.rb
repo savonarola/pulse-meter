@@ -14,8 +14,8 @@ describe PulseMeter::Sensor::Indicator do
   end
 
   describe "#value_key" do
-    it "should be composed of sensor name and :value suffix" do
-      sensor.value_key.should == "#{name}:value"
+    it "should be composed of sensor name and pulse_meter:value: prefix" do
+      sensor.value_key.should == "pulse_meter:value:#{name}"
     end
   end
 

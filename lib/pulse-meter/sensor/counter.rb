@@ -20,7 +20,7 @@ module PulseMeter
       end
 
       def value_key
-        @value_key ||= "#{name}:value"
+        @value_key ||= "pulse_meter:value:#{name}"
       end
     end
   end

@@ -14,8 +14,20 @@ describe PulseMeter::Sensor::Timeline do
   it_should_behave_like "timeline sensor"
 
   describe '#new' do
-    let(:bad_init_values){ [:q, -1, nil] }
-    INIT_VALUE_NAMES = [:ttl, :raw_data_ttl, :interval, :reduce_delay]
+    INIT_VALUE_NAMES = {
+      :with_defaults => [:raw_data_ttl, :reduce_delay],
+      :without_defaults => [:ttl, :interval]
+    }
+
+    shared_examples_for "error raiser" do |value_names, bad_values|
+      value_names.each do |value|
+        bad_values.each do |bad_value|
+          it "should raise exception if a bad value #{bad_value.inspect} passed for #{value.inspect}" do
+            expect{ described_class.new(name, good_init_values.merge(value => bad_value)) }.to raise_exception(ArgumentError)
+          end
+        end
+      end
+    end
 
     it "should initialize #ttl #raw_data_ttl #interval and #name attributes" do
       sensor.name.should == name.to_s
@@ -25,12 +37,23 @@ describe PulseMeter::Sensor::Timeline do
       sensor.interval.should == interval
     end
 
-    INIT_VALUE_NAMES.each do |val_name|
-      it "should raise exception if a bad value passed for #{val_name.inspect}" do
-        bad_init_values.each do |val|
-          expect{ described_class.new(name, good_init_values.merge(val_name => val)) }.to raise_exception(ArgumentError)
-        end
+    it_should_behave_like "error raiser", INIT_VALUE_NAMES[:without_defaults], [:bad, -1, nil]
+    it_should_behave_like "error raiser", INIT_VALUE_NAMES[:with_defaults], [:bad, -1]
+
+    INIT_VALUE_NAMES[:with_defaults].each do |value|
+      it "should not raise exception if #{value.inspect} is not defined" do
+        values = good_init_values
+        values.delete(value)
+        expect {described_class.new(name, good_init_values)}.not_to raise_exception(ArgumentError)
+      end
+
+      it "should assign default value to #{value.inspect} if it is not defined" do
+        values = good_init_values
+        values.delete(value)
+        obj = described_class.new(name, good_init_values)
+        obj.send(value).should be_kind_of(Fixnum)
       end
     end
+
   end
 end

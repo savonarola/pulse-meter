@@ -38,6 +38,16 @@ describe PulseMeter::Sensor::Base do
         #it "should save dump to redis automatically to let the object be restored by name" do
         #  described_class.restore(name).should be_instance_of(described_class)
         #end
+
+        it "should save dump to redis automatically to let the object be restored by name" do
+          described_class.restore(name).should be_instance_of(described_class)
+        end
+
+        it "should annotate object if annotation given" do
+          described_class.new(:foo, :annotation => "annotation")
+          sensor = described_class.restore(:foo)
+          sensor.annotation.should == "annotation"
+        end
       end
     end
   end

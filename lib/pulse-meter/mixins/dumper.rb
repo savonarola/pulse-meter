@@ -1,7 +1,7 @@
 module PulseMeter
   module Mixins
     module Dumper
-      DUMP_REDIS_KEY = "pulse_meter::dump"
+      DUMP_REDIS_KEY = "pulse_meter:dump"
 
       module InstanceMethods
         def dump!
@@ -18,7 +18,7 @@ module PulseMeter
         end
 
         def cleanup_dump
-          redis.del(DUMP_REDIS_KEY)
+          redis.hdel(DUMP_REDIS_KEY, self.name)
         end
       end
 

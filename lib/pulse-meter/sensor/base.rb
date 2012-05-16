@@ -8,6 +8,9 @@ module PulseMeter
 
       def initialize(name, options={})
         @name = name.to_s
+        if options[:annotation]
+          annotate(options[:annotation])
+        end
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
 
         @redis = PulseMeter::Client::Manager.find_for_sensor(name)
@@ -35,7 +38,7 @@ module PulseMeter
       protected
 
       def desc_key
-        "#{name}:desc"
+        "pulse_meter:desc:#{name}"
       end
 
       def multi
