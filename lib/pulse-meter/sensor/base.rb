@@ -1,8 +1,7 @@
 module PulseMeter
   module Sensor
     class Base
-      # [TODO] optimize
-      #include PulseMeter::Mixins::Dumper
+      include PulseMeter::Mixins::Dumper
 
       attr_reader :name, :redis
 
@@ -11,11 +10,13 @@ module PulseMeter
         if options[:annotation]
           annotate(options[:annotation])
         end
+        raise PulseMeter::RedisNotInitialized unless redis
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
+        dump!
+      end
 
-        @redis = PulseMeter::Client::Manager.find_for_sensor(name)
-        raise RedisNotInitialized unless @redis
-        #dump!
+      def redis
+        PulseMeter.redis
       end
 
       def annotate(description)
@@ -28,7 +29,7 @@ module PulseMeter
 
       def cleanup
         redis.del(desc_key)
-        #cleanup_dump
+        cleanup_dump
       end
 
       def event(value)

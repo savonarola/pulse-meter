@@ -6,10 +6,12 @@ describe PulseMeter::Sensor::Base do
   let(:name){ :sensor_name }
   let(:description) {"Le awesome description"}
   let!(:sensor) { described_class.new(name) }
+  let(:redis){ PulseMeter.redis }
 
   describe '#initialize' do
     context 'when PulseMeter.redis is not initialized' do
       it "should raise RedisNotInitialized exception" do
+        PulseMeter.redis = nil
         expect{ described_class.new(:foo) }.to raise_exception(PulseMeter::RedisNotInitialized)
       end
     end
@@ -32,7 +34,6 @@ describe PulseMeter::Sensor::Base do
         it "should initialize attributes #redis and #name" do
           sensor = described_class.new(name)
           sensor.name.should == name.to_s
-          sensor.redis.should == PulseMeter::Client::Manager.find_for_sensor(name)
         end
 
         #it "should save dump to redis automatically to let the object be restored by name" do
@@ -88,7 +89,7 @@ describe PulseMeter::Sensor::Base do
       sensor.event(123)
       sensor.annotate(description)
       sensor.cleanup
-      sensor.redis.keys('*').should be_empty
+      redis.keys('*').should be_empty
     end
   end
 

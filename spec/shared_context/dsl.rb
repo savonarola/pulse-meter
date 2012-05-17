@@ -13,13 +13,26 @@ shared_context :configuration do
 
       sensor :udp_sensor do
         client :udp
-        ttl 10
       end
     end
 
-    client :first do
+    client :first, :default => true do
       host "localhost"
       port 1234
+    end
+
+    sensor :a_sensor => PulseMeter::Sensor::Timelined::Counter do
+      ttl 1000
+      interval 100
+      annotation 'A'
+      client :first
+    end
+
+    sensor :b_sensor => PulseMeter::Sensor::Timelined::Counter do
+      ttl 1000
+      interval 100
+      annotation 'B'
+      client :first
     end
 
     sensor :sensor_name => PulseMeter::Sensor::Timelined::Median do

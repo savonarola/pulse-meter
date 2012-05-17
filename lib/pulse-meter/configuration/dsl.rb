@@ -4,12 +4,11 @@ require 'pulse-meter/configuration/dsl/sensor'
 module PulseMeter
     module Configuration
         class DSL
-          attr_reader :clients, :sensors, :remoted, :server
+          attr_reader :clients, :sensors, :remoted, :server, :default_client
 
           def initialize(&block)
             @remoted = false
-            @sensors = {}
-            @clients = {}
+            @sensors = @clients = {}
 
             instance_eval(&block)
           end
@@ -28,9 +27,10 @@ module PulseMeter
             end
           end
 
-          def client(name, &block)
+          def client(name, params = {}, &block)
             if block_given?
               @clients[name] = PulseMeter::Configuration::Dsl::Client.new(name, @remoted, &block)
+              @default_client = @clients[name] if params[:default]
             else
               @clients[name]
             end

@@ -7,15 +7,19 @@ class PulseMeter::Configuration::Dsl::Sensor
     instance_eval(&block)
   end
 
+  def create
+    @class_name.new(@name, @options)
+  end
+
   def method_missing(name, value = nil)
-    if unexpected_params_for_local_client?(name)
+    if unexpected_params_for_remote_client?(name)
       raise "Not valid parameter: #{name} for local client"
     end
     @options[name] = value
   end
 
  private
-  def unexpected_params_for_local_client?(name)
-    !@remote && name != :client
+  def unexpected_params_for_remote_client?(name)
+    @remote && name != :client
   end
 end

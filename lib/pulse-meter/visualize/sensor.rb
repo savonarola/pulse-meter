@@ -4,7 +4,7 @@ module PulseMeter
       attr_reader :name
       attr_reader :color
 
-      def initialize(args) 
+      def initialize(args)
         raise ArgumentError unless args.respond_to?('[]')
         @name = args[:sensor] or raise ArgumentError, ":sensor_name not specified"
         @color = args[:color]

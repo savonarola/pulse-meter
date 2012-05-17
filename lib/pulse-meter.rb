@@ -7,33 +7,43 @@ require "pulse-meter/sensor"
 require "pulse-meter/client/manager"
 
 module PulseMeter
-  @@redis = nil
+  @@configuration, @@redis = nil, nil
 
-  def self.send(sensor_name, value = nil)
-    sensor = configuration.sensor(sensor_name)
-    raise "Cannot find sensor: #{sensor_name}" unless sensor
+  class << self
+    def send(sensor_name, value = nil)
+      sensor = configuration.sensor(sensor_name)
+      raise "Cannot find sensor: #{sensor_name}" unless sensor
 
-    if sensor.remote
-      Client::Manager.find_for_sensor(sensor_name).send(sensor_name, value)
-    else
-      sensor.create.event(value)
+      if sensor.remote
+        Client::Manager.find_for_sensor(sensor_name).send(sensor_name, value)
+      else
+        sensor.create.event(value)
+      end
     end
-  end
 
-  def self.configuration=(configuration)
-    @@configuration = configuration
-  end
+    def configuration=(configuration)
+      @@configuration = configuration
+    end
 
-  def self.configuration
-    @@configuration
-  end
+    def configuration
+      @@configuration
+    end
 
-  #shortcuts
-  def self.sensor(name)
-    configuration.sensor(name)
-  end
+    #shortcuts
+    def sensor(name)
+      configuration.sensor(name)
+    end
 
-  def self.client(name)
-    configuration.client(name)
+    def redis=(redis)
+      @@redis = redis
+    end
+
+    def redis
+      @@redis
+    end
+
+    def client(name)
+      configuration.client(name)
+    end
   end
 end

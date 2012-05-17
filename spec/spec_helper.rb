@@ -16,6 +16,7 @@ Dir['spec/shared_examples/**/*.rb'].each{|f| require File.join(ROOT,f)}
 Dir['spec/shared_context/**/*.rb'].each{|f| require File.join(ROOT,f)}
 
 RSpec.configure do |config|
+  config.before(:each) { PulseMeter.redis = MockRedis.new }
   PulseMeter::Client::Manager.redis_class = MockRedis
 
   config.filter_run :focus => true

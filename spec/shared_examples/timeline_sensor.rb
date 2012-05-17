@@ -16,11 +16,8 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   let!(:sensor){ described_class.new(name, good_init_values) }
   let(:dummy) {Dummy.new}
   let(:base_class){ PulseMeter::Sensor::Base }
-<<<<<<< HEAD
-=======
-  let(:redis){ PulseMeter.redis }
   let(:sample_event) {default_event || 123}
->>>>>>> origin/master
+  let(:redis) { PulseMeter.redis }
 
   before(:each) do
     @interval_id = (Time.now.to_i / interval) * interval
@@ -29,33 +26,6 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     @start_of_interval = Time.at(@interval_id)
   end
 
-<<<<<<< HEAD
-  #describe "#dump" do
-  #  it "should be dumped succesfully" do
-  #    expect {sensor.dump!}.not_to raise_exception
-  #  end
-  #end
-
-  #describe ".restore" do
-  #  before do
-  #    # no need to call sensor.dump! explicitly for it
-  #    # will be called automatically after creation
-  #    @restored = base_class.restore(sensor.name)
-  #  end
-
-  #  it "should restore #{described_class} instance" do
-  #    @restored.should be_instance_of(described_class)
-  #  end
-
-  #  it "should restore object with the same data" do
-  #    def inner_data(obj)
-  #      obj.instance_variables.sort.map {|v| obj.instance_variable_get(v)}
-  #    end
-  #
-  #    inner_data(sensor).should == inner_data(@restored)
-  #  end
-  #end
-=======
   describe "#dump" do
     it "should be dumped succesfully" do
       expect {sensor.dump!}.not_to raise_exception
@@ -81,12 +51,10 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       inner_data(sensor).should == inner_data(@restored)
     end
   end
->>>>>>> origin/master
 
   describe "#event" do
     it "should write events to redis" do
       expect{
-<<<<<<< HEAD
           sensor.event(123)
       }.to change{ sensor.redis.keys('*').count }.by(1)
     end
@@ -94,15 +62,6 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     it "should write data so that it totally expires after :raw_data_ttl" do
       key_count = sensor.redis.keys('*').count
       sensor.event(123)
-=======
-          sensor.event(sample_event)
-      }.to change{ redis.keys('*').count }.by(1)
-    end
-
-    it "should write data so that it totally expires after :raw_data_ttl" do
-      key_count = redis.keys('*').count
-      sensor.event(sample_event)
->>>>>>> origin/master
       Timecop.freeze(Time.now + raw_data_ttl + 1) do
         sensor.redis.keys('*').count.should == key_count
       end
@@ -285,15 +244,6 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       data.start_time.to_i.should == @interval_id
     end
 
-<<<<<<< HEAD
-      it "should contain summarized value stored by data_key for reduced intervals" do
-        Timecop.freeze(@start_of_interval){ sensor.event(123) }
-        sensor.reduce(@interval_id)
-        Timecop.freeze(@start_of_interval + 1){
-          check_sensor_data(sensor, sensor.redis.get(sensor.data_key(@interval_id)))
-        }
-      end
-=======
     it "should contain summarized value stored by data_key for reduced intervals" do
       Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
       sensor.reduce(@interval_id)
@@ -301,7 +251,6 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
         check_sensor_data(sensor, redis.get(sensor.data_key(@interval_id)))
       }
     end
->>>>>>> origin/master
 
     it "should contain summarized value based on raw data for intervals not yet reduced" do
       Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
