@@ -37,7 +37,7 @@ module PulseMeter
 
       def timeline_data(time_span, need_incomplete = false)
         sensor = real_sensor
-        data = sensor.timeline(time_span).map{|sd| [sd.start_time.to_i*1000, sd.value]}
+        data = sensor.timeline(time_span).map{|sd| {x: sd.start_time.to_i*1000, y: sd.value}}
         data.pop unless need_incomplete
         res = {
             name: sensor.annotation,

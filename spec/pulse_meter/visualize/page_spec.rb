@@ -90,11 +90,11 @@ describe PulseMeter::Visualize::Page do
           [{
              name: a_sensor.annotation,
              color: a_color,
-             data: [[interval_start.to_i * 1000, 12]]
+             data: [{x: interval_start.to_i * 1000, y: 12}]
            }, {
             name: b_sensor.annotation,
             color: b_color,
-            data: [[interval_start.to_i * 1000, 33]]
+            data: [{x: interval_start.to_i * 1000, y: 33}]
           }]
       end
 
@@ -135,11 +135,11 @@ describe PulseMeter::Visualize::Page do
           [{
              name: a_sensor.annotation,
              color: a_color,
-             data: [[interval_start.to_i * 1000, 12]]
+             data: [{x: interval_start.to_i * 1000, y: 12}]
            }, {
             name: b_sensor.annotation,
             color: b_color,
-            data: [[interval_start.to_i * 1000, 33]]
+            data: [{x: interval_start.to_i * 1000, y: 33}]
           }]
         ]
       end

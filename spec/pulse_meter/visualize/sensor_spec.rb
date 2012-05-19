@@ -109,9 +109,9 @@ describe PulseMeter::Visualize::Sensor do
       it "should contain [interval_start, value] pairs for each interval" do
         Timecop.freeze(interval_start + interval + 1) do
           data = sensor.timeline_data(interval * 2)
-          data[:data].should == [[ interval_start.to_i * 1000, 101 ]]
+          data[:data].should == [{x: interval_start.to_i * 1000, y: 101}]
           data = sensor.timeline_data(interval * 2, true)
-          data[:data].should == [[interval_start.to_i * 1000, 101 ], [(interval_start + interval).to_i * 1000, 55]]
+          data[:data].should == [{x: interval_start.to_i * 1000, y: 101}, {x: (interval_start + interval).to_i * 1000, y: 55}]
         end
       end
     end

@@ -82,13 +82,27 @@ $ ->
 		time: -> (new Date()).getTime()
 
 		setNextFetch: ->
-			@set('nextFetch', @time() + @get('interval') * 1000)
+			@nextFetch = @time() + @get('interval') * 1000
 
 		refetch: ->
-			#console.log @time(), @get('nextFetch'), @get('nextFetch') - @time()
-			if @time() > @get('nextFetch')
+			if @time() > @nextFetch
 				@fetch()
 				@setNextFetch()
+
+		cutoffValue: (value, min, max) ->
+			newValue = value
+			if min isnt null && newValue < min
+				newValue = min
+			if max isnt null && newValue > max
+				newValue = max
+			newValue
+
+		cutoff: (min, max) ->
+			_.each(@get('series'), (s) ->
+				_.each( s.data, (v) ->
+					v.y = @cutoffValue(v.y, min, max)
+				, this)
+			, this)
 	}
 
 	WidgetList = Backbone.Collection.extend {
@@ -101,7 +115,6 @@ $ ->
 		tagName: 'div'
 
 		initialize: ->
-			@model.bind 'change', @render, this
 			@model.bind 'destroy', @remove, this
 
 		render: ->
@@ -144,7 +157,8 @@ $ ->
 		template: _.template($('#widget-template').html())
 
 		initialize: ->
-      @model.bind 'destroy', @remove, this
+			@model.bind('destroy', @remove, this)
+			@model.bind('change', @renderChart, this)
 
 		events: {
 			"click #refresh": 'refresh'
@@ -154,8 +168,8 @@ $ ->
 			@model.fetch()
 	
 		renderChart: ->
+			@model.cutoff(@cutoffMin(), @cutoffMax())
 			@chartView.render()
-
 
 		render: ->
 			@$el.html @template(@model.toJSON())
@@ -164,6 +178,18 @@ $ ->
       }
       @$el.find("#plotarea").append(@chartView.el)
       @$el.addClass "span#{@model.get('width')}"
+
+		cutoffMin: ->
+			val = parseFloat(@controlValue('#cutoff-min'))
+			if _.isNaN(val) then null else val
+
+		cutoffMax: ->
+			val = parseFloat(@controlValue('#cutoff-max'))
+			if _.isNaN(val) then null else val
+
+		controlValue: (id) ->
+			val = @$el.find(id).first().val()
+
 
 	}
 
