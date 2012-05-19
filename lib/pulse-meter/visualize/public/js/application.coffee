@@ -8,18 +8,6 @@ $ ->
 	}
 
 	PageTitle = Backbone.Model.extend {
-		defaults: -> {
-			title: ""
-			selected: false
-		}
-		initialize: ->
-			if !@get('title')
-				@set {
-					'title': @defaults.title
-				}
-			@set('selected', @defaults.selected)
-		clear: ->
-			@destroy()
 	}
 
 	PageTitleList = Backbone.Collection.extend {
@@ -122,6 +110,15 @@ $ ->
 		initialize: ->
 			@model.bind 'destroy', @remove, this
 
+		updateData: (min, max) ->
+			@model.cutoff(min, max)
+			chartSeries = @chart.series
+			newSeries = @model.get('series')
+			for i in [0 .. chartSeries.length - 1]
+				if newSeries[i]?
+					chartSeries[i].setData(newSeries[i].data, false)
+			@chart.redraw()
+
 		render: ->
 			@chart = new Highcharts.Chart {
 				chart: {
@@ -164,7 +161,7 @@ $ ->
 
 		initialize: ->
 			@model.bind('destroy', @remove, this)
-			@model.bind('change', @renderChart, this)
+			@model.bind('change', @updateChart, this)
 
 		events: {
 			"click #refresh": 'refresh'
@@ -178,10 +175,12 @@ $ ->
 			needRefresh = @$el.find('#need-refresh').is(":checked")
 			@model.setRefresh(needRefresh)
 			true
-	
+
 		renderChart: ->
-			@model.cutoff(@cutoffMin(), @cutoffMax())
 			@chartView.render()
+
+		updateChart: ->
+			@chartView.updateData(@cutoffMin(), @cutoffMax())
 
 		render: ->
 			@$el.html @template(@model.toJSON())
