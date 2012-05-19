@@ -229,7 +229,6 @@ $ ->
 
 	AppRouter = Backbone.Router.extend {
 		routes: {
-			'help' : 'help'
 			'pages/:id': 'getPage'
 			'*actions': 'defaultRoute'
 		}
