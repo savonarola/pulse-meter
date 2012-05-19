@@ -5,12 +5,14 @@ module PulseMeter
 
       attr_reader :title
       attr_reader :use_utc
+      attr_reader :outlier_color
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
         @title = args[:title] or raise ArgumentError, ":title not specified"
         @pages = args[:pages] or raise ArgumentError, ":pages not specified"
         @use_utc = args[:use_utc]
+        @outlier_color = args[:outlier_color]
       end
 
       def to_app
@@ -30,8 +32,9 @@ module PulseMeter
 
 			def options
 				{
-					use_utc: @use_utc
-				}
+					use_utc: @use_utc,
+				  outlier_color: @outlier_color
+        }
       end
 
       def widget(page_id, widget_id)

@@ -1,8 +1,9 @@
 $ ->
+	globalOptions = gon.options
 
 	Highcharts.setOptions {
 		global: {
-			useUTC: gon.options.useUtc
+			useUTC: globalOptions.useUtc
 		}
 	}
 
@@ -77,6 +78,7 @@ $ ->
 
 	Widget = Backbone.Model.extend {
 		initialize: ->
+			@needRefresh = true
 			@setNextFetch()
 
 		time: -> (new Date()).getTime()
@@ -84,23 +86,26 @@ $ ->
 		setNextFetch: ->
 			@nextFetch = @time() + @get('interval') * 1000
 
+		setRefresh: (needRefresh) ->
+			@needRefresh = needRefresh
+
 		refetch: ->
-			if @time() > @nextFetch
+			if @time() > @nextFetch && @needRefresh
 				@fetch()
 				@setNextFetch()
 
-		cutoffValue: (value, min, max) ->
-			newValue = value
-			if min isnt null && newValue < min
-				newValue = min
-			if max isnt null && newValue > max
-				newValue = max
-			newValue
+		cutoffValue: (v, min, max) ->
+			if min isnt null && v.y < min
+				v.y = min
+				v.color = globalOptions.outlierColor
+			if max isnt null && v.y > max
+				v.y = max
+				v.color = globalOptions.outlierColor
 
 		cutoff: (min, max) ->
 			_.each(@get('series'), (s) ->
 				_.each( s.data, (v) ->
-					v.y = @cutoffValue(v.y, min, max)
+					@cutoffValue(v, min, max)
 				, this)
 			, this)
 	}
@@ -126,6 +131,7 @@ $ ->
 					spacingRight: 0
 					type: @model.get('type')
 					animation: false
+					zoomType: 'x'
 				}
 				credits: {
 					enabled: false
@@ -162,10 +168,16 @@ $ ->
 
 		events: {
 			"click #refresh": 'refresh'
+			"click #need-refresh": 'setRefresh'
 		}
 
 		refresh: ->
 			@model.fetch()
+
+		setRefresh: ->
+			needRefresh = @$el.find('#need-refresh').is(":checked")
+			@model.setRefresh(needRefresh)
+			true
 	
 		renderChart: ->
 			@model.cutoff(@cutoffMin(), @cutoffMax())

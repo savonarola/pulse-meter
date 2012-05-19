@@ -52,7 +52,7 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   l.page "Ages" do |p|
 
-    p.spline "Lama average age", sensor: :lama_average_age do |c|
+    p.line "Lama average age", sensor: :lama_average_age do |c|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
@@ -60,7 +60,7 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.timespan 120
     end
 
-    p.spline "Rhino average age", sensor: :rhino_average_age do |c|
+    p.line "Rhino average age", sensor: :rhino_average_age do |c|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
@@ -68,7 +68,7 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.timespan 120
     end
 
-    p.spline "Rhino & Lama average age comparison" do |c|
+    p.line "Rhino & Lama average age comparison" do |c|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
@@ -93,6 +93,7 @@ layout = PulseMeter::Visualizer.draw do |l|
   end
 
   l.use_utc false
+  l.outlier_color '#FF0000'
 end
 
 run layout.to_app

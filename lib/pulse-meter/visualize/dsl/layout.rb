@@ -18,6 +18,10 @@ module PulseMeter
           @use_utc = use
         end
 
+        def outlier_color(color = '#FF000')
+          @outlier_color = color
+        end
+
         def page(title, &block)
           page = PulseMeter::Visualize::DSL::Page.new(title)
           yield(page)
@@ -30,7 +34,8 @@ module PulseMeter
           PulseMeter::Visualize::Layout.new( {
             pages: pages,
             title: title,
-            use_utc: @use_utc
+            use_utc: @use_utc,
+            outlier_color: @outlier_color
           } )
         end
 

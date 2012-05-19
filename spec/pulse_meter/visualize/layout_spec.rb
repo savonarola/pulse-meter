@@ -27,8 +27,9 @@ describe PulseMeter::Visualize::Layout do
     it "should return layout options" do
       ldsl = PulseMeter::Visualize::DSL::Layout.new
       ldsl.use_utc true
+      ldsl.outlier_color '#RED'
       l = ldsl.to_layout
-      l.options.should == {use_utc: true}
+      l.options.should == {use_utc: true, outlier_color: '#RED'}
     end
   end
 
