@@ -127,7 +127,6 @@ $ ->
 					spacingLeft: 0
 					spacingRight: 0
 					type: @model.get('type')
-					animation: false
 					zoomType: 'x'
 				}
 				credits: {
