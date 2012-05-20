@@ -30,7 +30,7 @@ describe PulseMeter::Visualize::Widget do
   end
 
   let(:widgets) do
-    [:line, :spline, :pie].each_with_object({}) do |type, h|
+    [:line, :spline, :area, :pie].each_with_object({}) do |type, h|
       w = PulseMeter::Visualize::DSL::Widget.new(type, widget_name)
       add_widget_settings(w)
       h[type] = w.to_widget
@@ -84,13 +84,13 @@ describe PulseMeter::Visualize::Widget do
 
         end
 
-        context "line, spline widgets" do
+        context "line, spline, area widgets" do
 
           it "should contain valid series" do
 
             Timecop.freeze(@current_time) do
 
-              [:line, :spline].each do |type|
+              [:line, :spline, :area].each do |type|
 
                 widget = widgets[type]
                 widget.data[:series].should == [{

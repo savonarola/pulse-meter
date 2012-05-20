@@ -41,6 +41,8 @@ module PulseMeter
             line_series_data
           when :line
             line_series_data
+          when :area
+            line_series_data
           when :pie
             pie_series_data
         end

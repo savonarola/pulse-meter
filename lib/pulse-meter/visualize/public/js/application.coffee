@@ -127,6 +127,7 @@ $ ->
 					spacingLeft: 0
 					spacingRight: 0
 					type: @model.get('type')
+					animation: false
 					zoomType: 'x'
 				}
 				credits: {
@@ -143,10 +144,19 @@ $ ->
 						text: @model.get('valuesTitle')
 					}
 				}
+				tooltip: {
+					xDateFormat: '%Y-%m-%d %H:%M:%S'
+					valueDecimals: 6
+				}
 				series: @model.get('series')
 				plotOptions: {
 					series: {
 						animation: false
+						lineWidth: 1
+						shadow: false
+						marker: {
+							radius: 0
+						}
 					}
 				}
 			}
