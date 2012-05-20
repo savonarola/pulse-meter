@@ -7,11 +7,11 @@ $ ->
 		}
 	}
 
-	PageTitle = Backbone.Model.extend {
+	PageInfo = Backbone.Model.extend {
 	}
 
-	PageTitleList = Backbone.Collection.extend {
-		model: PageTitle
+	PageInfoList = Backbone.Collection.extend {
+		model: PageInfo
 		selected: ->
 			@find (m) ->
 				m.get 'selected'
@@ -25,7 +25,7 @@ $ ->
 				m.set 'selected', m.id == id
 	}
 
-	pageTitles = new PageTitleList
+	pageInfos = new PageInfoList
 
 	PageTitleView = Backbone.View.extend {
 		tagName: 'li'
@@ -46,23 +46,23 @@ $ ->
 
 	PageTitlesView = Backbone.View.extend {
 		initialize: ->
-			pageTitles.bind 'reset', @render, this
+			pageInfos.bind 'reset', @render, this
 
-		addOne: (page_title) ->
+		addOne: (pageInfo) ->
 			view = new PageTitleView {
-				model: page_title
+				model: pageInfo
 			}
 			view.render()
 			$('#page-titles').append(view.el)
 
 		render: ->
 			$('#page-titles').empty()
-			pageTitles.each(@addOne)
+			pageInfos.each(@addOne)
 	}
 
 	pageTitlesApp = new PageTitlesView
 
-	pageTitles.reset gon.pageTitles
+	pageInfos.reset gon.pageInfos
 
 	Widget = Backbone.Model.extend {
 		initialize: ->
@@ -101,7 +101,7 @@ $ ->
 	WidgetList = Backbone.Collection.extend {
 		model: Widget
 		url: ->
-			ROOT + 'pages/' + pageTitles.selected().id + '/widgets'
+			ROOT + 'pages/' + pageInfos.selected().id + '/widgets'
 	}
 
 	WidgetChartView = Backbone.View.extend {
@@ -120,7 +120,7 @@ $ ->
 			@chart.redraw()
 
 		render: ->
-			@chart = new Highcharts.Chart {
+			options = {
 				chart: {
 					renderTo: @el
 					plotBorderWidth: 1
@@ -160,6 +160,8 @@ $ ->
 					}
 				}
 			}
+			$.extend(true, options, globalOptions.highchartOptions, pageInfos.selected().get('highchartOptions'))
+			@chart = new Highcharts.Chart(options)
 
   }
 
@@ -244,10 +246,10 @@ $ ->
 		}
 		getPage: (ids) ->
 			id = parseInt(ids)
-			pageTitles.selectPage(id)
+			pageInfos.selectPage(id)
 			widgetList.fetch()
 		defaultRoute: (actions) ->
-			@navigate('//pages/1') if pageTitles.length > 0
+			@navigate('//pages/1') if pageInfos.length > 0
 	}
 
 	appRouter = new AppRouter

@@ -90,10 +90,20 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.sensor :rhino_average_age
     end
 
+    p.highchart_options({
+      chart: {
+        height: 300
+      }
+    })
   end
 
   l.use_utc false
   l.outlier_color '#FF0000'
+  l.highchart_options({
+    tooltip: {
+      value_decimals: 2
+    }
+  })
 end
 
 run layout.to_app
