@@ -5,8 +5,10 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Ilya Averyanov", "Sergey Averyanov"]
   gem.email         = ["av@fun-box.ru", "averyanov@gmail.com"]
   gem.description   = %q{Lightweight metrics processor}
-  gem.summary       = %q{Lightweight Redis-based metrics
-            aggregator and processor with CLI and simple and customizable WEB interfaces}
+  gem.summary       = %q{
+    Lightweight Redis-based metrics aggregator and processor
+    with CLI and simple and customizable WEB interfaces
+  }
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($\)
