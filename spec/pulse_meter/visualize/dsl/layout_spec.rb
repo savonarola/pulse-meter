@@ -7,11 +7,12 @@ describe PulseMeter::Visualize::DSL::Layout do
   let(:layout){ described_class.new }
 
   describe '.new' do
-    it "should initialize pages, title, use_utc" do
+    it "should initialize pages, title, use_utc, highchart_options" do
       l = layout.to_layout
       l.title.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_TITLE
       l.pages.should == []
       l.use_utc.should be_true
+      l.highchart_options.should == {}
     end
   end
 
@@ -44,6 +45,13 @@ describe PulseMeter::Visualize::DSL::Layout do
     it "should set use_utc" do
       layout.use_utc false
       layout.to_layout.use_utc.should be_false
+    end
+  end
+
+  describe "#highchart_options" do
+    it "should set highchart_options" do
+      layout.highchart_options({b: 1})
+      layout.to_layout.highchart_options.should == {b: 1}
     end
   end
 
