@@ -8,7 +8,6 @@ module PulseMeter
       end
 
       @@client_objects = {}
-
       def self.reset
         @@client_objects = {}
       end

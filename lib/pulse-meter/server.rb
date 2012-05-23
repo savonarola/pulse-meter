@@ -1,3 +1,4 @@
+require 'pulse-meter/client/protocol'
 require 'pulse-meter/configuration/dsl'
 require 'eventmachine'
 
@@ -10,6 +11,10 @@ module PulseMeter
 
        def receive_data(data)
          puts "Recieved: #{data}"
+         sensor, value = PulseMeter::Protocol::Client.unpack(data)
+         PulseMeter.sensor(sensor.to_sym).event(value)
+       rescue Exception => e
+         puts "Error: #{e.message}"
        end
 
        def unbind

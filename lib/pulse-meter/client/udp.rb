@@ -1,19 +1,20 @@
 require 'pulse-meter/client/protocol'
+require 'socket'
 
 module PulseMeter
   module Client
+    class Error < Exception; end
     class UDP
-      def new(client)
+      def initialize(client)
+        @socket = UDPSocket.new
+        @socket.connect(client.host, client.port)
+      rescue SocketError => e
+        raise Error, e.message
       end
 
       def send(sensor_name, value)
-        socket.write(Protocol.pack(sensor_name, value))
-      end
-
-      # usage:
-      # sensor_name, value = udp_client.receive
-      def receive
-        Protocol.unpack(socket.recv(1024))
+        packed = Protocol.pack(sensor_name, value)
+        @socket.send(packed, flag=0)
       end
     end
   end

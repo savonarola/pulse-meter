@@ -7,7 +7,7 @@ require "pulse-meter/sensor"
 require "pulse-meter/client/manager"
 
 module PulseMeter
-  @@configuration, @@redis = nil, nil
+  @@configuration = nil
 
   class << self
     def send(sensor_name, value = nil)
@@ -33,12 +33,8 @@ module PulseMeter
       configuration.sensor(name)
     end
 
-    def redis=(redis)
-      @@redis = redis
-    end
-
     def redis
-      @@redis
+      PulseMeter::Client::Manager.find configuration.default_client
     end
 
     def client(name)

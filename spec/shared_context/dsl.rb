@@ -6,8 +6,17 @@ shared_context :configuration do
   PulseMeter.configuration = PulseMeter::Configuration::DSL.new do
     remote do
       client :udp do
-        host "udp-host"
+        host "localhost"
         port 1234
+      end
+
+      client :invalid_udp do
+        host "ololo"
+        port 1234
+      end
+
+      sensor :invalid_udp_sensor do
+        client :invalid_udp
       end
 
       sensor :udp_sensor do

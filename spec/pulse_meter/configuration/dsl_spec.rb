@@ -11,7 +11,7 @@ describe PulseMeter::Configuration::DSL do
     end
 
     it "should have host parameter" do
-      @dsl.client(:udp).host.should == "udp-host"
+      @dsl.client(:udp).host.should == "localhost"
     end
   end
 

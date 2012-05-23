@@ -8,7 +8,7 @@ module PulseMeter
 
           def initialize(&block)
             @remoted = false
-            @sensors = @clients = {}
+            @sensors, @clients = {}, {}
 
             instance_eval(&block)
           end

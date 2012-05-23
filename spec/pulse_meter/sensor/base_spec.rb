@@ -11,7 +11,7 @@ describe PulseMeter::Sensor::Base do
   describe '#initialize' do
     context 'when PulseMeter.redis is not initialized' do
       it "should raise RedisNotInitialized exception" do
-        PulseMeter.redis = nil
+        PulseMeter::Client::Manager.reset
         expect{ described_class.new(:foo) }.to raise_exception(PulseMeter::RedisNotInitialized)
       end
     end
