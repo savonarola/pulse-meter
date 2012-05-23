@@ -13,23 +13,30 @@ require 'pulse-meter/sensor/timelined/median'
 
 module PulseMeter
 
+  # Atomic sensor data
   SensorData = Struct.new(:start_time, :value)
 
+  # General sensor exception
   class SensorError < StandardError; end
 
+  # Exception to be raised when sensor name is malformed
   class BadSensorName < SensorError
     def initialize(name, options = {})
       super("Bad sensor name: `#{name}', only a-z letters and _ are allowed")
     end
   end
 
+  # Exception to be raised when Redis is not initialized
   class RedisNotInitialized < SensorError
     def initialize
       super("PulseMeter.redis is not set")
     end
   end
 
+  # Exception to be raised when sensor cannot be dumped
   class DumpError < SensorError; end
+
+  # Exception to be raised when sensor cannot be restored
   class RestoreError < SensorError; end
 
 end
