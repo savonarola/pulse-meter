@@ -5,7 +5,8 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Ilya Averyanov", "Sergey Averyanov"]
   gem.email         = ["av@fun-box.ru", "averyanov@gmail.com"]
   gem.description   = %q{Lightweight metrics processor}
-  gem.summary       = %q{Lightweight metrics processor}
+  gem.summary       = %q{Lightweight Redis-based metrics
+            aggregator and processor with CLI and simple and customizable WEB interfaces}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($\)
@@ -28,6 +29,9 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('mock_redis')
   gem.add_development_dependency('rack-test')
   gem.add_development_dependency('rake')
+  gem.add_development_dependency('redcarpet')
   gem.add_development_dependency('rspec')
   gem.add_development_dependency('timecop')
+  gem.add_development_dependency('yard')
+
 end

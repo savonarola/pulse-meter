@@ -15,15 +15,15 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.values_label 'Count'
       c.width 5
       c.show_last_point true
-      c.timespan 120
+      c.timespan 1200
     end
 
-    p.spline "Rhino count", sensor: :rhino_count do |c|
+    p.area "Rhino count", sensor: :rhino_count do |c|
       c.redraw_interval 5
       c.values_label 'Count'
       c.width 5
       c.show_last_point true
-      c.timespan 120
+      c.timespan 1200
     end
 
     p.spline "Rhino & Lama count comparison" do |c|
@@ -31,49 +31,49 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.values_label 'Count'
       c.width 5
       c.show_last_point true
-      c.timespan 120
+      c.timespan 1200
 
-      c.sensor :rhino_count, color: '#FF0000'
-      c.sensor :lama_count, color: '#00FF00'
+      c.sensor :rhino_count, color: '#AAAAAA'
+      c.sensor :lama_count, color: '#CC1155'
     end
 
     p.pie "Rhino & Lama count comparison" do |c|
       c.redraw_interval 5
       c.values_label 'Count'
       c.width 5
-      c.show_last_point true
-      c.timespan 120
+      c.show_last_point false
+      c.timespan 1200
 
-      c.sensor :rhino_count, color: '#FF0000'
-      c.sensor :lama_count, color: '#00FF00'
+      c.sensor :rhino_count, color: '#AAAAAA'
+      c.sensor :lama_count, color: '#CC1155'
     end
 
   end
 
   l.page "Ages" do |p|
 
-    p.spline "Lama average age", sensor: :lama_average_age do |c|
+    p.line "Lama average age", sensor: :lama_average_age do |c|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
       c.show_last_point true
-      c.timespan 120
+      c.timespan 1200
     end
 
-    p.spline "Rhino average age", sensor: :rhino_average_age do |c|
+    p.line "Rhino average age", sensor: :rhino_average_age do |c|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
       c.show_last_point true
-      c.timespan 120
+      c.timespan 1200
     end
 
-    p.spline "Rhino & Lama average age comparison" do |c|
+    p.area "Rhino & Lama average age comparison" do |c|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
       c.show_last_point true
-      c.timespan 120
+      c.timespan 1200
 
       c.sensor :lama_average_age
       c.sensor :rhino_average_age
@@ -83,16 +83,27 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.redraw_interval 5
       c.values_label 'Age'
       c.width 5
-      c.show_last_point true
-      c.timespan 120
+      c.show_last_point false
+      c.timespan 1200
 
       c.sensor :lama_average_age
       c.sensor :rhino_average_age
     end
 
+    p.highchart_options({
+      chart: {
+        height: 300
+      }
+    })
   end
 
   l.use_utc false
+  l.outlier_color '#FF0000'
+  l.highchart_options({
+    tooltip: {
+      value_decimals: 2
+    }
+  })
 end
 
 run layout.to_app

@@ -6,6 +6,7 @@ describe PulseMeter::Visualize::Layout do
     l.page "page1" do |p|
       p.line "w1"
       p.spline "w2"
+      p.highchart_options({a: 1})
     end
     l.page "page2" do |p|
       p.line "w3"
@@ -14,11 +15,11 @@ describe PulseMeter::Visualize::Layout do
     l.to_layout
   end
 
-  describe "#page_titles" do
-    it "should return list of page titles with ids" do
-      layout.page_titles.should == [
-        {title: "page1", id: 1},
-        {title: "page2", id: 2}
+  describe "#page_infos" do
+    it "should return list of page infos with ids" do
+      layout.page_infos.should == [
+        {title: "page1", id: 1, highchart_options: {a: 1}},
+        {title: "page2", id: 2, highchart_options: {}}
       ]
     end
   end
@@ -27,8 +28,10 @@ describe PulseMeter::Visualize::Layout do
     it "should return layout options" do
       ldsl = PulseMeter::Visualize::DSL::Layout.new
       ldsl.use_utc true
+      ldsl.outlier_color '#RED'
+      ldsl.highchart_options({a: 1})
       l = ldsl.to_layout
-      l.options.should == {use_utc: true}
+      l.options.should == {use_utc: true, outlier_color: '#RED', highchart_options: {a: 1}}
     end
   end
 

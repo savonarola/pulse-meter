@@ -1,28 +1,17 @@
 $ ->
+	globalOptions = gon.options
 
 	Highcharts.setOptions {
 		global: {
-			useUTC: gon.options.useUtc
+			useUTC: globalOptions.useUtc
 		}
 	}
 
-	PageTitle = Backbone.Model.extend {
-		defaults: -> {
-			title: ""
-			selected: false
-		}
-		initialize: ->
-			if !@get('title')
-				@set {
-					'title': @defaults.title
-				}
-			@set('selected', @defaults.selected)
-		clear: ->
-			@destroy()
+	PageInfo = Backbone.Model.extend {
 	}
 
-	PageTitleList = Backbone.Collection.extend {
-		model: PageTitle
+	PageInfoList = Backbone.Collection.extend {
+		model: PageInfo
 		selected: ->
 			@find (m) ->
 				m.get 'selected'
@@ -36,7 +25,7 @@ $ ->
 				m.set 'selected', m.id == id
 	}
 
-	pageTitles = new PageTitleList
+	pageInfos = new PageInfoList
 
 	PageTitleView = Backbone.View.extend {
 		tagName: 'li'
@@ -57,79 +46,89 @@ $ ->
 
 	PageTitlesView = Backbone.View.extend {
 		initialize: ->
-			pageTitles.bind 'reset', @render, this
+			pageInfos.bind 'reset', @render, this
 
-		addOne: (page_title) ->
+		addOne: (pageInfo) ->
 			view = new PageTitleView {
-				model: page_title
+				model: pageInfo
 			}
 			view.render()
 			$('#page-titles').append(view.el)
 
 		render: ->
 			$('#page-titles').empty()
-			pageTitles.each(@addOne)
+			pageInfos.each(@addOne)
 	}
 
 	pageTitlesApp = new PageTitlesView
 
-	pageTitles.reset gon.pageTitles
+	pageInfos.reset gon.pageInfos
 
 	Widget = Backbone.Model.extend {
 		initialize: ->
+			@needRefresh = true
 			@setNextFetch()
 
 		time: -> (new Date()).getTime()
 
 		setNextFetch: ->
-			@set('nextFetch', @time() + @get('interval') * 1000)
+			@nextFetch = @time() + @get('interval') * 1000
+
+		setRefresh: (needRefresh) ->
+			@needRefresh = needRefresh
 
 		refetch: ->
-			#console.log @time(), @get('nextFetch'), @get('nextFetch') - @time()
-			if @time() > @get('nextFetch')
+			if @time() > @nextFetch && @needRefresh
 				@fetch()
 				@setNextFetch()
+
+		cutoffValue: (v, min, max) ->
+			if min isnt null && v.y < min
+				v.y = min
+				v.color = globalOptions.outlierColor
+			if max isnt null && v.y > max
+				v.y = max
+				v.color = globalOptions.outlierColor
+
+		cutoff: (min, max) ->
+			_.each(@get('series'), (s) ->
+				_.each( s.data, (v) ->
+					@cutoffValue(v, min, max)
+				, this)
+			, this)
 	}
 
 	WidgetList = Backbone.Collection.extend {
 		model: Widget
 		url: ->
-			ROOT + 'pages/' + pageTitles.selected().id + '/widgets'
+			ROOT + 'pages/' + pageInfos.selected().id + '/widgets'
 	}
 
-	WidgetView = Backbone.View.extend {
+	WidgetChartView = Backbone.View.extend {
 		tagName: 'div'
 
-		template: _.template($('#widget-template').html())
-
 		initialize: ->
-			@model.bind 'change', @reRender, this
 			@model.bind 'destroy', @remove, this
 
-		events: {
-			"click #refresh": 'refresh'
-		}
-
-		refresh: ->
-			@model.fetch()
-	
-		reRender: ->
-			@render()
-			@renderChart()
+		updateData: (min, max) ->
+			@model.cutoff(min, max)
+			chartSeries = @chart.series
+			newSeries = @model.get('series')
+			for i in [0 .. chartSeries.length - 1]
+				if newSeries[i]?
+					chartSeries[i].setData(newSeries[i].data, false)
+			@chart.redraw()
 
 		render: ->
-			@$el.html @template(@model.toJSON())
-			@$el.addClass "span#{@model.get('width')}"
-
-		renderChart: ->
-			@chart = new Highcharts.Chart {
+			options = {
 				chart: {
-					renderTo: @$el.find('#plotarea')[0]
+					renderTo: @el
 					plotBorderWidth: 1
 					spacingLeft: 0
 					spacingRight: 0
 					type: @model.get('type')
 					animation: false
+					zoomType: 'x'
 				}
 				credits: {
 					enabled: false
@@ -145,13 +144,75 @@ $ ->
 						text: @model.get('valuesTitle')
 					}
 				}
+				tooltip: {
+					xDateFormat: '%Y-%m-%d %H:%M:%S'
+					valueDecimals: 6
+				}
 				series: @model.get('series')
 				plotOptions: {
 					series: {
 						animation: false
+						lineWidth: 1
+						shadow: false
+						marker: {
+							radius: 0
+						}
 					}
 				}
 			}
+			$.extend(true, options, globalOptions.highchartOptions, pageInfos.selected().get('highchartOptions'))
+			@chart = new Highcharts.Chart(options)
+
+  }
+
+	WidgetView = Backbone.View.extend {
+		tagName: 'div'
+
+		template: _.template($('#widget-template').html())
+
+		initialize: ->
+			@model.bind('destroy', @remove, this)
+			@model.bind('change', @updateChart, this)
+
+		events: {
+			"click #refresh": 'refresh'
+			"click #need-refresh": 'setRefresh'
+		}
+
+		refresh: ->
+			@model.fetch()
+
+		setRefresh: ->
+			needRefresh = @$el.find('#need-refresh').is(":checked")
+			@model.setRefresh(needRefresh)
+			true
+
+		renderChart: ->
+			@chartView.render()
+
+		updateChart: ->
+			@chartView.updateData(@cutoffMin(), @cutoffMax())
+
+		render: ->
+			@$el.html @template(@model.toJSON())
+			@chartView = new WidgetChartView {
+        model: @model
+      }
+      @$el.find("#plotarea").append(@chartView.el)
+      @$el.addClass "span#{@model.get('width')}"
+
+		cutoffMin: ->
+			val = parseFloat(@controlValue('#cutoff-min'))
+			if _.isNaN(val) then null else val
+
+		cutoffMax: ->
+			val = parseFloat(@controlValue('#cutoff-max'))
+			if _.isNaN(val) then null else val
+
+		controlValue: (id) ->
+			val = @$el.find(id).first().val()
+
+
 	}
 
 	widgetList = new WidgetList
@@ -180,16 +241,15 @@ $ ->
 
 	AppRouter = Backbone.Router.extend {
 		routes: {
-			'help' : 'help'
 			'pages/:id': 'getPage'
 			'*actions': 'defaultRoute'
 		}
 		getPage: (ids) ->
 			id = parseInt(ids)
-			pageTitles.selectPage(id)
+			pageInfos.selectPage(id)
 			widgetList.fetch()
 		defaultRoute: (actions) ->
-			@navigate('//pages/1') if pageTitles.length > 0
+			@navigate('//pages/1') if pageInfos.length > 0
 	}
 
 	appRouter = new AppRouter

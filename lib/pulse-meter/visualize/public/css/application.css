@@ -9,3 +9,11 @@
 #chart-controls{
 	margin-bottom: 50px;
 }
+
+#chart-controls input{
+    width: 30px;
+}
+
+#chart-controls .space{
+    padding-left: 10px;
+}
