@@ -1,8 +1,10 @@
 require "spec_helper"
 
 describe PulseMeter::Visualize::Sensor do
+  include_context :dsl
+
   let(:interval){ 100 }
-  let(:name) { "some_sensor" }
+  let(:name) { :sensor_name }
   let(:annotation) { 'sensor descr' }
   let!(:real_sensor){ PulseMeter::Sensor::Timelined::Counter.new(name, ttl: 1000, interval: interval, annotation: annotation) }
   let(:sensor) { described_class.new(sensor: name) }

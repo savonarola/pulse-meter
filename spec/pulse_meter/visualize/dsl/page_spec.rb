@@ -1,15 +1,17 @@
 require 'spec_helper'
 
 describe PulseMeter::Visualize::DSL::Page do
+  include_context :dsl
+
   let(:interval){ 100 }
-  let(:sensor_name) { "some_sensor" }
+  let(:sensor_name) { :sensor_name }
   let!(:sensor){ PulseMeter::Sensor::Timelined::Max.new(sensor_name, :ttl => 1000, :interval => interval) }
   let(:title) { "page title" }
   let(:page){ PulseMeter::Visualize::DSL::Page.new(title) }
 
   describe '.new' do
     it "should initialize title and widgets" do
-      p = page.to_page  
+      p = page.to_page
       p.title.should == title
       p.widgets.should == []
     end
@@ -24,7 +26,7 @@ describe PulseMeter::Visualize::DSL::Page do
       w.title.should == "some_widget_name"
       w.sensors.first.name.should == sensor_name
     end
-    
+
     it "should add widget initialized by block" do
       page.widget(:some_widget_type, :some_widget_name) do |w|
         w.sensor(sensor_name)
@@ -41,7 +43,7 @@ describe PulseMeter::Visualize::DSL::Page do
       w.sensors.last.name.should == sensor_name
     end
   end
-  
+
   describe "#pie" do
     it "should create widget width type :pie" do
       page.pie(:some_widget_name)

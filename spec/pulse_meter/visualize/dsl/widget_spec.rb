@@ -1,10 +1,12 @@
 require 'spec_helper'
 
 describe PulseMeter::Visualize::DSL::Widget do
+  include_context :dsl
+
   let(:interval){ 100 }
-  let(:name) { "some_sensor" }
+  let(:name) { :sensor_name }
   let!(:sensor){ PulseMeter::Sensor::Timelined::Max.new(name, :ttl => 1000, :interval => interval) }
-  
+
   let(:type) { :some_type }
   let(:widget_name){ "some_widget" }
   let(:w){ described_class.new(type, widget_name)  }

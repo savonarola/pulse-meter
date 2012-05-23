@@ -1,6 +1,5 @@
 shared_context :dsl do
   include_context :configuration
-  after { sensor.cleanup }
 end
 
 shared_context :configuration do

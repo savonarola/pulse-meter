@@ -10,13 +10,14 @@ module PulseMeter
         if options[:annotation]
           annotate(options[:annotation])
         end
-        raise PulseMeter::RedisNotInitialized unless redis
+
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
+        raise PulseMeter::RedisNotInitialized unless redis
         dump!
       end
 
       def redis
-        PulseMeter.redis
+        Client::Manager.find_for_sensor(@name.to_sym)
       end
 
       def annotate(description)

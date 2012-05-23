@@ -1,9 +1,10 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::HashedCounter do
-  let(:name){ :some_counter }
+  include_context :dsl
+
+  let(:name){ :sensor_name }
   let(:sensor){ described_class.new(name) }
-  let(:redis){ PulseMeter.redis }
 
   describe "#event" do
     it "should increment sensor value by passed value" do
@@ -25,7 +26,7 @@ describe PulseMeter::Sensor::HashedCounter do
     it "should store redis hash by value_key" do
       sensor.event({"foo" => 1})
       sensor.value.should == {"foo" => 1}
-      redis.hgetall(sensor.value_key).should == {"foo" => "1"}
+      sensor.redis.hgetall(sensor.value_key).should == {"foo" => "1"}
     end
   end
 

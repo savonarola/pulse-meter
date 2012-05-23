@@ -29,7 +29,6 @@ module PulseMeter
       @@configuration
     end
 
-    #shortcuts
     def sensor(name)
       configuration.sensor(name)
     end

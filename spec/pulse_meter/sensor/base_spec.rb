@@ -45,8 +45,8 @@ describe PulseMeter::Sensor::Base do
         end
 
         it "should annotate object if annotation given" do
-          described_class.new(:foo, :annotation => "annotation")
-          sensor = described_class.restore(:foo)
+          described_class.new(:a_sensor, :annotation => "annotation")
+          sensor = described_class.restore(:a_sensor)
           sensor.annotation.should == "annotation"
         end
       end

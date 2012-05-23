@@ -9,6 +9,10 @@ module PulseMeter
 
       @@client_objects = {}
 
+      def self.reset
+        @@client_objects = {}
+      end
+
       def self.find_for_sensor(sensor_name)
         sensor = PulseMeter.sensor(sensor_name)
         if sensor

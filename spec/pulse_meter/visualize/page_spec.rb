@@ -1,6 +1,8 @@
 require "spec_helper"
 
 describe PulseMeter::Visualize::Page do
+  include_context :dsl
+
   let(:interval){ 100 }
   let!(:a_sensor){ PulseMeter::Sensor::Timelined::Counter.new(:a_sensor, :ttl => 1000, :interval => interval, annotation: 'A') }
   let!(:b_sensor){ PulseMeter::Sensor::Timelined::Counter.new(:b_sensor, :ttl => 1000, :interval => interval, annotation: 'B') }

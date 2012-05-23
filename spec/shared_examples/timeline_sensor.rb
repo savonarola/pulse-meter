@@ -17,7 +17,6 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   let(:dummy) {Dummy.new}
   let(:base_class){ PulseMeter::Sensor::Base }
   let(:sample_event) {default_event || 123}
-  let(:redis) { PulseMeter.redis }
 
   before(:each) do
     @interval_id = (Time.now.to_i / interval) * interval
@@ -55,13 +54,13 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   describe "#event" do
     it "should write events to redis" do
       expect{
-          sensor.event(123)
+          sensor.event(sample_event)
       }.to change{ sensor.redis.keys('*').count }.by(1)
     end
 
     it "should write data so that it totally expires after :raw_data_ttl" do
       key_count = sensor.redis.keys('*').count
-      sensor.event(123)
+      sensor.event(sample_event)
       Timecop.freeze(Time.now + raw_data_ttl + 1) do
         sensor.redis.keys('*').count.should == key_count
       end
@@ -152,17 +151,17 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     end
   end
 
-  #describe ".reduce_all_raw" do
-  #  it "should silently skip objects without reduce logic" do
-  #    dummy.dump!
-  #    expect {described_class.reduce_all_raw}.not_to raise_exception
-  #  end
+  describe ".reduce_all_raw" do
+    it "should silently skip objects without reduce logic" do
+      dummy.dump!
+      expect {described_class.reduce_all_raw}.not_to raise_exception
+    end
 
-  #  it "should send reduce_all_raw to all dumped objects" do
-  #    described_class.any_instance.should_receive(:reduce_all_raw)
-  #    described_class.reduce_all_raw
-  #  end
-  #end
+    it "should send reduce_all_raw to all dumped objects" do
+      described_class.any_instance.should_receive(:reduce_all_raw)
+      described_class.reduce_all_raw
+    end
+  end
 
   describe "#timeline_within" do
     it "shoulde raise exception unless both arguments are Time objects" do
@@ -248,7 +247,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
       sensor.reduce(@interval_id)
       Timecop.freeze(@start_of_interval + 1){
-        check_sensor_data(sensor, redis.get(sensor.data_key(@interval_id)))
+        check_sensor_data(sensor, sensor.redis.get(sensor.data_key(@interval_id)))
       }
     end
 

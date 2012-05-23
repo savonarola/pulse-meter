@@ -1,8 +1,10 @@
 require 'spec_helper'
 
 describe PulseMeter::Visualize::DSL::Layout do
+  include_context :dsl
+
   let(:interval){ 100 }
-  let(:sensor_name) { "some_sensor" }
+  let(:sensor_name) { :sensor_name }
   let!(:sensor){ PulseMeter::Sensor::Timelined::Max.new(sensor_name, :ttl => 1000, :interval => interval) }
   let(:layout){ described_class.new }
 

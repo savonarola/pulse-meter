@@ -1,6 +1,8 @@
 require "spec_helper"
 
 describe PulseMeter::Visualize::Layout do
+  include_context :dsl
+
   let(:layout) do
     l = PulseMeter::Visualize::DSL::Layout.new
     l.page "page1" do |p|
