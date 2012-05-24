@@ -77,8 +77,12 @@ $ ->
 		setRefresh: (needRefresh) ->
 			@needRefresh = needRefresh
 
+		needFetch: ->
+			interval = @get('interval')
+			@time() > @nextFetch && @needRefresh && interval? && interval > 0
+
 		refetch: ->
-			if @time() > @nextFetch && @needRefresh
+			if @needFetch()
 				@fetch()
 				@setNextFetch()
 

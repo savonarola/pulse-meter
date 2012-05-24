@@ -71,11 +71,11 @@ There are several caveats with timeline sensors:
     When building a visualisation you may choose to display the last value or not.
   * For some sensors (currently Median and Percentile) considerable amount of data should be stored for a
     particular interval to obtain value for this interval. So it is a good idea to schedule
-    <tt>pulse-meter reduce</tt>
+    <tt>pulse reduce</tt>
     command on a regular basis. This command reduces the stored data for passed intervals to single values,
     so that they do not consume storage space.
 
-## Usage
+## Client usage
 
 Just create sensor objects and write data. Some examples below.
 
@@ -141,6 +141,77 @@ Just create sensor objects and write data. Some examples below.
     # 2012-05-24 11:07:00 +0400: 3.0
     # 2012-05-24 11:08:00 +0400: 7.0
 
+## Command line interface
+
+Gem includes a tool <tt>pulse</tt>, which allows to send events to sensors, list them, etc.
+You should pay attention to the command <tt>pulse reduce</tt>, which is generally should be
+scheduled on a regular basis to keep data in Redis small.
+
+To see available commands of this tool one can run the example above(see <tt>examples/readme\_client\_example.rb</tt>)
+and run <tt>pulse help</tt>.
+
+## Visualisation
+
+PulseMeter comes with a simple DSL which allows to build a self-contained Rack application for
+visualizing timeline sensor data.
+
+The application is described by *Layout* which contains some general application options and a list of *Pages*.
+Each page contain a list of *Widgets* (charts), and each widget is associated with several sensors, which produce
+data series for the chart.
+
+There is a minimal and a full example below.
+
+### Minimal example
+
+It can be found in <tt>examples/minimal</tt> folder. To run it, execute
+<tt>bundle && cd examples/minimal && bundle exec foreman start</tt> (or just <tt>rake example:minimal</tt>)
+at project root and visit
+<tt>http://localhost:9292</tt> at your browser.
+
+<tt>client.rb</tt> just creates a timelined counter an sends data to it in an infinite loop.
+
+    require "pulse-meter"
+
+    PulseMeter.redis = Redis.new
+
+    sensor = PulseMeter::Sensor::Timelined::Counter.new(:simple_sample_counter,
+      :interval => 5,
+      :ttl => 60 * 60
+    )
+
+    while true
+      STDERR.puts "tick"
+      sensor.event(1)
+      sleep(Random.rand)
+    end
+
+<tt>server.ru</tt> is a Rackup file creating a simple layout with one page and one widget on it, which displays
+the sensor's data. The layout is converted to a rack application and launched.
+
+    require "pulse-meter/visualizer"
+
+    PulseMeter.redis = Redis.new
+
+    layout = PulseMeter::Visualizer.draw do |l|
+
+      l.title "Minimal App"
+
+      l.page "Main Page" do |p|
+        p.area "Live Counter",
+          sensor: :simple_sample_counter,
+          timespan: 5 * 60,
+          redraw_interval: 1
+      end
+
+    end
+
+    run layout.to_app
+
+<tt>Procfile</tt> allows to launch both "client" script and the web server with <tt>foreman</tt>.
+
+    web: bundle exec rackup server.ru
+    sensor_data_generator: bundle exec ruby client.rb
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -155,6 +226,9 @@ Or install it yourself as:
 
     $ gem install pulse-meter
 
+### Full example with DSL explanation
+
+...
 
 ## Contributing
 
