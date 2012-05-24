@@ -2,6 +2,7 @@ require 'securerandom'
 
 module PulseMeter
   module Mixins
+    # Mixin with various useful functions 
     module Utils
       # Tries to find a class with the name specified in the argument string
       # @param const_name [String] class name

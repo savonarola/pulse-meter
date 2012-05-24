@@ -1,5 +1,6 @@
 module PulseMeter
   module Mixins
+    # Mixin with dumping utilities
     module Dumper
       DUMP_REDIS_KEY = "pulse_meter:dump"
 

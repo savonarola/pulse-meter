@@ -11,6 +11,7 @@ require 'pulse-meter/sensor/timelined/max'
 require 'pulse-meter/sensor/timelined/percentile'
 require 'pulse-meter/sensor/timelined/median'
 
+# Top level sensor module
 module PulseMeter
 
   # Atomic sensor data
