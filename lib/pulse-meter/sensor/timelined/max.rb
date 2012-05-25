@@ -1,6 +1,7 @@
 module PulseMeter
   module Sensor
     module Timelined
+      # Calculates max value in interval
       class Max < Timeline
 
         def aggregate_event(key, value)

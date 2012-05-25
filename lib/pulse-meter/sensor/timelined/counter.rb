@@ -1,6 +1,7 @@
 module PulseMeter
   module Sensor
     module Timelined
+      # Counts events per interval
       class Counter < Timeline
         def aggregate_event(key, value)
           redis.incrby(key, value.to_i)

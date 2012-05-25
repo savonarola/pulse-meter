@@ -2,6 +2,7 @@ module PulseMeter
   module Mixins
     # Mixin with dumping utilities
     module Dumper
+      # Prefix for Redis keys with dumped sensors' metadata
       DUMP_REDIS_KEY = "pulse_meter:dump"
 
       module InstanceMethods

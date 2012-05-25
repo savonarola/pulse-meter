@@ -1,6 +1,7 @@
 module PulseMeter
   module Sensor
     module Timelined
+      # Average value over interval
       class Average < Timeline
 
         def aggregate_event(key, value)

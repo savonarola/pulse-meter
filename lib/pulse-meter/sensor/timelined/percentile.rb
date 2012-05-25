@@ -1,6 +1,7 @@
 module PulseMeter
   module Sensor
     module Timelined
+      # Calculates n'th percentile in interval
       class Percentile < Timeline
         attr_reader :p_value
 

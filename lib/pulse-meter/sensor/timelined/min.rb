@@ -1,6 +1,7 @@
 module PulseMeter
   module Sensor
     module Timelined
+      # Calculates min value in interval
       class Min < Timeline
 
         def aggregate_event(key, value)

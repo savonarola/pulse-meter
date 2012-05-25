@@ -56,7 +56,12 @@ module PulseMeter
       end
 
       
-      # Reduces data in given interval
+      # Reduces data in given interval. 
+      # @note Interval id is
+      #   just unixtime of its lower bound. Ruduction is a process
+      #   of 'compressing' all interval's raw data to a single value.
+      #   When reduction is done summarized data is saved to Redis
+      #   separately with expiration time taken from sensor configuration.
       # @param interval_id [Fixnum] 
       def reduce(interval_id)
         interval_raw_data_key = raw_data_key(interval_id)

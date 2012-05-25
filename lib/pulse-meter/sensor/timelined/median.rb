@@ -1,6 +1,7 @@
 module PulseMeter
   module Sensor
     module Timelined
+      # Calculates median of iterval values
       class Median < Percentile
 
         def initialize(name, options)
