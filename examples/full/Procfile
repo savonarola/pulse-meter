@@ -1,0 +1,2 @@
+web: bundle exec rackup server.ru
+sensor_data_generator: bundle exec ruby client.rb

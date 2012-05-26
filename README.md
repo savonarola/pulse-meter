@@ -67,7 +67,7 @@ The following timeline sensors are available:
 
 There are several caveats with timeline sensors:
 
-  * The value of a sensor for the last time interval (which is not finished yet) is often not very useful.
+  * The value of a sensor for the last interval (which is not finished yet) is often not very useful.
     When building a visualisation you may choose to display the last value or not.
   * For some sensors (currently Median and Percentile) considerable amount of data should be stored for a
     particular interval to obtain value for this interval. So it is a good idea to schedule
@@ -212,6 +212,211 @@ the sensor's data. The layout is converted to a rack application and launched.
     web: bundle exec rackup server.ru
     sensor_data_generator: bundle exec ruby client.rb
 
+### Full example with DSL explanation
+
+It can be found in <tt>examples/full</tt> folder. To run it, execute
+<tt>bundle && cd examples/full && bundle exec foreman start</tt> (or just <tt>rake example:full</tt>)
+at project root and visit
+<tt>http://localhost:9292</tt> at your browser.
+
+<tt>client.rb</tt> imitating users visiting some imaginary site
+
+    require "pulse-meter"
+
+    PulseMeter.redis = Redis.new
+
+    requests_per_minute = PulseMeter::Sensor::Timelined::Counter.new(:requests_per_minute,
+      :annotation => 'Requests per minute',
+      :interval => 60,
+      :ttl => 60 * 60 * 24    # keep data one day
+    )
+
+    requests_per_hour =  PulseMeter::Sensor::Timelined::Counter.new(:requests_per_hour,
+      :annotation => 'Requests per hour',
+      :interval => 60 * 60,
+      :ttl => 60 * 60 * 24 * 30    # keep data 30 days
+      # when ActiveSupport extentions are loaded, a better way is to write just
+      # :interval => 1.hour,
+      # :ttl => 30.days
+    )
+
+    errors_per_minute = PulseMeter::Sensor::Timelined::Counter.new(:errors_per_minute,
+      :annotation => 'Errors per minute',
+      :interval => 60,
+      :ttl => 60 * 60 * 24
+    )
+
+    errors_per_hour =  PulseMeter::Sensor::Timelined::Counter.new(:errors_per_hour,
+      :annotation => 'Errors per hour',
+      :interval => 60 * 60,
+      :ttl => 60 * 60 * 24 * 30
+    )
+
+    longest_minute_request = PulseMeter::Sensor::Timelined::Max.new(:longest_minute_request,
+      :annotation => 'Longest minute requests',
+      :interval => 60,
+      :ttl => 60 * 60 * 24
+    )
+
+    shortest_minute_request = PulseMeter::Sensor::Timelined::Min.new(:shortest_minute_request,
+      :annotation => 'Shortest minute requests',
+      :interval => 60,
+      :ttl => 60 * 60 * 24
+    )
+
+    perc90_minute_request = PulseMeter::Sensor::Timelined::Percentile.new(:perc90_minute_request,
+      :annotation => 'Minute request 90-percent percentile',
+      :interval => 60,
+      :ttl => 60 * 60 * 24,
+      :p => 0.9
+    )
+
+    agent_names = [:ie, :firefox, :chrome, :other]
+    hour_agents = agent_names.each_with_object({}) do |agent, h|
+      h[agent] = PulseMeter::Sensor::Timelined::Counter.new(agent,
+        :annotation => "Requests from #{agent} browser",
+        :interval => 60 * 60,
+        :ttl => 60 * 60 * 24 * 30
+      )
+    end
+
+
+    while true
+      requests_per_minute.event(1)
+      requests_per_hour.event(1)
+
+      if Random.rand(10) < 1 # let "errors" sometimes occur
+        errors_per_minute.event(1)
+        errors_per_hour.event(1)
+      end
+
+      request_time = 0.1 + Random.rand
+
+      longest_minute_request.event(request_time)
+      shortest_minute_request.event(request_time)
+      perc90_minute_request.event(request_time)
+
+      agent_counter = hour_agents[agent_names.shuffle.first]
+      agent_counter.event(1)
+
+      sleep(Random.rand / 10)
+    end
+
+A more complicated visualization
+
+    require "pulse-meter/visualizer"
+
+    PulseMeter.redis = Redis.new
+
+    layout = PulseMeter::Visualizer.draw do |l|
+
+      # Application title
+      l.title "Full Example"
+
+      # Use local time for x-axis of charts
+      l.use_utc false
+
+      # Color for values cut off
+      l.outlier_color '#FF0000'
+
+      # Transfer some global parameters to Highcharts
+      l.highchart_options({
+        tooltip: {
+          value_decimals: 2
+        }
+      })
+
+      # Add some pages
+      l.page "Request count" do |p|
+
+        # Add chart  (of Highcharts `area' style, `spline', `pie' and `line' are also available)
+        p.area "Requests per minute" do |w|
+
+          # Plot :requests_per_minute values on this chart with black color
+          w.sensor :requests_per_minute, color: '#000000'
+
+          # Plot :errors_per_minute values on this chart with red color
+          w.sensor :errors_per_minute, color: '#FF0000'
+
+          # Plot values for the last hour
+          w.timespan 60 * 60
+
+          # Redraw chart every 10 seconds
+          w.redraw_interval 10
+
+          # Plot incomplete data
+          w.show_last_point true
+
+          # Meaning of the y-axis
+          w.values_label "Request count"
+
+          # Occupy half (5/10) of the page (horizontally)
+          w.width 5
+
+          # Transfer page-wide (and page-specific) options to Highcharts
+          p.highchart_options({
+            chart: {
+              height: 300
+            }
+          })
+        end
+
+        p.area "Requests per hour" do |w|
+
+          w.sensor :requests_per_hour, color: '#555555'
+          w.sensor :errors_per_hour, color: '#FF0000'
+
+          w.timespan 24 * 60 * 60
+          w.redraw_interval 10
+          w.show_last_point true
+          w.values_label "Request count"
+          w.width 5
+
+        end
+      end
+
+      l.page "Request times" do |p|
+        p.area "Requests time" do |w|
+
+          w.sensor :longest_minute_request
+          w.sensor :shortest_minute_request
+          w.sensor :perc90_minute_request
+
+          w.timespan 60 * 60
+          w.redraw_interval 10
+          w.show_last_point true
+          w.values_label "Time in seconds"
+          w.width 10
+
+        end
+      end
+
+      l.page "Browsers" do |p|
+        p.pie "Requests from browser" do |w|
+
+          [:ie, :firefox, :chrome, :other].each do |sensor|
+            w.sensor sensor
+          end
+
+          w.timespan 24 * 60 * 60
+          w.redraw_interval 10
+          w.show_last_point true
+          w.values_label "Request count"
+          w.width 10
+
+        end
+
+        p.highchart_options({
+          chart: {
+            height: 500
+          }
+        })
+      end
+
+    end
+
+    run layout.to_app
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -225,10 +430,6 @@ And then execute:
 Or install it yourself as:
 
     $ gem install pulse-meter
-
-### Full example with DSL explanation
-
-...
 
 ## Contributing
 
