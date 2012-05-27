@@ -7,16 +7,6 @@ describe PulseMeter::Mixins::Dumper do
 
   class Bad < Base; end
 
-  class Undumpable < Base
-    def name; :name; end
-
-    def redis; PulseMeter.redis; end
-
-    def initialize
-      @socket = Socket.new(:INET, :STREAM)
-    end
-  end
-
   class Good < Base
     attr_accessor :foo
     def name; foo.to_s; end
@@ -29,7 +19,6 @@ describe PulseMeter::Mixins::Dumper do
   end
 
   let(:bad_obj){ Bad.new }
-  let(:undumpable_obj){ Undumpable.new }
   let(:good_obj){ Good.new(:foo) }
   let(:another_good_obj){ Good.new(:bar) }
   let(:redis){ PulseMeter.redis }
@@ -55,12 +44,6 @@ describe PulseMeter::Mixins::Dumper do
           def bad_obj.name; :foo; end
           def bad_obj.redis; nil; end
           expect{ bad_obj.dump! }.to raise_exception(PulseMeter::DumpError)
-        end
-      end
-
-      context "when object cannot be dumped" do
-        it "should raise exception" do
-          expect {undumpable_obj.dump!}.to raise_exception(PulseMeter::DumpError)
         end
       end
     end

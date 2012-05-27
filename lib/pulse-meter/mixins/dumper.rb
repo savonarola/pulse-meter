@@ -1,3 +1,5 @@
+require 'yaml'
+
 module PulseMeter
   module Mixins
     # Mixin with dumping utilities
@@ -10,7 +12,7 @@ module PulseMeter
         # @raise [DumpError] if dumping fails for any reason
         def dump!
           ensure_storability!
-          serialized_obj = Marshal.dump(self)
+          serialized_obj = self.to_yaml
           redis.hset(DUMP_REDIS_KEY, self.name, serialized_obj)
         rescue
           raise DumpError, "object cannot be dumped"
@@ -36,7 +38,7 @@ module PulseMeter
         # @raise [RestoreError] if object cannot be restored for any reason
         def restore(name)
           serialized_obj = PulseMeter.redis.hget(DUMP_REDIS_KEY, name)
-          Marshal.load(serialized_obj)
+          YAML::load(serialized_obj)
         rescue
           raise RestoreError, "cannot restore #{name}"
         end
