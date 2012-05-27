@@ -4,12 +4,18 @@ $:.unshift File.expand_path('../../lib/', __FILE__)
 
 ROOT = File.expand_path('../..', __FILE__)
 
+Bundler.require(:default, :test, :development)
+
+SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
+
+SimpleCov.start
+
 require 'pulse-meter'
 require 'pulse-meter/visualizer'
 require 'test_helpers/matchers'
 require 'rack/test'
 
-Bundler.require(:default, :test, :development)
+
 
 Dir['spec/support/**/*.rb'].each{|f| require File.join(ROOT, f) }
 Dir['spec/shared_examples/**/*.rb'].each{|f| require File.join(ROOT,f)}

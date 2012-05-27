@@ -41,4 +41,13 @@ namespace :example do
       system "cd examples/minimal && bundle exec foreman start"
     end
   end
+
+  desc "Run full example"
+  task :full do
+    chdir(ROOT) do
+      system "bundle"
+      system "cd examples/full && bundle exec foreman start"
+    end
+  end
+
 end
