@@ -12,7 +12,6 @@ SimpleCov.start
 
 require 'pulse-meter'
 require 'pulse-meter/visualizer'
-require 'test_helpers/matchers'
 require 'rack/test'
 
 
@@ -24,6 +23,6 @@ RSpec.configure do |config|
   config.before(:each) { PulseMeter.redis = MockRedis.new }
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
-  config.include(TestHelpers::Matchers)
+  config.include(Matchers)
 end
 
