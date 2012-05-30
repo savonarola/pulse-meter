@@ -29,7 +29,7 @@ module PulseMeter
       def last_point_data(need_incomplete=false)
         res = {
             name: real_sensor.annotation,
-            y: last_value(need_incomplete)
+            y: to_float(last_value(need_incomplete))
         }
         res[:color] = color if color
         res
@@ -37,7 +37,7 @@ module PulseMeter
 
       def timeline_data(time_span, need_incomplete = false)
         sensor = real_sensor
-        data = sensor.timeline(time_span).map{|sd| {x: sd.start_time.to_i*1000, y: sd.value}}
+        data = sensor.timeline(time_span).map{|sd| {x: sd.start_time.to_i*1000, y: to_float(sd.value)}}
         data.pop unless need_incomplete
         res = {
             name: sensor.annotation,
@@ -52,6 +52,10 @@ module PulseMeter
       def real_sensor
         # TODO add !temporarily! caching if this will be called too frequently
         PulseMeter::Sensor::Base.restore(@name)
+      end
+
+      def to_float(val)
+        val && val.to_f
       end
 
     end
