@@ -110,22 +110,34 @@ module PulseMeter
         raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
         start_time, end_time = from.to_i, till.to_i
         current_interval_id = get_interval_id(start_time) + interval
-        res = []
+        keys = []
+        ids = []
         while current_interval_id < end_time
-          res << get_timeline_value(current_interval_id)
+          ids << current_interval_id
+          keys << data_key(current_interval_id)
           current_interval_id += interval
+        end
+        values = if keys.empty?
+          []
+        else
+          redis.mget(*keys)
+        end
+        res = []
+        ids.zip(values) do |(id, val)|
+          res << if val.nil?
+            get_raw_value(id)
+          else
+            SensorData.new(Time.at(id), val)
+          end
         end
         res
       end
 
-      # Returns sensor data for given interval.
-      #   If the interval is not over yet makes its data in-memory summarization
+      # Returns sensor data for given interval, in-memory summarization
       #   and returns calculated value
       # @param interval_id [Fixnum]
       # @return [SensorData]
-      def get_timeline_value(interval_id)
-        interval_data_key = data_key(interval_id)
-        return SensorData.new(Time.at(interval_id), redis.get(interval_data_key)) if redis.exists(interval_data_key)
+      def get_raw_value(interval_id)
         interval_raw_data_key = raw_data_key(interval_id)
         return SensorData.new(Time.at(interval_id), summarize(interval_raw_data_key)) if redis.exists(interval_raw_data_key)
         SensorData.new(Time.at(interval_id), nil)
