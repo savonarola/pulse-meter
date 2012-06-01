@@ -44,6 +44,7 @@ following static sensors are available:
 
   * Counter
   * Hashed Counter
+  * Unique Counter
   * Indicator
 
 They have no web visualisation interface and they are assumed to be used by external visualisation tools.
@@ -64,6 +65,7 @@ The following timeline sensors are available:
   * Min value
   * Median value
   * Percentile
+  * Unique counter
 
 There are several caveats with timeline sensors:
 
