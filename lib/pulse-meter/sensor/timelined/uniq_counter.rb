@@ -4,11 +4,11 @@ module PulseMeter
       # Counts unique events per interval
       class UniqCounter < Timeline
         def aggregate_event(key, value)
-          redis.hset(key, value, 1)
+          redis.sadd(key, value)
         end
 
         def summarize(key)
-          redis.hlen(key) || 0
+          redis.scard(key)
         end
       end
     end

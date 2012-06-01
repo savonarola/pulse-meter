@@ -8,13 +8,13 @@ module PulseMeter
       # Processes event
       # @param name [String] value to be counted
       def event(name)
-        redis.hset(value_key, name, 1)        
+        redis.sadd(value_key, name)
       end
 
       # Returs number of unique values ever sent to counter
       # @return [Fixnum]
       def value
-        redis.hlen(value_key)
+        redis.scard(value_key)
       end
 
     end
