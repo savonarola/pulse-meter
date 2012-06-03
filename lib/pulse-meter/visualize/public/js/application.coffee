@@ -83,7 +83,7 @@ $ ->
 
 		refetch: ->
 			if @needFetch()
-				@fetch()
+				@forceUpdate()
 				@setNextFetch()
 
 		cutoffValue: (v, min, max) ->
@@ -100,6 +100,12 @@ $ ->
 					@cutoffValue(v, min, max)
 				, this)
 			, this)
+
+		forceUpdate: ->
+			@fetch {
+				success: (model, response) ->
+					model.trigger('change')
+			}
 	}
 
 	WidgetList = Backbone.Collection.extend {
@@ -184,7 +190,7 @@ $ ->
 		}
 
 		refresh: ->
-			@model.fetch()
+			@model.forceUpdate()
 
 		setRefresh: ->
 			needRefresh = @$el.find('#need-refresh').is(":checked")
