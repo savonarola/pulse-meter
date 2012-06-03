@@ -39,7 +39,7 @@ describe PulseMeter::Visualize::Layout do
     it "should return data for correct widget" do
       w = layout.widget(1, 0)
       w.should include(id: 1, title: "w3")
-      w = layout.widget(0, 1)
+      w = layout.widget(0, 1, timespan: 123)
       w.should include(id: 2, title: "w2")
     end
   end

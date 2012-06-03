@@ -41,8 +41,8 @@ module PulseMeter
         }
       end
 
-      def widget(page_id, widget_id)
-        pages[page_id].widget_data(widget_id)
+      def widget(page_id, widget_id, opts = {})
+        pages[page_id].widget_data(widget_id, opts)
       end
 
       def widgets(page_id)

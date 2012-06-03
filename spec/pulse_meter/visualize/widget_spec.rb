@@ -105,6 +105,24 @@ describe PulseMeter::Visualize::Widget do
               end
             end
           end
+
+          it "should accept custom timespan" do
+            Timecop.freeze(@current_time + interval) do
+              [:line, :spline, :area].each do |type|
+                widget = widgets[type]
+                widget.data(timespan: timespan)[:series].each do |s|
+                  s[:data].size.should == 1
+                end
+
+                widget.data(timespan: timespan + interval)[:series].each do |s|
+                  s[:data].size.should == 2
+                end
+
+              end
+            end
+          end
+
+
         end
       end
     end

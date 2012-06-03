@@ -22,35 +22,37 @@ module PulseMeter
         @timespan = args[:timespan]
       end
 
-      def data
+      def data(options = {})
+        real_timespan = options[:timespan] || timespan
         {
           title: title,
           type: type,
           values_title: values_label,
           width: width,
           interval: redraw_interval,
-          series: series_data
+          series: series_data(real_timespan),
+          timespan: timespan
         }
       end
 
       protected
 
-      def series_data
+      def series_data(tspan)
         case type
           when :spline
-            line_series_data
+            line_series_data(tspan)
           when :line
-            line_series_data
+            line_series_data(tspan)
           when :area
-            line_series_data
+            line_series_data(tspan)
           when :pie
             pie_series_data
         end
       end
 
-      def line_series_data
+      def line_series_data(tspan)
         sensors.map do |s|
-          s.timeline_data(timespan, show_last_point)
+          s.timeline_data(tspan, show_last_point)
         end
       end
 

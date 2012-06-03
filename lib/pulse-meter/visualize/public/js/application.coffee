@@ -68,6 +68,18 @@ $ ->
 		initialize: ->
 			@needRefresh = true
 			@setNextFetch()
+			@timespanInc = 0
+
+		increaseTimespan: (inc) ->
+			@timespanInc = @timespanInc + inc
+			@forceUpdate()
+
+		resetTimespan: ->
+			@timespanInc = 0
+			@forceUpdate()
+
+		url: ->
+			"#{@collection.url()}/#{@get('id')}?timespan=#{@get('timespan') + @timespanInc}"
 
 		time: -> (new Date()).getTime()
 
@@ -104,7 +116,7 @@ $ ->
 		forceUpdate: ->
 			@fetch {
 				success: (model, response) ->
-					model.trigger('change')
+					model.trigger('redraw')
 			}
 	}
 
@@ -182,11 +194,13 @@ $ ->
 
 		initialize: ->
 			@model.bind('destroy', @remove, this)
-			@model.bind('change', @updateChart, this)
+			@model.bind('redraw', @updateChart, this)
 
 		events: {
 			"click #refresh": 'refresh'
 			"click #need-refresh": 'setRefresh'
+			"click #extend-timespan": 'extendTimespan'
+			"click #reset-timespan": 'resetTimespan'
 		}
 
 		refresh: ->
@@ -196,6 +210,13 @@ $ ->
 			needRefresh = @$el.find('#need-refresh').is(":checked")
 			@model.setRefresh(needRefresh)
 			true
+
+		extendTimespan: ->
+			val = @$el.find("#extend-timespan-val").first().val()
+			@model.increaseTimespan(parseInt(val))
+
+		resetTimespan: ->
+			@model.resetTimespan()
 
 		renderChart: ->
 			@chartView.render()

@@ -98,6 +98,39 @@ describe PulseMeter::Visualize::Page do
           }]
       end
 
+      Timecop.freeze(interval_start + 2 * interval - 1) do
+        page.widget_data(0, timespan: 0)[:series].should ==
+          [
+            {
+              type: :pie,
+              name: values_label,
+              data: [
+                {
+                  name: a_sensor.annotation,
+                  color: a_color,
+                  y: 12
+                },
+                  {
+                    name: b_sensor.annotation,
+                    color: b_color,
+                    y: 33
+                  }
+              ]
+
+            }
+          ]
+        page.widget_data(1, timespan: 1)[:series].should ==
+          [{
+            name: a_sensor.annotation,
+            color: a_color,
+            data: []
+          }, {
+            name: b_sensor.annotation,
+            color: b_color,
+            data: []
+          }]
+      end
+
 
     end
   end

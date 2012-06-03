@@ -12,8 +12,8 @@ module PulseMeter
         @highchart_options = args[:highchart_options] or raise ArgumentError, ":highchart_options not specified"
       end
 
-      def widget_data(widget_id)
-        widgets[widget_id].data.merge(id: widget_id + 1)
+      def widget_data(widget_id, opts = {})
+        widgets[widget_id].data(opts).merge(id: widget_id + 1)
       end
 
       def widget_datas

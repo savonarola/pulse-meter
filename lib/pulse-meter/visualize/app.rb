@@ -33,10 +33,11 @@ module PulseMeter
 
 			get '/pages/:page_id/widgets/:id' do
 				page_id = params[:page_id].to_i 
-				id = params[:id].to_i 
+				id = params[:id].to_i
+        timespan = params[:timespan].to_i
 
 				content_type :json
-        camelize_keys(@layout.widget(page_id - 1, id - 1)).to_json
+        camelize_keys(@layout.widget(page_id - 1, id - 1, timespan: timespan)).to_json
 			end
     end
   end
