@@ -7,6 +7,8 @@ module PulseMeter
     class Timeline < Base
       include PulseMeter::Mixins::Utils
 
+      MAX_TIMESPAN_POINTS = 1000
+
       # @!attribute [r] interval
       #   @return [Fixnum] Rotation interval
       # @!attribute [r] ttl
@@ -109,13 +111,14 @@ module PulseMeter
       def timeline_within(from, till)
         raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
         start_time, end_time = from.to_i, till.to_i
-        current_interval_id = get_interval_id(start_time) + interval
+        actual_interval = optimized_inteval(start_time, end_time)
+        current_interval_id = get_interval_id(start_time) + actual_interval
         keys = []
         ids = []
         while current_interval_id < end_time
           ids << current_interval_id
           keys << data_key(current_interval_id)
-          current_interval_id += interval
+          current_interval_id += actual_interval
         end
         values = if keys.empty?
           []
@@ -133,7 +136,21 @@ module PulseMeter
         res
       end
 
-      # Returns sensor data for given interval, in-memory summarization
+      # Makes interval optimization so that the requested timespan contains less than MAX_TIMESPAN_POINTS values
+      # @param start_time [Fixnum] unix timestamp of timespan start
+      # @param end_time [Fixnum] unix timestamp of timespan start
+      # @return [Fixnum] optimized interval in seconds.
+      def optimized_inteval(start_time, end_time)
+        res_interval = interval
+        timespan = end_time - start_time
+        while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
+          res_interval *= 2
+        end
+        res_interval
+      end
+
+
+      # Returns sensor data for given interval making in-memory summarization
       #   and returns calculated value
       # @param interval_id [Fixnum]
       # @return [SensorData]

@@ -202,6 +202,15 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
         ).size.should == 0
       end
     end
+
+    it "should not return more than #{PulseMeter::Sensor::Timeline::MAX_TIMESPAN_POINTS} points" do
+      max = PulseMeter::Sensor::Timeline::MAX_TIMESPAN_POINTS
+      (1..10).each do |i|
+        timespan = sensor.interval * max * (2**i)
+        sensor.timeline_within(Time.now, Time.now - timespan).size.should < max
+
+      end
+    end
   end
 
   describe "#timeline" do

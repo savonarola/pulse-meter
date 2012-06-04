@@ -108,6 +108,7 @@ $ ->
 
 		cutoff: (min, max) ->
 			_.each(@get('series'), (s) ->
+				console.log s.data.length
 				_.each( s.data, (v) ->
 					@cutoffValue(v, min, max)
 				, this)
@@ -212,7 +213,8 @@ $ ->
 			true
 
 		extendTimespan: ->
-			val = @$el.find("#extend-timespan-val").first().val()
+			select = @$el.find("#extend-timespan-val")
+			val = select.first().val()
 			@model.increaseTimespan(parseInt(val))
 
 		resetTimespan: ->

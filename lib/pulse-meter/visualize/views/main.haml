@@ -14,7 +14,7 @@
     #plotarea
     #chart-controls
       .form-inline
-        %span#refresh.btn.btn-mini
+        %button#refresh.btn.btn-mini
           %i.icon-refresh
           Refresh
         %span.space
@@ -32,9 +32,6 @@
         <% if(type != 'pie'){ %>
         %label
           Timespan:
-          %span.btn.btn-mini#extend-timespan
-            %i.icon-arrow-left
-            Extend
           %select#extend-timespan-val.btn-mini.span1
             %option{value: 60, selected: true} 1 minute
             %option{value: 60 * 5} 5 minutes
@@ -46,7 +43,10 @@
             %option{value: 60 * 60 * 24 * 7} 1 week
             %option{value: 60 * 60 * 24 * 7 * 2} 2 weeks
             %option{value: 60 * 60 * 24 * 30} 1 month
-          %span#reset-timespan.btn.btn-mini
+          %button#extend-timespan.btn.btn-mini
+            %i.icon-arrow-left
+            Extend
+          %button#reset-timespan.btn.btn-mini
             %i.icon-arrow-right
             Reset
         <% } %>
