@@ -1,3 +1,5 @@
+require "pulse-meter/visualize/series_extractor"
+
 module PulseMeter
   module Visualize
     class Sensor
@@ -8,6 +10,7 @@ module PulseMeter
         raise ArgumentError unless args.respond_to?('[]')
         @name = args[:sensor] or raise ArgumentError, ":sensor_name not specified"
         @color = args[:color]
+        @extractor = PulseMeter::Visualize.extractor(self)
       end
 
       def last_value(need_incomplete=false)
@@ -27,25 +30,20 @@ module PulseMeter
       end
 
       def last_point_data(need_incomplete=false)
-        res = {
-            name: real_sensor.annotation,
-            y: to_float(last_value(need_incomplete))
-        }
-        res[:color] = color if color
-        res
+        @extractor.point_data(last_value(need_incomplete))
       end
 
       def timeline_data(time_span, need_incomplete = false)
         sensor = real_sensor
-        data = sensor.timeline(time_span).map{|sd| {x: sd.start_time.to_i*1000, y: to_float(sd.value)}}
-        data.pop unless need_incomplete
-        res = {
-            name: sensor.annotation,
-            data: data
-        }
-        res[:color] = color if color
-        res
+        timeline_data = sensor.timeline(time_span)
+        timeline_data.pop unless need_incomplete
+        @extractor.series_data(timeline_data)
       end
+
+      def annotation
+        real_sensor.annotation
+      end
+
 
       protected
 
@@ -54,9 +52,6 @@ module PulseMeter
         PulseMeter::Sensor::Base.restore(@name)
       end
 
-      def to_float(val)
-        val && val.to_f
-      end
 
     end
   end

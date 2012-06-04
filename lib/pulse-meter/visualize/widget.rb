@@ -51,16 +51,14 @@ module PulseMeter
       end
 
       def line_series_data(tspan)
-        sensors.map do |s|
-          s.timeline_data(tspan, show_last_point)
-        end
+        sensors.map{ |s| s.timeline_data(tspan, show_last_point) }.flatten(1)
       end
 
       def pie_series_data
         [{
           type: type,
           name: values_label,
-          data: sensors.map{|s| s.last_point_data(show_last_point)}
+          data: sensors.map{|s| s.last_point_data(show_last_point)}.flatten(1)
         }]
       end
 
