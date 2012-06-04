@@ -32,16 +32,59 @@ module PulseMeter
         end
       end
 
+
+      class Hashed < Simple
+
+        def parse_data(value)
+          if value
+            if value.is_a?(String)
+              JSON.parse(value)
+            else
+              value
+            end
+          else
+            {}
+          end
+        end
+
+        def point_data(value)
+          data = parse_data(value)
+          data.keys.map do |k|
+            {
+              y: to_float(data[k]),
+              name: k
+            }
+          end
+        end
+
+        def series_data(timeline_data)
+          series_data = {}
+          parsed_data = timeline_data.map do |sd|
+            data = parse_data(sd.value)
+            data.keys.each{|k| series_data[k] ||= {name: k, data: []}}
+            [sd.start_time.to_i*1000, data]
+          end
+
+          series_names = series_data.keys.sort
+          parsed_data.each do |data|
+            series_names.each do |k|
+              series_data[k][:data] << {x: data[0], y: to_float(data[1][k])}
+            end
+          end
+          series_data.values
+        end
+      end
     end
 
     SPECIAL_SERIES_EXTRACTORS = {
+      'HashedCounter' => SeriesExtractor::Hashed
     }.freeze
 
-    DEFAULT_EXTRACTOR = SeriesExtractor::Simple
+    DEFAULT_SERIES_EXTRACTOR = SeriesExtractor::Simple
 
     def extractor(sensor)
-      key = sensor.class.to_s.split('::').last
-      extractor_class = SPECIAL_SERIES_EXTRACTORS[key] || DEFAULT_EXTRACTOR
+      key = sensor.type.to_s.split('::').last
+      extractor_class = SPECIAL_SERIES_EXTRACTORS[key] || DEFAULT_SERIES_EXTRACTOR
       extractor_class.new(sensor)
     end
 

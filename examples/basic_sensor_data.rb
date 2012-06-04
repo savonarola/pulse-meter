@@ -22,6 +22,12 @@ rhino_counter = PulseMeter::Sensor::Timelined::Counter.new(:rhino_count,
   ttl: 3600
 )
 
+goose_counter = PulseMeter::Sensor::Timelined::HashedCounter.new(:goose_count,
+  annotation: 'Goose Count',
+  interval: 10,
+  ttl: 3600
+)
+
 rhino_average_age = PulseMeter::Sensor::Timelined::Average.new(:rhino_average_age,
   annotation: 'Rhino average age',
   interval: 20,
@@ -35,4 +41,9 @@ while true
   rhino_counter.event(2)
   lama_average_age.event(Random.rand(50))
   rhino_average_age.event(Random.rand(100))
+
+  10.times do
+    goose_n = Random.rand(4)
+    goose_counter.event("goose_#{goose_n}" => 1)
+  end
 end

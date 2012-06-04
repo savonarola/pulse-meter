@@ -8,9 +8,8 @@ module PulseMeter
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
-        @name = args[:sensor] or raise ArgumentError, ":sensor_name not specified"
+        @name = args[:sensor] or raise ArgumentError, ":sensor not specified"
         @color = args[:color]
-        @extractor = PulseMeter::Visualize.extractor(self)
       end
 
       def last_value(need_incomplete=false)
@@ -30,20 +29,27 @@ module PulseMeter
       end
 
       def last_point_data(need_incomplete=false)
-        @extractor.point_data(last_value(need_incomplete))
+        extractor.point_data(last_value(need_incomplete))
       end
 
       def timeline_data(time_span, need_incomplete = false)
         sensor = real_sensor
         timeline_data = sensor.timeline(time_span)
         timeline_data.pop unless need_incomplete
-        @extractor.series_data(timeline_data)
+        extractor.series_data(timeline_data)
       end
 
       def annotation
         real_sensor.annotation
       end
 
+      def type
+        real_sensor.class
+      end
+
+      def extractor
+        PulseMeter::Visualize.extractor(self)
+      end
 
       protected
 
