@@ -131,4 +131,11 @@ describe PulseMeter::Mixins::Utils do
       dummy.camelize_keys({ :aa_bb_cc => [ { :dd_ee => 123 }, 456 ] }).should =={ 'aaBbCc' => [ { 'ddEe' => 123 }, 456 ] }
     end
   end
+
+  describe "#symbolize_keys" do
+    it "should convert symbolizable keys to symbols" do
+      dummy.symbolize_keys({"a" => 5, 6 => 7}).should == {a: 5, 6 => 7}
+    end
+
+  end
 end

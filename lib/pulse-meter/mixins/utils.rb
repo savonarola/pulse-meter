@@ -75,6 +75,18 @@ module PulseMeter
         (first_letter_upper ? first.capitalize : first.downcase) + terms.map(&:capitalize).join
       end
 
+      # Symbolizes hash keys
+      def symbolize_keys(h)
+        h.each_with_object({}) do |(k, v), acc|
+          new_k = if k.respond_to?(:to_sym)
+            k.to_sym
+          else
+            k
+          end
+          acc[new_k] = v
+        end
+      end
+
       # Deeply capitalizes Array values or Hash keys
       def camelize_keys(item)
         case item
