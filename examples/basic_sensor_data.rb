@@ -1,12 +1,12 @@
 $: << File.join(File.absolute_path(__FILE__), '..', 'lib')
 
 require "pulse-meter"
-
+            
 PulseMeter.redis = Redis.new
 
 cfg = PulseMeter::Sensor::Configuration.new(
   lama_count: {
-    type: 'timelined/counter',
+    sensor_type:'timelined/counter',
     args: {
       annotation: 'Lama Count',
       interval: 10,
@@ -15,7 +15,7 @@ cfg = PulseMeter::Sensor::Configuration.new(
   },
 
   lama_average_age: {
-    type: 'timelined/average',
+    sensor_type:'timelined/average',
     args: {
       annotation: 'Lama Average Age',
       interval: 20,
@@ -24,7 +24,7 @@ cfg = PulseMeter::Sensor::Configuration.new(
   },
 
   rhino_count: {
-    type: 'timelined/counter',
+    sensor_type:'timelined/counter',
     args: {
       annotation: 'Rhino Count',
       interval: 10,
@@ -33,7 +33,7 @@ cfg = PulseMeter::Sensor::Configuration.new(
   },
 
   goose_count: {
-    type: 'timelined/hashed_counter',
+    sensor_type:'timelined/hashed_counter',
     args: {
       annotation: 'Goose Count',
       interval: 10,
@@ -42,7 +42,7 @@ cfg = PulseMeter::Sensor::Configuration.new(
   },
 
   rhino_average_age: {
-    type: 'timelined/average',
+    sensor_type:'timelined/average',
     args: {
       annotation: 'Rhino average age',
       interval: 20,

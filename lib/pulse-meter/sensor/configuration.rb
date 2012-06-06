@@ -11,8 +11,8 @@ module PulseMeter
       end
 
       def add_sensor(name, opts)
-        type = opts.respond_to?(:type) ? opts.type : opts[:type]
-        klass_s = sensor_class(type)
+        sensor_type = opts.respond_to?(:sensor_type) ? opts.sensor_type : opts[:sensor_type]
+        klass_s = sensor_class(sensor_type)
         klass = constantize(klass_s)
         raise ArgumentError, "#{klass_s} is not a valid class for a sensor" unless klass
         args = (opts.respond_to?(:args) ? opts.args : opts[:args]) || {}
@@ -34,8 +34,8 @@ module PulseMeter
 
       protected
 
-      def sensor_class(type)
-        entries = type.to_s.split('/').map do |entry|
+      def sensor_class(sensor_type)
+        entries = sensor_type.to_s.split('/').map do |entry|
           entry.split('_').map(&:capitalize).join
         end
         entries.unshift('PulseMeter::Sensor').join('::')

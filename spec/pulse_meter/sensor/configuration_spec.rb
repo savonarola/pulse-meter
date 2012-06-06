@@ -6,34 +6,34 @@ describe PulseMeter::Sensor::Configuration do
 
     it "should create sensor available under passed name" do
       cfg.sensor(:foo).should be_nil
-      cfg.add_sensor(:foo, type: 'counter')
+      cfg.add_sensor(:foo, sensor_type: 'counter')
       cfg.sensor(:foo).should_not be_nil
     end
 
     it "should event shortcut for the sensor" do
-      cfg.add_sensor(:foo, type: 'counter')
+      cfg.add_sensor(:foo, sensor_type: 'counter')
       sensor = cfg.sensor(:foo)
       sensor.should_receive(:event).with(321)
       cfg.foo(321)
     end
 
     it "should create sensor with correct type" do
-      cfg.add_sensor(:foo, type: 'counter')
+      cfg.add_sensor(:foo, sensor_type: 'counter')
       cfg.sensor(:foo).should be_kind_of(PulseMeter::Sensor::Counter)
     end
 
     it "should raise exception if sensor type is bad" do
-      expect{ cfg.add_sensor(:foo, type: 'baaaar') }.to raise_exception(ArgumentError)
+      expect{ cfg.add_sensor(:foo, sensor_type: 'baaaar') }.to raise_exception(ArgumentError)
     end
 
     it "should pass args to created sensor" do
-      cfg.add_sensor(:foo, type: 'counter', args: {annotation: "My Foo Counter"} )
+      cfg.add_sensor(:foo, sensor_type: 'counter', args: {annotation: "My Foo Counter"} )
       cfg.sensor(:foo).annotation.should == "My Foo Counter"
     end
 
     it "should accept hashie-objects" do
       class Dummy
-        def type
+        def sensor_type
           'counter'
         end
         def args
@@ -52,10 +52,10 @@ describe PulseMeter::Sensor::Configuration do
     it "should add passed sensor setting hash using keys as names" do
       opts = {
         cnt: {
-          type: 'counter'
+          sensor_type: 'counter'
         },
         ind: {
-          type: 'indicator'
+          sensor_type: 'indicator'
         }
       }
       cfg1 = described_class.new(opts)
@@ -69,7 +69,7 @@ describe PulseMeter::Sensor::Configuration do
     it "should give access to added sensors" do
       opts = {
         cnt: {
-          type: 'counter',
+          sensor_type: 'counter',
           args: {
             annotation: "MySensor"
           }
