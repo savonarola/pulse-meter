@@ -13,58 +13,58 @@ sensors = PulseMeter::Sensor::Configuration.new(
       ttl: 60 * 60 * 24    # keep data one day
     }
   },
-    requests_per_hour: {
-      sensor_type: 'timelined/counter',
-      args: {
-        annotation: 'Requests per hour',
-        interval: 60 * 60,
-        ttl: 60 * 60 * 24 * 30    # keep data 30 days
-      }
-    },
-    # when ActiveSupport extentions are loaded, a better way is to write just
-    # :interval => 1.hour,
-    # :ttl => 30.days
-    errors_per_minute: {
-      sensor_type: 'timelined/counter',
-      args: {
-        annotation: 'Errors per minute',
-        interval: 60,
-        ttl: 60 * 60 * 24
-      }
-    },
-    errors_per_hour: {
-      sensor_type: 'timelined/counter',
-      args: {
-        annotation: 'Errors per hour',
-        interval: 60 * 60,
-        ttl: 60 * 60 * 24 * 30
-      }
-    },
-    longest_minute_request: {
-      sensor_type: 'timelined/max',
-      args: {
-        annotation: 'Longest minute requests',
-        interval: 60,
-        ttl: 60 * 60 * 24
-      }
-    },
-    shortest_minute_request: {
-      sensor_type: 'timelined/min',
-      args: {
-        annotation: 'Shortest minute requests',
-        interval: 60,
-        ttl: 60 * 60 * 24
-      }
-    },
-    perc90_minute_request: {
-      sensor_type: 'timelined/percentile',
-      args: {
-        annotation: 'Minute request 90-percent percentile',
-        interval: 60,
-        ttl: 60 * 60 * 24,
-        p: 0.9
-      }
+  requests_per_hour: {
+    sensor_type: 'timelined/counter',
+    args: {
+      annotation: 'Requests per hour',
+      interval: 60 * 60,
+      ttl: 60 * 60 * 24 * 30    # keep data 30 days
     }
+  },
+  # when ActiveSupport extentions are loaded, a better way is to write just
+  # :interval => 1.hour,
+  # :ttl => 30.days
+  errors_per_minute: {
+    sensor_type: 'timelined/counter',
+    args: {
+      annotation: 'Errors per minute',
+      interval: 60,
+      ttl: 60 * 60 * 24
+    }
+  },
+  errors_per_hour: {
+    sensor_type: 'timelined/counter',
+    args: {
+      annotation: 'Errors per hour',
+      interval: 60 * 60,
+      ttl: 60 * 60 * 24 * 30
+    }
+  },
+  longest_minute_request: {
+    sensor_type: 'timelined/max',
+    args: {
+      annotation: 'Longest minute requests',
+      interval: 60,
+      ttl: 60 * 60 * 24
+    }
+  },
+  shortest_minute_request: {
+    sensor_type: 'timelined/min',
+    args: {
+      annotation: 'Shortest minute requests',
+      interval: 60,
+      ttl: 60 * 60 * 24
+    }
+  },
+  perc90_minute_request: {
+    sensor_type: 'timelined/percentile',
+    args: {
+      annotation: 'Minute request 90-percent percentile',
+      interval: 60,
+      ttl: 60 * 60 * 24,
+      p: 0.9
+    }
+  }
 )
 
 agent_names = [:ie, :firefox, :chrome, :other]
