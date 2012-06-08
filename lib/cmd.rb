@@ -2,6 +2,19 @@ require 'thor'
 require 'terminal-table'
 require 'time'
 require 'json'
+require 'csv'
+
+module Enumerable
+  def to_table(format = nil)
+    if "csv" == format
+      CSV.generate(:col_sep => ';') do |csv|
+        self.each {|row| csv << row}
+      end
+    else
+      self.each_with_object(Terminal::Table.new) {|row, table| table << row}
+    end
+  end
+end
 
 module Cmd
   class All < Thor
@@ -25,18 +38,19 @@ module Cmd
         PulseMeter::Sensor::Timeline.list_objects
       end
 
-      def all_sensors_table(title = nil)
-        table = Terminal::Table.new :title => title
-        table << ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"]
-        table << :separator
+      def all_sensors_table
+        data = [
+          ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"],
+          :separator
+        ]
         all_sensors.each do |s|
           if s.kind_of? PulseMeter::Sensor::Timeline
-            table << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]
+            data << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]
           else
-            table << [s.name, s.class] + ['-'] * 4
+            data << [s.name, s.class] + ['-'] * 4
           end
         end
-        table
+        data.to_table
       end
 
       def fail!(description = nil)
@@ -54,14 +68,15 @@ module Cmd
     desc "sensors", "List all sensors available"
     common_options
     def sensors
-      with_redis {puts all_sensors_table('Registered sensors')}
+      with_redis {puts all_sensors_table}
     end
 
     desc "reduce", "Execute reduction for all sensors' raw data"
     common_options
     def reduce
       with_redis do
-        puts all_sensors_table('Registered sensors to be reduced')
+        puts 'Registered sensors to be reduced'
+        puts all_sensors_table
         PulseMeter::Sensor::Timeline.reduce_all_raw
         puts "DONE"
       end
@@ -79,24 +94,25 @@ module Cmd
 
     desc "timeline NAME SECONDS", "Get sensor's NAME timeline for last SECONDS"
     common_options
+    method_option :format, :default => :table, :desc => "Output format: table or csv"
     def timeline(name, seconds)
       with_safe_restore_of(name) do |sensor|
-        table = Terminal::Table.new
-        sensor.timeline(seconds).each {|data| table << [data.start_time, data.value || '-']}
-        puts table
+        puts sensor.
+          timeline(seconds).
+          map {|data| [data.start_time, data.value || '-']}.
+          to_table(options[:format])
       end
     end
 
     desc "timeline_within NAME FROM TILL", "Get sensor's NAME timeline in interval. Time format: YYYY-MM-DD HH:MM:SS"
     common_options
+    method_option :format, :default => :table, :desc => "Output format: table or csv"
     def timeline_within(name, from, till)
       with_safe_restore_of(name) do |sensor|
-        table = Terminal::Table.new
-        sensor.timeline_within(
-          Time.parse(from),
-          Time.parse(till)
-        ).each {|data| table << [data.start_time, data.value || '-']}
-        puts table
+        puts sensor.
+          timeline_within(Time.parse(from), Time.parse(till)).
+          map {|data| [data.start_time, data.value || '-']}.
+          to_table(options[:format])
       end
     end
 

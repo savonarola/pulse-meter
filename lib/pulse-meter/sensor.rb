@@ -2,6 +2,7 @@ require 'pulse-meter/sensor/base'
 require 'pulse-meter/sensor/counter'
 require 'pulse-meter/sensor/hashed_counter'
 require 'pulse-meter/sensor/indicator'
+require 'pulse-meter/sensor/uniq_counter'
 require 'pulse-meter/sensor/timeline'
 require 'pulse-meter/sensor/timelined/average'
 require 'pulse-meter/sensor/timelined/counter'
@@ -10,6 +11,7 @@ require 'pulse-meter/sensor/timelined/min'
 require 'pulse-meter/sensor/timelined/max'
 require 'pulse-meter/sensor/timelined/percentile'
 require 'pulse-meter/sensor/timelined/median'
+require 'pulse-meter/sensor/timelined/uniq_counter'
 
 # Top level sensor module
 module PulseMeter
