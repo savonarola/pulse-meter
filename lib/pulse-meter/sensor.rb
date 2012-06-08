@@ -37,6 +37,9 @@ module PulseMeter
   # Exception to be raised when sensor cannot be dumped
   class DumpError < SensorError; end
 
+  # Exception to be raised on attempts of using the same key for different sensors
+  class DumpConflictError < DumpError; end
+
   # Exception to be raised when sensor cannot be restored
   class RestoreError < SensorError; end
 

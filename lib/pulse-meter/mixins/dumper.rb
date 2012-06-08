@@ -10,12 +10,23 @@ module PulseMeter
       module InstanceMethods
         # Serializes object and saves it to Redis
         # @raise [DumpError] if dumping fails for any reason
-        def dump!
+        def dump!(safe = true)
           ensure_storability!
-          serialized_obj = self.to_yaml
-          redis.hset(DUMP_REDIS_KEY, self.name, serialized_obj)
-        rescue
-          raise DumpError, "object cannot be dumped"
+          serialized_obj = to_yaml
+          if safe
+            unless redis.hsetnx(DUMP_REDIS_KEY, name, serialized_obj)
+              stored = self.class.restore(name)
+              unless stored.class == self.class
+                raise DumpConflictError, "Attempt to create sensor #{name} of class #{self.class} but it already has class #{stored.class}"
+              end
+            end
+          else
+            redis.hset(DUMP_REDIS_KEY, name, serialized_obj)
+          end
+        rescue DumpError, RestoreError => exc
+          raise exc
+        rescue StandardError => exc
+          raise DumpError, "object cannot be dumped: #{exc}"
         end
 
         # Ensures that object is dumpable

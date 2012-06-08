@@ -8,19 +8,23 @@ describe PulseMeter::Mixins::Dumper do
   class Bad < Base; end
 
   class Good < Base
-    attr_accessor :foo
-    def name; foo.to_s; end
+    attr_accessor :some_value
+    attr_accessor :name
 
     def redis; PulseMeter.redis; end
 
-    def initialize(foo)
-      @foo = foo
+    def initialize(name)
+      @name = name.to_s
+      @some_value = name
     end
   end
+
+  class GoodButAnother < Good; end
 
   let(:bad_obj){ Bad.new }
   let(:good_obj){ Good.new(:foo) }
   let(:another_good_obj){ Good.new(:bar) }
+  let(:good_obj_of_another_type){ GoodButAnother.new(:quux) }
   let(:redis){ PulseMeter.redis }
 
   describe '#dump' do
@@ -57,6 +61,23 @@ describe PulseMeter::Mixins::Dumper do
         expect {good_obj.dump!}.to change {redis.hlen(Good::DUMP_REDIS_KEY)}.by(1)
       end
     end
+
+    context "when dump is safe" do
+      it "should not overwrite stored objects of the same type" do
+        good_obj.some_value = 123
+        good_obj.dump!
+        good_obj.some_value = 321
+        good_obj.dump!
+        Base.restore(good_obj.name).some_value.should == 123
+      end
+
+      it "should raise DumpConflictError exception if sensor with the same name but different type already exists" do
+        good_obj.name = "duplicate_name"
+        good_obj_of_another_type.name = "duplicate_name"
+        good_obj.dump!
+        expect{good_obj_of_another_type.dump!}.to raise_exception(PulseMeter::DumpConflictError)
+      end
+    end
   end
 
   describe ".restore" do
@@ -77,14 +98,14 @@ describe PulseMeter::Mixins::Dumper do
 
       it "should restore object data" do
         restored = Base.restore(good_obj.name)
-        restored.foo.should == good_obj.foo
+        restored.some_value.should == good_obj.some_value
       end
 
       it "should restore last dumped object" do
-        good_obj.foo = :bar
-        good_obj.dump!
+        good_obj.some_value = :bar
+        good_obj.dump!(false)
         restored = Base.restore(good_obj.name)
-        restored.foo.should == :bar
+        restored.some_value.should == :bar
       end
     end
   end
@@ -106,8 +127,8 @@ describe PulseMeter::Mixins::Dumper do
       end
 
       it "should return list of registered objects" do
-        good_obj.dump!
-        another_good_obj.dump!
+        good_obj.dump!(false)
+        another_good_obj.dump!(false)
         Base.list_names.should =~ [good_obj.name, another_good_obj.name]
       end
     end
