@@ -163,7 +163,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   end
 
   describe "#timeline_within" do
-    it "shoulde raise exception unless both arguments are Time objects" do
+    it "should raise exception unless both arguments are Time objects" do
       [:q, nil, -1].each do |bad_value|
         expect{ sensor.timeline_within(Time.now, bad_value) }.to raise_exception(ArgumentError)
         expect{ sensor.timeline_within(bad_value, Time.now) }.to raise_exception(ArgumentError)
@@ -240,6 +240,72 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       end
       Timecop.freeze(@start_of_interval + interval + 1) do
         sensor.timeline(2 + interval).size.should == 2
+      end
+    end
+  end
+
+  describe "#drop_within" do
+    it "should raise exception unless both arguments are Time objects" do
+      [:q, nil, -1].each do |bad_value|
+        expect{ sensor.drop_within(Time.now, bad_value) }.to raise_exception(ArgumentError)
+        expect{ sensor.drop_within(bad_value, Time.now) }.to raise_exception(ArgumentError)
+      end
+    end
+
+    it "should drop as many raw results as there are sensor interval beginnings in the passed interval" do
+      Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
+      Timecop.freeze(@start_of_interval + interval){ sensor.event(sample_event) }
+
+      future = @start_of_interval + interval * 3
+      Timecop.freeze(future) do
+        sensor.drop_within(
+          Time.at(@start_of_interval + interval - 1),
+            Time.at(@start_of_interval + interval + 1)
+        ).should == 1
+
+        data = sensor.timeline_within(
+          Time.at(@start_of_interval + interval - 1),
+            Time.at(@start_of_interval + interval + 1)
+        )
+        data.size.should == 1
+        data.first.value.should be_nil # since data is dropped
+
+      end
+
+      Timecop.freeze(@start_of_interval + interval + 2) do
+        sensor.drop_within(
+          Time.at(@start_of_interval + interval + 1),
+            Time.at(@start_of_interval + interval + 2)
+        ).should == 0
+      end
+    end
+
+    it "should drop as many reduced results as there are sensor interval beginnings in the passed interval" do
+      Timecop.freeze(@start_of_interval){ sensor.event(sample_event) }
+      Timecop.freeze(@start_of_interval + interval){ sensor.event(sample_event) }
+
+      future = @start_of_interval
+      Timecop.freeze(future) do
+        sensor.reduce_all_raw
+        sensor.drop_within(
+          Time.at(@start_of_interval + interval - 1),
+            Time.at(@start_of_interval + interval + 1)
+        ).should == 1
+
+        data = sensor.timeline_within(
+          Time.at(@start_of_interval + interval - 1),
+            Time.at(@start_of_interval + interval + 1)
+        )
+        data.size.should == 1
+        data.first.value.should be_nil # since data is dropped
+
+      end
+
+      Timecop.freeze(@start_of_interval + interval + 2) do
+        sensor.drop_within(
+          Time.at(@start_of_interval + interval + 1),
+            Time.at(@start_of_interval + interval + 2)
+        ).should == 0
       end
     end
   end

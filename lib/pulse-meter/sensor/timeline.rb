@@ -149,7 +149,6 @@ module PulseMeter
         res_interval
       end
 
-
       # Returns sensor data for given interval making in-memory summarization
       #   and returns calculated value
       # @param interval_id [Fixnum]
@@ -158,6 +157,27 @@ module PulseMeter
         interval_raw_data_key = raw_data_key(interval_id)
         return SensorData.new(Time.at(interval_id), summarize(interval_raw_data_key)) if redis.exists(interval_raw_data_key)
         SensorData.new(Time.at(interval_id), nil)
+      end
+
+      # Drops sensor data within given time
+      # @param from [Time] lower bound
+      # @param till [Time] upper bound
+      # @raise ArgumentError if argumets are not valid time objects
+      def drop_within(from, till)
+        raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
+        start_time, end_time = from.to_i, till.to_i
+        current_interval_id = get_interval_id(start_time) + interval
+        keys = []
+        while current_interval_id < end_time
+          keys << data_key(current_interval_id)
+          keys << raw_data_key(current_interval_id)
+          current_interval_id += interval
+        end
+        if keys.empty?
+          0
+        else
+          redis.del(*keys)
+        end
       end
 
       # Returns Redis key by which raw data for current interval is stored
