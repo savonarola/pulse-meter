@@ -57,11 +57,20 @@ module PulseMeter
           end
         end
 
+        def series_title(key)
+          annotation = @sensor.annotation
+          if annotation && !annotation.empty?
+            "#{annotation}: #{key}"
+          else
+            key
+          end
+        end
+
         def series_data(timeline_data)
           series_data = {}
           parsed_data = timeline_data.map do |sd|
             data = parse_data(sd.value)
-            data.keys.each{|k| series_data[k] ||= {name: k, data: []}}
+            data.keys.each{|k| series_data[k] ||= {name: series_title(k), data: []}}
             [sd.start_time.to_i*1000, data]
           end
 

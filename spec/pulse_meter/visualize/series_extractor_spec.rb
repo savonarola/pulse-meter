@@ -62,15 +62,15 @@ describe PulseMeter::Visualize::SeriesExtractor do
       ]
       extractor.series_data(tl_data).should == [
         {
-          name: 'a',
+          name: 'hashed sensor: a',
           data: [{x: 1000, y: 5}, {x: 2000, y: nil}]
         },
         {
-          name: 'b',
+          name: 'hashed sensor: b',
           data: [{x: 1000, y: 6}, {x: 2000, y: 6}]
         },
         {
-          name: 'c',
+          name: 'hashed sensor: c',
           data: [{x: 1000, y: nil}, {x: 2000, y: 7}]
         }
       ]
