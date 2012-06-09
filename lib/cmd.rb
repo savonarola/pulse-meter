@@ -5,10 +5,20 @@ require 'json'
 require 'csv'
 
 module Enumerable
+  def convert_time
+    map do |el|
+      if el.is_a?(Time)
+        el.to_i
+      else
+        el
+      end
+    end
+  end
+
   def to_table(format = nil)
     if "csv" == format
       CSV.generate(:col_sep => ';') do |csv|
-        self.each {|row| csv << row}
+        self.each {|row| csv << row.convert_time}
       end
     else
       self.each_with_object(Terminal::Table.new) {|row, table| table << row}
@@ -38,19 +48,19 @@ module Cmd
         PulseMeter::Sensor::Timeline.list_objects
       end
 
-      def all_sensors_table
+      def all_sensors_table(format = nil)
         data = [
           ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"],
-          :separator
         ]
+        data << :separator unless format == 'csv'
         all_sensors.each do |s|
           if s.kind_of? PulseMeter::Sensor::Timeline
             data << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]
           else
-            data << [s.name, s.class] + ['-'] * 4
+            data << [s.name, s.class] + [''] * 4
           end
         end
-        data.to_table
+        data.to_table(format)
       end
 
       def fail!(description = nil)
@@ -67,8 +77,9 @@ module Cmd
 
     desc "sensors", "List all sensors available"
     common_options
+    method_option :format, :default => :table, :desc => "Output format: table or csv"
     def sensors
-      with_redis {puts all_sensors_table}
+      with_redis {puts all_sensors_table(options[:format])}
     end
 
     desc "reduce", "Execute reduction for all sensors' raw data"
@@ -99,7 +110,7 @@ module Cmd
       with_safe_restore_of(name) do |sensor|
         puts sensor.
           timeline(seconds).
-          map {|data| [data.start_time, data.value || '-']}.
+          map {|data| [data.start_time, data.value || '']}.
           to_table(options[:format])
       end
     end
@@ -111,7 +122,7 @@ module Cmd
       with_safe_restore_of(name) do |sensor|
         puts sensor.
           timeline_within(Time.parse(from), Time.parse(till)).
-          map {|data| [data.start_time, data.value || '-']}.
+          map {|data| [data.start_time, data.value || '']}.
           to_table(options[:format])
       end
     end
