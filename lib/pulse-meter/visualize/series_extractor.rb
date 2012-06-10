@@ -52,7 +52,7 @@ module PulseMeter
           data.keys.map do |k|
             {
               y: to_float(data[k]),
-              name: k
+              name: series_title(k)
             }
           end
         end
