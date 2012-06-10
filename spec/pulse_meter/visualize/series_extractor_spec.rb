@@ -51,7 +51,7 @@ describe PulseMeter::Visualize::SeriesExtractor do
     it "should create point data correctly" do
       extractor.point_data('{"x": 123, "y": 321}').should == [
         {y: 123, name: 'hashed sensor: x'},
-        {y: 321, name: 'hashed sensor:  y'}
+        {y: 321, name: 'hashed sensor: y'}
       ]
     end
 
