@@ -2,6 +2,7 @@ require 'pulse-meter/sensor/base'
 require 'pulse-meter/sensor/counter'
 require 'pulse-meter/sensor/hashed_counter'
 require 'pulse-meter/sensor/indicator'
+require 'pulse-meter/sensor/remote'
 require 'pulse-meter/sensor/uniq_counter'
 require 'pulse-meter/sensor/timeline'
 require 'pulse-meter/sensor/timelined/average'
@@ -45,5 +46,9 @@ module PulseMeter
   # Exception to be raised when sensor cannot be restored
   class RestoreError < SensorError; end
 
+  module Remote
+    class MessageTooLarge < PulseMeter::SensorError; end
+    class ConnectionError < PulseMeter::SensorError; end
+  end
 end
   
