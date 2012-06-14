@@ -1,4 +1,5 @@
 require "redis"
+require "logger"
 require "pulse-meter/version"
 require "pulse-meter/mixins/dumper"
 require "pulse-meter/mixins/utils"

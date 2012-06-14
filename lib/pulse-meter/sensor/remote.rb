@@ -24,12 +24,9 @@ module PulseMeter
       def initialize(name, options={})
         @name = name.to_s
         raise BadSensorName, @name unless @name =~ /\A\w+\z/
-        host = options[:host].to_s || DEFAULT_HOST
-        port = options[:port].to_i || DEFAULT_PORT
+        @host = options[:host].to_s || DEFAULT_HOST
+        @port = options[:port].to_i || DEFAULT_PORT
         @socket = UDPSocket.new
-        socket_action do
-          @socket.connect(host, port)
-        end
       end
 
       # Send value to remote sensor
@@ -45,7 +42,7 @@ module PulseMeter
       def events(event_data)
         raise ArgumentError unless event_data.is_a?(Hash)
         socket_action do
-          @socket.send(event_data.to_json, 0)
+          @socket.send(event_data.to_json, 0, @host, @port)
         end
       end
 
@@ -53,7 +50,7 @@ module PulseMeter
 
       def socket_action
         yield
-      rescue SocketError, Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL => exc
+      rescue SocketError, Errno::EADDRNOTAVAIL => exc
         raise PulseMeter::Remote::ConnectionError, exc.to_s
       rescue Errno::EMSGSIZE => exc
         raise PulseMeter::Remote::MessageTooLarge, exc.to_s
