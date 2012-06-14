@@ -50,7 +50,7 @@ module PulseMeter
 
       def socket_action
         yield
-      rescue SocketError, Errno::EADDRNOTAVAIL => exc
+      rescue SocketError, Errno::EADDRNOTAVAIL, Errno::EINVAL => exc
         raise PulseMeter::Remote::ConnectionError, exc.to_s
       rescue Errno::EMSGSIZE => exc
         raise PulseMeter::Remote::MessageTooLarge, exc.to_s
