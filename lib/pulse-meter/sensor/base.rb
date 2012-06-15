@@ -65,9 +65,9 @@ module PulseMeter
       # For a block
       # @yield Executes it within Redis multi
       def multi
-        redis.multi 
-        yield
-        redis.exec
+        redis.multi do
+          yield
+        end
       end
 
     end
