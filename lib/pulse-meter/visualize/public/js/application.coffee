@@ -1,12 +1,6 @@
 $ ->
 	globalOptions = gon.options
 
-	Highcharts.setOptions {
-		global: {
-			useUTC: globalOptions.useUtc
-		}
-	}
-
 	PageInfo = Backbone.Model.extend {
 	}
 
@@ -108,7 +102,6 @@ $ ->
 
 		cutoff: (min, max) ->
 			_.each(@get('series'), (s) ->
-				console.log s.data.length
 				_.each( s.data, (v) ->
 					@cutoffValue(v, min, max)
 				, this)
@@ -119,6 +112,56 @@ $ ->
 				success: (model, response) ->
 					model.trigger('redraw')
 			}
+
+		pieData: ->
+			data = new google.visualization.DataTable()
+			data.addColumn('string', 'Title')
+			data.addColumn('number', @get('valuesTitle'))
+			data.addRows(@get('series').data)
+			data
+
+		lineData: ->
+			title = @get('title')
+			data = new google.visualization.DataTable()
+			data.addColumn('datetime', 'Time')
+			series = @get('series')
+			console.log title, series.rows.length
+			_.each series.titles, (t) ->
+				data.addColumn('number', t)
+			_.each series.rows, (row) ->
+				row[0] = new Date(row[0])
+				data.addRow(row)
+
+			data
+
+		options: ->
+			{
+				title: @get('title')
+				lineWidth: 1
+				chartArea: {
+					left: 20
+					width: '100%'
+				}
+				height: 300
+				legend: {
+					position: 'bottom'
+				}
+			}
+
+		pieOptions: ->
+			$.extend true, @options(), {
+				slices: @get('series').options
+			}
+
+		lineOptions: ->
+			$.extend true, @options(), {
+				hAxis: {
+					format: 'yyyy.MM.dd HH:mm:ss'
+				}
+				series: @get('series').options
+			}
+
+
 	}
 
 	WidgetList = Backbone.Collection.extend {
@@ -135,58 +178,20 @@ $ ->
 
 		updateData: (min, max) ->
 			@model.cutoff(min, max)
-			chartSeries = @chart.series
-			newSeries = @model.get('series')
-			for i in [0 .. chartSeries.length - 1]
-				if newSeries[i]?
-					chartSeries[i].setData(newSeries[i].data, false)
-			@chart.redraw()
 
-		render: ->
-			options = {
-				chart: {
-					renderTo: @el
-					plotBorderWidth: 1
-					spacingLeft: 0
-					spacingRight: 0
-					type: @model.get('type')
-					animation: false
-					zoomType: 'x'
-				}
-				credits: {
-					enabled: false
-				}
-				title: {
-					text: @model.get('title')
-				}
-				xAxis: {
-					type: 'datetime'
-				}
-				yAxis: {
-					title: {
-						text: @model.get('valuesTitle')
-					}
-				}
-				tooltip: {
-					xDateFormat: '%Y-%m-%d %H:%M:%S'
-					valueDecimals: 6
-				}
-				series: @model.get('series')
-				plotOptions: {
-					series: {
-						animation: false
-						lineWidth: 1
-						shadow: false
-						marker: {
-							radius: 0
-						}
-					}
-				}
-			}
-			$.extend(true, options, globalOptions.highchartOptions, pageInfos.selected().get('highchartOptions'))
-			@chart = new Highcharts.Chart(options)
+			if @model.get('type') == 'pie'
+				@chart.draw(@model.pieData(), @model.pieOptions())
+			else
+				@chart.draw(@model.lineData(), @model.lineOptions())
 
-  }
+	render: ->
+			if @model.get('type') == 'pie'
+				@chart = new google.visualization.PieChart(@el)
+				@chart.draw(@model.pieData(), @model.pieOptions())
+			else
+				@chart = new google.visualization.AreaChart(@el)
+				@chart.draw(@model.lineData(), @model.lineOptions())
+	}
 
 	WidgetView = Backbone.View.extend {
 		tagName: 'div'

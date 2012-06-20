@@ -12,13 +12,13 @@ module PulseMeter
         @color = args[:color]
       end
 
-      def last_value(need_incomplete=false)
+      def last_value(now, need_incomplete=false)
         sensor = real_sensor
 
         sensor_data = if need_incomplete
-          sensor.timeline(sensor.interval).first
+          sensor.timeline_within(now - sensor.interval, now).first
         else
-          sensor.timeline(sensor.interval * 2).first
+          sensor.timeline_within(now - sensor.interval * 2, now).first
         end
 
         if sensor_data.is_a?(PulseMeter::SensorData)
@@ -28,13 +28,13 @@ module PulseMeter
         end
       end
 
-      def last_point_data(need_incomplete=false)
-        extractor.point_data(last_value(need_incomplete))
+      def last_point_data(now, need_incomplete=false)
+        extractor.point_data(last_value(now, need_incomplete))
       end
 
-      def timeline_data(time_span, need_incomplete = false)
+      def timeline_data(now, time_span, need_incomplete = false)
         sensor = real_sensor
-        timeline_data = sensor.timeline(time_span)
+        timeline_data = sensor.timeline_within(now - time_span, now)
         timeline_data.pop unless need_incomplete
         extractor.series_data(timeline_data)
       end
@@ -45,6 +45,10 @@ module PulseMeter
 
       def type
         real_sensor.class
+      end
+
+      def interval
+        real_sensor.interval
       end
 
       def extractor

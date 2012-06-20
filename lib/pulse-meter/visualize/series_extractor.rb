@@ -14,15 +14,15 @@ module PulseMeter
         end
 
         def series_data(timeline_data)
-          {
+          [{
             data: timeline_data.map{|sd| {x: sd.start_time.to_i*1000, y: to_float(sd.value)}}
-          }.merge(opts_to_add)
+          }.merge(opts_to_add)]
         end
 
         def point_data(value)
-          {
+          [{
             y: to_float(value)
-          }.merge(opts_to_add)
+          }.merge(opts_to_add)]
         end
 
         protected

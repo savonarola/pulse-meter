@@ -4,11 +4,13 @@
   :javascript
     var ROOT = "#{url('/')}";
   = include_gon
-  - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js highcharts.js application.js bootstrap.js}.each do |jsfile|
-    %script{:type => 'text/javascript', :src => url("/js/#{jsfile}")}
+  - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
+    %script{type: 'text/javascript', src: url("/js/#{jsfile}")}
+  %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   - %w{bootstrap.min.css application.css}.each do |cssfile|
-    %link{:rel => 'stylesheet', :href => url("/css/#{cssfile}"), :type => 'text/css', :media => 'screen'}
-		
+    %link{rel: 'stylesheet', href: url("/css/#{cssfile}"), type: 'text/css', media: 'screen'}
+  :javascript
+    google.load("visualization", "1", {packages:["corechart"]});
 %body
   %script#widget-template{type: 'text/template'}
     #plotarea

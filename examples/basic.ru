@@ -10,7 +10,8 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   l.page "Counts" do |p|
 
-    p.spline "Lama count", sensor: :lama_count do |c|
+    p.spline "Lama count" do |c|
+      c.sensor :lama_count, color: '#CC1155'
       c.redraw_interval 5
       c.values_label 'Count'
       c.width 5
