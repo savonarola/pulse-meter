@@ -6,11 +6,15 @@
   = include_gon
   - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
     %script{type: 'text/javascript', src: url("/js/#{jsfile}")}
-  %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   - %w{bootstrap.min.css application.css}.each do |cssfile|
     %link{rel: 'stylesheet', href: url("/css/#{cssfile}"), type: 'text/css', media: 'screen'}
+  %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
     google.load("visualization", "1", {packages:["corechart"]});
+    var onLoadComplete = function() {
+      document.startApp();
+    }
+    google.setOnLoadCallback(onLoadComplete);
 %body
   %script#widget-template{type: 'text/template'}
     #plotarea

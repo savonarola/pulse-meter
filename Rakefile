@@ -15,13 +15,13 @@ task :default => :spec
 namespace :coffee do
 	desc "Complile coffee to js"
 	task :compile do
-		system 'coffee', '-c', "#{ROOT}/lib/pulse-meter/visualize/public/"
+		system 'coffee', '--bare', '-c', "#{ROOT}/lib/pulse-meter/visualize/public/"
 		puts "Done"
 	end
 
 	desc "Watch coffee files and recomplile them immediately"
 	task :watch do
-		system 'coffee', '--watch', '-c', "#{ROOT}/lib/pulse-meter/visualize/public/"
+		system 'coffee', '--bare', '--watch', '-c', "#{ROOT}/lib/pulse-meter/visualize/public/"
 	end
 
 end

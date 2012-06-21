@@ -1,4 +1,4 @@
-$ ->
+document.startApp = ->
 	globalOptions = gon.options
 
 	PageInfo = Backbone.Model.extend {
@@ -23,7 +23,7 @@ $ ->
 
 	PageTitleView = Backbone.View.extend {
 		tagName: 'li'
-		
+
 		template: _.template('<a href="#/pages/<%= id  %>"><%= title %></a>')
 			
 		initialize: ->
