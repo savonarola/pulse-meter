@@ -51,6 +51,8 @@ module PulseMeter
             line_series_data(tspan)
           when :pie
             pie_series_data
+          when :table
+            line_series_data(tspan)
         end
       end
 

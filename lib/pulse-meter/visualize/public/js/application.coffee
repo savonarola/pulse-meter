@@ -1,4 +1,4 @@
-document.startApp = ->
+$ ->
 	globalOptions = gon.options
 
 	PageInfo = Backbone.Model.extend {
@@ -174,9 +174,17 @@ document.startApp = ->
 				series: @get('series').options
 			}
 
+		tableOptions: ->
+			$.extend true, @lineOptions(), {
+				sortColumn: 0
+				sortAscending: false
+			}
+
 		chartOptions: ->
 			opts = if @get('type') == 'pie'
 				@pieOptions()
+			else if @get('type') == 'table'
+				@tableOptions()
 			else
 				@lineOptions()
 			$.extend true, opts, globalOptions.gchartOptions, pageInfos.selected().get('gchartOptions')
@@ -192,6 +200,8 @@ document.startApp = ->
 				google.visualization.PieChart
 			else if @get('type') == 'area'
 				google.visualization.AreaChart
+			else if @get('type') == 'table'
+				google.visualization.Table
 			else
 				google.visualization.LineChart
 

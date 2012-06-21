@@ -39,6 +39,18 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.sensor :goose_count
     end
 
+    p.table "Rhino & Lama & Goose count comparison" do |c|
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 5
+      c.show_last_point true
+      c.timespan 1200
+
+      c.sensor :rhino_count, color: '#AAAAAA'
+      c.sensor :lama_count, color: '#CC1155'
+      c.sensor :goose_count
+    end
+
     p.pie "Rhino & Lama & Gooze count comparison" do |c|
       c.redraw_interval 5
       c.values_label 'Count'
@@ -100,7 +112,7 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   l.use_utc true
   l.gchart_options({
-    height: 500
+    height: 300
   })
 end
 

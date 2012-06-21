@@ -10,11 +10,7 @@
     %link{rel: 'stylesheet', href: url("/css/#{cssfile}"), type: 'text/css', media: 'screen'}
   %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
-    google.load("visualization", "1", {packages:["corechart"]});
-    var onLoadComplete = function() {
-      document.startApp();
-    }
-    google.setOnLoadCallback(onLoadComplete);
+    google.load("visualization", "1", {packages:["corechart", "table"]});
 %body
   %script#widget-template{type: 'text/template'}
     #plotarea
@@ -23,6 +19,7 @@
         %button#refresh.btn.btn-mini
           %i.icon-refresh
           Refresh
+        <% if(type != 'table'){ %>
         %span.space
         %label
           Cutoff min:
@@ -31,6 +28,7 @@
         %label
           Cutoff max:
           %input.btn-mini#cutoff-max
+        <% } %>
         %span.space
         %label
           Refresh:
@@ -50,10 +48,18 @@
             %option{value: 60 * 60 * 24 * 7 * 2} 2 weeks
             %option{value: 60 * 60 * 24 * 30} 1 month
           %button#extend-timespan.btn.btn-mini
+            <% if(type != 'table'){ %>
             %i.icon-arrow-left
+            <% } else { %>
+            %i.icon-arrow-down
+            <% } %>
             Extend
           %button#reset-timespan.btn.btn-mini
+            <% if(type != 'table'){ %>
             %i.icon-arrow-right
+            <% } else { %>
+            %i.icon-arrow-up
+            <% } %>
             Reset
         <% } %>
     %hr
