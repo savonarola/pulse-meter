@@ -103,7 +103,7 @@ describe PulseMeter::Visualize::Widget do
             end
           end
 
-          it "should accept custom timespan", focus: true do
+          it "should accept custom timespan" do
             Timecop.freeze(@current_time + interval) do
               [:line, :area].each do |type|
                 widget = widgets[type]
