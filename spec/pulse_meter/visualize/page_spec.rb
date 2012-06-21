@@ -67,68 +67,49 @@ describe PulseMeter::Visualize::Page do
     it "should generate correct data of single widget" do
       Timecop.freeze(interval_start + 2 * interval - 1) do
         page.widget_data(0)[:series].should ==
-          [
-            {
-              type: :pie,
-              name: values_label,
-              data: [
-                {
-                  name: a_sensor.annotation,
-                  color: a_color,
-                  y: 12
-                },
-                {
-                  name: b_sensor.annotation,
-                  color: b_color,
-                  y: 33
-                }
-              ]
-
-            }
-          ]
+          {
+            data: [
+              [a_sensor.annotation, 12],
+              [b_sensor.annotation, 33]
+            ],
+            options: [
+              {color: a_color},
+              {color: b_color}
+            ]
+          }
         page.widget_data(1)[:series].should ==
-          [{
-             name: a_sensor.annotation,
-             color: a_color,
-             data: [{x: interval_start.to_i * 1000, y: 12}]
-           }, {
-            name: b_sensor.annotation,
-            color: b_color,
-            data: [{x: interval_start.to_i * 1000, y: 33}]
-          }]
+          {
+            titles: [a_sensor.annotation, b_sensor.annotation],
+            rows: [[interval_start.to_i * 1000, 12, 33]],
+            options: [
+              {color: a_color},
+              {color: b_color}
+            ]
+          }
       end
 
       Timecop.freeze(interval_start + 2 * interval - 1) do
         page.widget_data(0, timespan: 0)[:series].should ==
-          [
-            {
-              type: :pie,
-              name: values_label,
-              data: [
-                {
-                  name: a_sensor.annotation,
-                  color: a_color,
-                  y: 12
-                },
-                  {
-                    name: b_sensor.annotation,
-                    color: b_color,
-                    y: 33
-                  }
-              ]
-
-            }
-          ]
+          {
+            data: [
+              [a_sensor.annotation, 12],
+              [b_sensor.annotation, 33]
+            ],
+            options: [
+              {color: a_color},
+              {color: b_color}
+            ]
+          }
         page.widget_data(1, timespan: 1)[:series].should ==
-          [{
-            name: a_sensor.annotation,
-            color: a_color,
-            data: []
-          }, {
-            name: b_sensor.annotation,
-            color: b_color,
-            data: []
-          }]
+          {
+            titles: [a_sensor.annotation, b_sensor.annotation],
+            rows: [],
+            options: [
+              {color: a_color},
+              {color: b_color}
+            ]
+          }
+
       end
 
 
@@ -146,37 +127,26 @@ describe PulseMeter::Visualize::Page do
       Timecop.freeze(interval_start + 2 * interval - 1) do
 
         page.widget_datas.map{|h| h[:series]}.should == [
-          [
-            {
-              type: :pie,
-              name: values_label,
-              data: [
-                {
-                  name: a_sensor.annotation,
-                  color: a_color,
-                  y: 12
-                },
-                {
-                  name: b_sensor.annotation,
-                  color: b_color,
-                  y: 33
-                }
-              ]
-
-            }
-          ],
-          [{
-             name: a_sensor.annotation,
-             color: a_color,
-             data: [{x: interval_start.to_i * 1000, y: 12}]
-           }, {
-            name: b_sensor.annotation,
-            color: b_color,
-            data: [{x: interval_start.to_i * 1000, y: 33}]
-          }]
+          {
+            data: [
+              [a_sensor.annotation, 12],
+              [b_sensor.annotation, 33]
+            ],
+            options: [
+              {color: a_color},
+              {color: b_color}
+            ]
+          },
+          {
+            titles: [a_sensor.annotation, b_sensor.annotation],
+            rows: [[interval_start.to_i * 1000, 12, 33]],
+            options: [
+              {color: a_color},
+              {color: b_color}
+            ]
+          }
         ]
       end
-
 
     end
   end

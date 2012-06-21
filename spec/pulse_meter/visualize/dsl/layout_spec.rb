@@ -7,12 +7,12 @@ describe PulseMeter::Visualize::DSL::Layout do
   let(:layout){ described_class.new }
 
   describe '.new' do
-    it "should initialize pages, title, use_utc, highchart_options" do
+    it "should initialize pages, title, use_utc, gchart_options" do
       l = layout.to_layout
       l.title.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_TITLE
       l.pages.should == []
       l.use_utc.should be_true
-      l.highchart_options.should == {}
+      l.gchart_options.should == {}
     end
   end
 
@@ -20,7 +20,7 @@ describe PulseMeter::Visualize::DSL::Layout do
     it "should add page constructed by block to pages" do
       layout.page "My Foo Page" do |p|
         p.pie "foo_widget", sensor: sensor_name
-        p.spline "bar_widget" do |w|
+        p.line "bar_widget" do |w|
           w.sensor(sensor_name)
         end
       end
@@ -48,10 +48,10 @@ describe PulseMeter::Visualize::DSL::Layout do
     end
   end
 
-  describe "#highchart_options" do
-    it "should set highchart_options" do
-      layout.highchart_options({b: 1})
-      layout.to_layout.highchart_options.should == {b: 1}
+  describe "#gchart_options" do
+    it "should set gchart_options" do
+      layout.gchart_options({b: 1})
+      layout.to_layout.gchart_options.should == {b: 1}
     end
   end
 

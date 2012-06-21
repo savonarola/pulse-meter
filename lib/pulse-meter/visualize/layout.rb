@@ -5,16 +5,14 @@ module PulseMeter
 
       attr_reader :title
       attr_reader :use_utc
-      attr_reader :outlier_color
-      attr_reader :highchart_options
+      attr_reader :gchart_options
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
         @title = args[:title] or raise ArgumentError, ":title not specified"
         @pages = args[:pages] or raise ArgumentError, ":pages not specified"
         @use_utc = args[:use_utc]
-        @outlier_color = args[:outlier_color]
-        @highchart_options = args[:highchart_options]
+        @gchart_options = args[:gchart_options]
       end
 
       def to_app
@@ -27,7 +25,7 @@ module PulseMeter
 					res << {
 						id: i + 1,
 						title: p.title,
-            highchart_options: p.highchart_options
+            gchart_options: p.gchart_options
 					}
 				end
 				res
@@ -36,8 +34,7 @@ module PulseMeter
 			def options
 				{
 					use_utc: @use_utc,
-				  outlier_color: @outlier_color,
-          highchart_options: @highchart_options
+          gchart_options: @gchart_options
         }
       end
 

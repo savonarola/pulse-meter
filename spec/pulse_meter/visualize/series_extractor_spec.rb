@@ -25,7 +25,7 @@ describe PulseMeter::Visualize::SeriesExtractor do
     end
 
     it "should create point data correctly" do
-      extractor.point_data(123).should == {y: 123, name: 'simple sensor'}
+      extractor.point_data(123).should == [{y: 123, name: 'simple sensor'}]
     end
 
     it "should create timeline data correctly" do
@@ -33,10 +33,10 @@ describe PulseMeter::Visualize::SeriesExtractor do
         PulseMeter::SensorData.new(Time.at(1), 11),
         PulseMeter::SensorData.new(Time.at(2), "22")
       ]
-      extractor.series_data(tl_data).should == {
+      extractor.series_data(tl_data).should == [{
         name: 'simple sensor',
         data: [{x: 1000, y: 11}, {x: 2000, y: 22}]
-      }
+      }]
     end
 
   end

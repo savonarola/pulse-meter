@@ -93,18 +93,20 @@ $ ->
 				@setNextFetch()
 
 		cutoffValue: (v, min, max) ->
-			if min isnt null && v.y < min
-				v.y = min
-				v.color = globalOptions.outlierColor
-			if max isnt null && v.y > max
-				v.y = max
-				v.color = globalOptions.outlierColor
+			if v isnt null
+				if min isnt null && v < min
+					min
+				else if max isnt null && v > max
+					max
+				else
+					v
+			else
+				0
 
 		cutoff: (min, max) ->
-			_.each(@get('series'), (s) ->
-				_.each( s.data, (v) ->
-					@cutoffValue(v, min, max)
-				, this)
+			_.each(@get('series').rows, (row) ->
+				for i in [1 .. row.length - 1]
+					row[i] = @cutoffValue(row[i], min, max)
 			, this)
 
 		forceUpdate: ->
@@ -120,18 +122,25 @@ $ ->
 			data.addRows(@get('series').data)
 			data
 
+		dateOffset: ->
+			if globalOptions.useUtc
+				(new Date).getTimezoneOffset() * 60000
+			else
+				0
+
 		lineData: ->
 			title = @get('title')
 			data = new google.visualization.DataTable()
 			data.addColumn('datetime', 'Time')
+			dateOffset = @dateOffset()
 			series = @get('series')
-			console.log title, series.rows.length
 			_.each series.titles, (t) ->
 				data.addColumn('number', t)
-			_.each series.rows, (row) ->
-				row[0] = new Date(row[0])
-				data.addRow(row)
 
+			console.log series
+			_.each series.rows, (row) ->
+				row[0] = new Date(row[0] + dateOffset)
+				data.addRow(row)
 			data
 
 		options: ->
@@ -139,13 +148,17 @@ $ ->
 				title: @get('title')
 				lineWidth: 1
 				chartArea: {
-					left: 20
+					left: 40
 					width: '100%'
 				}
 				height: 300
 				legend: {
 					position: 'bottom'
 				}
+				vAxis: {
+					title: @get('valuesTitle')
+				}
+				axisTitlesPosition: 'in'
 			}
 
 		pieOptions: ->
@@ -161,6 +174,26 @@ $ ->
 				series: @get('series').options
 			}
 
+		chartOptions: ->
+			opts = if @get('type') == 'pie'
+				@pieOptions()
+			else
+				@lineOptions()
+			$.extend true, opts, globalOptions.gchartOptions, pageInfos.selected().get('gchartOptions')
+
+		chartData: ->
+			if @get('type') == 'pie'
+				@pieData()
+			else
+				@lineData()
+
+		chartClass: ->
+			if @get('type') == 'pie'
+				google.visualization.PieChart
+			else if @get('type') == 'area'
+				google.visualization.AreaChart
+			else
+				google.visualization.LineChart
 
 	}
 
@@ -178,19 +211,13 @@ $ ->
 
 		updateData: (min, max) ->
 			@model.cutoff(min, max)
+			@chart.draw(@model.chartData(), @model.chartOptions())
 
-			if @model.get('type') == 'pie'
-				@chart.draw(@model.pieData(), @model.pieOptions())
-			else
-				@chart.draw(@model.lineData(), @model.lineOptions())
+		render: ->
+			chartClass = @model.chartClass()
+			@chart = new chartClass(@el)
+			@updateData()
 
-	render: ->
-			if @model.get('type') == 'pie'
-				@chart = new google.visualization.PieChart(@el)
-				@chart.draw(@model.pieData(), @model.pieOptions())
-			else
-				@chart = new google.visualization.AreaChart(@el)
-				@chart.draw(@model.lineData(), @model.lineOptions())
 	}
 
 	WidgetView = Backbone.View.extend {

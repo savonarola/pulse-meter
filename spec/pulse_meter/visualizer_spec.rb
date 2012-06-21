@@ -8,7 +8,7 @@ describe PulseMeter::Visualizer do
         l.title "My Gauges"
 
         l.page "Dashboard" do |p|
-          p.spline :convertion do |c|
+          p.line :convertion do |c|
             c.sensor :adv_clicks, color: :green
             c.sensor :adv_shows, color: :red
           end
@@ -23,7 +23,7 @@ describe PulseMeter::Visualizer do
         end
 
         l.page "Request stats" do |p|
-          p.spline :rph_total, sensor: :rph_total
+          p.line :rph_total, sensor: :rph_total
           p.line :rph_main_page, sensor: :rph_main_page
           p.line :request_time_p95_hour
         

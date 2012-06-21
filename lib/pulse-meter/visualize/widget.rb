@@ -45,8 +45,6 @@ module PulseMeter
 
       def series_data(tspan)
         case type
-          when :spline
-            line_series_data(tspan)
           when :line
             line_series_data(tspan)
           when :area

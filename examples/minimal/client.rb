@@ -6,7 +6,8 @@ PulseMeter.redis = Redis.new
 
 sensor = PulseMeter::Sensor::Timelined::Counter.new(:simple_sample_counter,
   :interval => 5,
-  :ttl => 60 * 60
+  :ttl => 60 * 60,
+  :annotation => 'Simple Sample Counter'
 )
 
 while true

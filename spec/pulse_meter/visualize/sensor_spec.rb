@@ -16,14 +16,14 @@ describe PulseMeter::Visualize::Sensor do
   describe '#last_value' do
     context "when sensor does not exist" do
       it "should raise RestoreError" do
-        expect{ bad_sensor.last_value }.to raise_exception(PulseMeter::RestoreError)
+        expect{ bad_sensor.last_value(Time.now) }.to raise_exception(PulseMeter::RestoreError)
       end
     end
 
 
     context "when sensor has no data" do
       it "should return nil" do
-        sensor.last_value.should be_nil
+        sensor.last_value(Time.now).should be_nil
       end
     end
 
@@ -34,7 +34,7 @@ describe PulseMeter::Visualize::Sensor do
             real_sensor.event(101)
           end
           Timecop.freeze(interval_start+1) do
-            sensor.last_value(true).should == 101
+            sensor.last_value(Time.now, true).should == 101
           end
         end
       end
@@ -45,10 +45,10 @@ describe PulseMeter::Visualize::Sensor do
             real_sensor.event(101)
           end
           Timecop.freeze(interval_start + 1) do
-            sensor.last_value.should be_nil
+            sensor.last_value(Time.now).should be_nil
           end
           Timecop.freeze(interval_start + interval + 1) do
-            sensor.last_value.should == 101
+            sensor.last_value(Time.now).should == 101
           end
         end
       end
@@ -60,7 +60,7 @@ describe PulseMeter::Visualize::Sensor do
 
     context "when sensor does not exist" do
       it "should raise RestoreError" do
-        expect{ bad_sensor.last_point_data }.to raise_exception(PulseMeter::RestoreError)
+        expect{ bad_sensor.last_point_data(Time.now) }.to raise_exception(PulseMeter::RestoreError)
       end
     end
 
@@ -69,10 +69,10 @@ describe PulseMeter::Visualize::Sensor do
         real_sensor.event(101)
       end
       Timecop.freeze(interval_start + 1) do
-        sensor.last_point_data(true).should == {name: annotation, y: 101}
-        sensor.last_point_data.should == {name: annotation, y: nil}
-        sensor_with_color.last_point_data(true).should == {name: annotation, y: 101, color: color}
-        sensor_with_color.last_point_data.should == {name: annotation, y: nil, color: color}
+        sensor.last_point_data(Time.now, true).should == [{name: annotation, y: 101}]
+        sensor.last_point_data(Time.now).should == [{name: annotation, y: nil}]
+        sensor_with_color.last_point_data(Time.now, true).should == [{name: annotation, y: 101, color: color}]
+        sensor_with_color.last_point_data(Time.now).should == [{name: annotation, y: nil, color: color}]
       end
     end
   end
@@ -89,7 +89,7 @@ describe PulseMeter::Visualize::Sensor do
 
     context "when sensor does not exist" do
       it "should raise RestoreError" do
-        expect{ bad_sensor.timeline_data(interval) }.to raise_exception(PulseMeter::RestoreError)
+        expect{ bad_sensor.timeline_data(Time.now, interval) }.to raise_exception(PulseMeter::RestoreError)
       end
     end
 
@@ -97,21 +97,21 @@ describe PulseMeter::Visualize::Sensor do
     describe "returned value" do
       it "should contain sensor annotation" do
         Timecop.freeze(interval_start + interval + 1) do
-          sensor.timeline_data(interval)[:name].should == annotation
+          sensor.timeline_data(Time.now, interval).first[:name].should == annotation
         end
       end
       it "should contain sensor color" do
         Timecop.freeze(interval_start + interval + 1) do
-          sensor_with_color.timeline_data(interval)[:color].should == color
+          sensor_with_color.timeline_data(Time.now, interval).first[:color].should == color
         end
       end
 
       it "should contain [interval_start, value] pairs for each interval" do
         Timecop.freeze(interval_start + interval + 1) do
-          data = sensor.timeline_data(interval * 2)
-          data[:data].should == [{x: interval_start.to_i * 1000, y: 101}]
-          data = sensor.timeline_data(interval * 2, true)
-          data[:data].should == [{x: interval_start.to_i * 1000, y: 101}, {x: (interval_start + interval).to_i * 1000, y: 55}]
+          data = sensor.timeline_data(Time.now, interval * 2)
+          data.first[:data].should == [{x: interval_start.to_i * 1000, y: 101}]
+          data = sensor.timeline_data(Time.now, interval * 2, true)
+          data.first[:data].should == [{x: interval_start.to_i * 1000, y: 101}, {x: (interval_start + interval).to_i * 1000, y: 55}]
         end
       end
     end

@@ -30,7 +30,7 @@ describe PulseMeter::Visualize::Widget do
   end
 
   let(:widgets) do
-    [:line, :spline, :area, :pie].each_with_object({}) do |type, h|
+    [:line, :area, :pie].each_with_object({}) do |type, h|
       w = PulseMeter::Visualize::DSL::Widget.new(type, widget_name)
       add_widget_settings(w)
       h[type] = w.to_widget
@@ -66,20 +66,17 @@ describe PulseMeter::Visualize::Widget do
         it "should contain valid pie series" do
 
           Timecop.freeze(@current_time) do
-            widgets[:pie].data[:series].should == [{
-              type: :pie,
-              name: values_label,
-              data: [{
-                name: a_sensor.annotation,
-                color: a_color,
-                y: 12
-              }, {
-                name: b_sensor.annotation,
-                color: b_color,
-                y: 33
-              }]
-
-            }]
+            widgets[:pie].data[:series].should ==
+              {
+                data: [
+                  [a_sensor.annotation, 12],
+                  [b_sensor.annotation, 33]
+                ],
+                options: [
+                  {color: a_color},
+                  {color: b_color}
+                ]
+              }
           end
 
         end
@@ -90,34 +87,28 @@ describe PulseMeter::Visualize::Widget do
 
             Timecop.freeze(@current_time) do
 
-              [:line, :spline, :area].each do |type|
+              [:line, :area].each do |type|
 
                 widget = widgets[type]
-                widget.data[:series].should == [{
-                  name: a_sensor.annotation,
-                  color: a_color,
-                  data: [{x: interval_start.to_i * 1000, y: 12}]
-                }, {
-                  name: b_sensor.annotation,
-                  color: b_color,
-                  data: [{x: interval_start.to_i * 1000, y: 33}]
-                }]
+                widget.data[:series].should ==
+                  {
+                    titles: [a_sensor.annotation, b_sensor.annotation],
+                    rows: [[interval_start.to_i * 1000, 12, 33]],
+                    options: [
+                      {color: a_color},
+                      {color: b_color}
+                    ]
+                  }
               end
             end
           end
 
-          it "should accept custom timespan" do
+          it "should accept custom timespan", focus: true do
             Timecop.freeze(@current_time + interval) do
-              [:line, :spline, :area].each do |type|
+              [:line, :area].each do |type|
                 widget = widgets[type]
-                widget.data(timespan: timespan)[:series].each do |s|
-                  s[:data].size.should == 1
-                end
-
-                widget.data(timespan: timespan + interval)[:series].each do |s|
-                  s[:data].size.should == 2
-                end
-
+                widget.data(timespan: timespan)[:series][:rows].size.should == 1
+                widget.data(timespan: timespan + interval)[:series][:rows].size.should == 2
               end
             end
           end

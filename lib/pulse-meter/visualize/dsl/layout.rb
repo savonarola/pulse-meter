@@ -3,15 +3,13 @@ module PulseMeter
     module DSL
       class Layout
         DEFAULT_TITLE = "Pulse Meter"
-        DEFAULT_OUTLIER_COLOR = "#FF0000"
-        DEFAULT_HIGHCHART_OPTIONS = {}
+        DEFAULT_GCHART_OPTIONS = {}
 
         def initialize
           @pages = []
           @title = DEFAULT_TITLE
           @use_utc = true
-          @outlier_color = DEFAULT_OUTLIER_COLOR
-          @highchart_options = DEFAULT_HIGHCHART_OPTIONS.dup
+          @gchart_options = DEFAULT_GCHART_OPTIONS.dup
         end
 
         def title(title)
@@ -22,12 +20,16 @@ module PulseMeter
           @use_utc = use
         end
 
-        def outlier_color(color)
-          @outlier_color = color
+        def outlier_color(_)
+          STDERR.puts "DEPRECATION: outlier_color DSL helper does not take effect anymore"
         end
 
-        def highchart_options(options = {})
-          @highchart_options.merge!(options)
+        def highchart_options(_)
+          STDERR.puts "DEPRECATION: highchart_options DSL helper does not take effect anymore, use gchart_options instead"
+        end
+
+        def gchart_options(options = {})
+          @gchart_options.merge!(options)
         end
 
         def page(title, &block)
@@ -43,8 +45,7 @@ module PulseMeter
             pages: pages,
             title: title,
             use_utc: @use_utc,
-            outlier_color: @outlier_color,
-            highchart_options: @highchart_options
+            gchart_options: @gchart_options
           } )
         end
 

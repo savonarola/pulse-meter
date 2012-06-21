@@ -12,20 +12,15 @@ layout = PulseMeter::Visualizer.draw do |l|
   # Use local time for x-axis of charts
   l.use_utc false
 
-  # Color for values cut off
-  l.outlier_color '#FF0000'
-
-  # Transfer some global parameters to Highcharts
-  l.highchart_options({
-    tooltip: {
-      value_decimals: 2
-    }
+  # Transfer some global parameters to Google Charts
+  l.gchart_options({
+    backgroundColor: '#CCC'
   })
 
   # Add some pages
   l.page "Request count" do |p|
 
-    # Add chart  (of Highcharts `area' style, `spline', `pie' and `line' are also available)
+    # Add chart  (of Google Charts `area' style, `pie' and `line' are also available)
     p.area "Requests per minute" do |w|
 
       # Plot :requests_per_minute values on this chart with black color
@@ -49,11 +44,9 @@ layout = PulseMeter::Visualizer.draw do |l|
       # Occupy half (5/10) of the page (horizontally)
       w.width 5
 
-      # Transfer page-wide (and page-specific) options to Highcharts
-      p.highchart_options({
-        chart: {
-          height: 300
-        }
+      # Transfer page-wide (and page-specific) options to Google Charts
+      p.gchart_options({
+        height: 500
       })
     end
 
@@ -102,10 +95,8 @@ layout = PulseMeter::Visualizer.draw do |l|
 
     end
 
-    p.highchart_options({
-      chart: {
-        height: 500
-      }
+    p.gchart_options({
+      height: 500
     })
   end
 
