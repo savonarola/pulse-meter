@@ -9,6 +9,8 @@ module PulseMeter
 
       module InstanceMethods
         # Serializes object and saves it to Redis
+        # @param safe [Boolean] forbids dump if sensor has already been dumped
+        # @raise [DumpConflictError] if object class conflicts with stored object class
         # @raise [DumpError] if dumping fails for any reason
         def dump!(safe = true)
           ensure_storability!

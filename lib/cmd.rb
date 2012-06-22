@@ -4,74 +4,27 @@ require 'time'
 require 'json'
 require 'csv'
 
-module Enumerable
-  def convert_time
-    map do |el|
-      if el.is_a?(Time)
-        el.to_i
-      else
-        el
-      end
-    end
-  end
-
-  def to_table(format = nil)
-    if "csv" == format
-      CSV.generate(:col_sep => ';') do |csv|
-        self.each {|row| csv << row.convert_time}
-      end
-    else
-      self.each_with_object(Terminal::Table.new) {|row, table| table << row}
-    end
-  end
-end
-
 module Cmd
   class All < Thor
     include PulseMeter::Mixins::Utils
+    include PulseMeter::Mixins::Cmd
     no_tasks do
-      def with_redis
-        PulseMeter.redis = Redis.new :host => options[:host], :port => options[:port], :db => options[:db]
-        yield
-      end
-
-      def with_safe_restore_of(name, &block)
-        with_redis do
-          sensor = PulseMeter::Sensor::Base.restore(name)
-          block.call(sensor)
-        end
-      rescue PulseMeter::RestoreError
-        fail! "Sensor #{name} is unknown or cannot be restored"
-      end
-
-      def all_sensors
-        PulseMeter::Sensor::Timeline.list_objects
-      end
-
-      def all_sensors_table(format = nil)
-        data = [
-          ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"],
-        ]
-        data << :separator unless format == 'csv'
-        all_sensors.each do |s|
-          if s.kind_of? PulseMeter::Sensor::Timeline
-            data << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]
-          else
-            data << [s.name, s.class] + [''] * 4
-          end
-        end
-        data.to_table(format)
-      end
-
-      def fail!(description = nil)
-        puts description if description
-        exit 1
-      end
-
       def self.common_options
         method_option :host, :default => '127.0.0.1', :desc => "Redis host"
         method_option :port, :default => 6379, :desc => "Redis port"
         method_option :db, :default => 0, :desc => "Redis db"
+      end
+
+      def self.sensor_options(required = [])
+        [
+          [:interval, :numeric, "Rotation interval"],
+          [:ttl, :numeric, "How long summarized data will be stored"],
+          [:raw_data_ttl, :numeric, "How long unsummarized raw data will be stored"],
+          [:reduce_delay, :numeric, "Delay between end of interval and summarization"],
+          [:annotation, :string, "Sensor annotation"]
+        ].each do |name, type, desc = data|
+          method_option name, :required => required.include?(name), :type => type, :desc => desc
+        end
       end
     end
 
@@ -136,11 +89,7 @@ module Cmd
 
     desc "create NAME TYPE", "Create sensor of given type"
     common_options
-    method_option :interval, :required => true, :type => :numeric, :desc => "Rotation interval"
-    method_option :ttl, :required => true, :type => :numeric, :desc => "How long summarized data will be stored"
-    method_option :raw_data_ttl, :type => :numeric, :desc => "How long unsummarized raw data will be stored"
-    method_option :reduce_delay, :type => :numeric, :desc => "Delay between end of interval and summarization"
-    method_option :annotation, :type => :string, :desc => "Sensor annotation"
+    sensor_options([:ttl, :interval])
     def create(name, type)
       with_redis do
         klass = constantize("PulseMeter::Sensor::Timelined::#{type}")
@@ -148,6 +97,23 @@ module Cmd
         fail! "Unknown sensor type #{type}" unless klass
         sensor = klass.new(name, options.dup)
         puts "Sensor created"
+        puts all_sensors_table
+      end
+    end
+
+    desc "update NAME", "Update given sensor"
+    common_options
+    sensor_options
+    def update(name)
+      with_safe_restore_of(name) do |sensor|
+        opts = options.dup
+        [:ttl, :interval, :reduce_delay, :raw_data_ttl, :annotation].each do |attr|
+          opts[attr] ||= sensor.send(attr)
+        end
+        klass = sensor.class
+        new_sensor = klass.new(name, opts)
+        new_sensor.dump!(false)
+        puts "Sensor updated"
         puts all_sensors_table
       end
     end
