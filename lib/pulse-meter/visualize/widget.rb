@@ -5,6 +5,7 @@ module PulseMeter
     class Widget
       class NotATimelinedSensorInWidget < PulseMeter::Visualize::Error; end
       class DifferentSensorIntervalsInWidget < PulseMeter::Visualize::Error; end
+      class NotAnIndicatorSensorInGaugeWidget < PulseMeter::Visualize::Error; end
 
       attr_reader :sensors
       attr_reader :title
@@ -14,6 +15,7 @@ module PulseMeter
       attr_reader :show_last_point
       attr_reader :redraw_interval
       attr_reader :timespan
+      attr_reader :gchart_options
 
       def initialize(args) 
         raise ArgumentError unless args.respond_to?('[]')
@@ -25,10 +27,10 @@ module PulseMeter
         @show_last_point = args[:show_last_point] || false
         @redraw_interval = args[:redraw_interval]
         @timespan = args[:timespan]
+        @gchart_options = args[:gchart_options]
       end
 
       def data(options = {})
-        ensure_sensor_match!
         real_timespan = options[:timespan] || timespan
         {
           title: title,
@@ -37,7 +39,8 @@ module PulseMeter
           width: width,
           interval: redraw_interval,
           series: series_data(real_timespan),
-          timespan: timespan
+          timespan: timespan,
+          gchart_options: gchart_options
         }
       end
 
@@ -53,6 +56,8 @@ module PulseMeter
             pie_series_data
           when :table
             line_series_data(tspan)
+          when :gauge
+            gauge_series_data
         end
       end
 
@@ -71,7 +76,16 @@ module PulseMeter
         end
       end
 
+      def ensure_gauge_indicators!
+        sensors.each do |s|
+          unless s.type <= PulseMeter::Sensor::Indicator
+            raise NotAnIndicatorSensorInGaugeWidget, "Sensor #{s.name} is not an indicator(PulseMeter::Sensor::Indicator)"
+          end
+        end
+      end
+
       def line_series_data(tspan)
+        ensure_sensor_match!
         now = Time.now
         sensor_datas = sensors.map{ |s|
           s.timeline_data(now, tspan, show_last_point)
@@ -103,6 +117,7 @@ module PulseMeter
       end
 
       def pie_series_data
+        ensure_sensor_match!
         values = []
         slice_options = []
         now = Time.now
@@ -116,6 +131,13 @@ module PulseMeter
           data: values,
           options: slice_options
         }
+      end
+
+      def gauge_series_data
+        ensure_gauge_indicators!
+        sensors.map do |s|
+          [s.annotation, s.value]
+        end
       end
 
     end

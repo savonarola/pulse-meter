@@ -6,6 +6,7 @@ module PulseMeter
 
         DEFAULT_WIDTH = 10
         DEFAULT_TIMESPAN = 60 * 60 * 24 # One day
+        DEFAULT_GCHART_OPTIONS = {}
 
         def initialize(type, title = '')
           raise BadWidgetType, type if type.to_s.empty?
@@ -17,6 +18,7 @@ module PulseMeter
           @show_last_point = false
           @redraw_interval = nil
           @timespan = DEFAULT_TIMESPAN
+          @gchart_options = DEFAULT_GCHART_OPTIONS.dup
         end
 
         def process_args(args)
@@ -58,10 +60,18 @@ module PulseMeter
           @width = new_width.to_i
         end
 
+        def gchart_options(options = {})
+          @gchart_options.merge!(options)
+        end
+
         def sensor(name, sensor_args = nil) 
           s = PulseMeter::Visualize::DSL::Sensor.new(name)
           s.process_args(sensor_args) if sensor_args
           @sensors << s
+        end
+
+        def method_missing(name, value)
+          @gchart_options[name] = value
         end
 
         def to_widget
@@ -73,7 +83,8 @@ module PulseMeter
             sensors: @sensors.map(&:to_sensor),
             redraw_interval: @redraw_interval,
             show_last_point: @show_last_point,
-            timespan: @timespan
+            timespan: @timespan,
+            gchart_options: @gchart_options
           }
           PulseMeter::Visualize::Widget.new(args)
         end

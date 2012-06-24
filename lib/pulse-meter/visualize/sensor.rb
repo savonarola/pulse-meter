@@ -40,7 +40,7 @@ module PulseMeter
       end
 
       def annotation
-        real_sensor.annotation
+        real_sensor.annotation || real_sensor.name
       end
 
       def type
@@ -49,6 +49,10 @@ module PulseMeter
 
       def interval
         real_sensor.interval
+      end
+      
+      def value
+        real_sensor.value
       end
 
       def extractor

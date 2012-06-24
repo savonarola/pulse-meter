@@ -48,7 +48,10 @@ cfg = PulseMeter::Sensor::Configuration.new(
       interval: 20,
       ttl: 3600
     }
-  }
+  },
+
+  cpu: {sensor_type: 'indicator'},
+  memory: {sensor_type: 'indicator'}
 )
 
 while true
@@ -63,4 +66,7 @@ while true
     goose_n = Random.rand(4)
     cfg.goose_count("goose_#{goose_n}" => 1)
   end
+
+  cfg.cpu(Random.rand(100))
+  cfg.memory(Random.rand(100))
 end

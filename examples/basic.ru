@@ -39,18 +39,6 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.sensor :goose_count
     end
 
-    p.table "Rhino & Lama & Goose count comparison" do |c|
-      c.redraw_interval 5
-      c.values_label 'Count'
-      c.width 5
-      c.show_last_point true
-      c.timespan 1200
-
-      c.sensor :rhino_count, color: '#AAAAAA'
-      c.sensor :lama_count, color: '#CC1155'
-      c.sensor :goose_count
-    end
-
     p.pie "Rhino & Lama & Gooze count comparison" do |c|
       c.redraw_interval 5
       c.values_label 'Count'
@@ -62,6 +50,35 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.sensor :lama_count, color: '#CC1155'
       c.sensor :goose_count
     end
+
+    p.gauge "CPU Usage" do |g|
+      g.redraw_interval 5
+      g.values_label '%'
+      g.width 5
+
+      g.red_from 90
+      g.red_to 100
+      g.yellow_from 75
+      g.yellow_to 90
+      g.minor_ticks 5
+      g.height 200
+
+      g.sensor :cpu
+      g.sensor :memory
+    end
+
+    p.table "Rhino & Lama & Goose count comparison" do |c|
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 10
+      c.show_last_point true
+      c.timespan 1200
+
+      c.sensor :rhino_count, color: '#AAAAAA'
+      c.sensor :lama_count, color: '#CC1155'
+      c.sensor :goose_count
+    end
+
 
   end
 

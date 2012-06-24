@@ -1,5 +1,8 @@
 $ ->
 	globalOptions = gon.options
+	
+	String::capitalize = ->
+	  @charAt(0).toUpperCase() + @slice(1)
 
 	PageInfo = Backbone.Model.extend {
 	}
@@ -10,7 +13,6 @@ $ ->
 			@find (m) ->
 				m.get 'selected'
 			
-
 		selectFirst: ->
 			@at(0).set('selected', true) if @length > 0
 
@@ -55,8 +57,130 @@ $ ->
 	}
 
 	pageTitlesApp = new PageTitlesView
-
 	pageInfos.reset gon.pageInfos
+
+
+	class WidgetPresenter
+		constructor: (model, el) ->
+			@model = model
+			chartClass = @chartClass()
+			@chart = new chartClass(el)
+			@draw()
+
+		get: (arg) -> @model.get(arg)
+	
+		dateOffset: ->
+			if globalOptions.useUtc
+				(new Date).getTimezoneOffset() * 60000
+			else
+				0
+		
+		options: ->
+			{
+				title: @get('title')
+				height: 300
+			}
+
+		mergedOptions: -> $.extend(true,
+			@options(),
+			globalOptions.gchartOptions,
+			pageInfos.selected().get('gchartOptions')
+			@get('gchartOptions')
+		)
+
+		data: -> new google.visualization.DataTable
+
+		chartClass: -> google.visualization[@visualization]
+
+		draw: (min, max) ->
+			@model.cutoff(min, max)
+			@chart.draw(@data(), @mergedOptions())
+
+	WidgetPresenter.create = (model, el) ->
+		type = model.get('type')
+		if type? && type.match(/^\w+$/)
+			presenterClass = eval("#{type.capitalize()}Presenter")
+			new presenterClass(model, el)
+		else
+			null
+
+	class PiePresenter extends WidgetPresenter
+		visualization: 'PieChart'
+
+		data: ->
+			data = super()
+			data.addColumn('string', 'Title')
+			data.addColumn('number', @get('valuesTitle'))
+			data.addRows(@get('series').data)
+			data
+
+		options: ->
+			$.extend true, super(), {
+				slices: @get('series').options
+				legend: {
+					position: 'bottom'
+				}
+			}
+
+	class TimelinePresenter extends WidgetPresenter
+		data: ->
+			data = super()
+			data.addColumn('datetime', 'Time')
+			dateOffset = @dateOffset()
+			series = @get('series')
+			_.each series.titles, (t) ->
+				data.addColumn('number', t)
+
+			_.each series.rows, (row) ->
+				row[0] = new Date(row[0] + dateOffset)
+				data.addRow(row)
+			data
+
+	class SeriesPresenter extends TimelinePresenter
+		options: ->
+			$.extend true, super(), {
+				lineWidth: 1
+				chartArea: {
+					left: 40
+					width: '100%'
+				}
+				legend: {
+					position: 'bottom'
+				}
+				vAxis: {
+					title: @get('valuesTitle')
+				}
+				hAxis: {
+					format: 'yyyy.MM.dd HH:mm:ss'
+				}
+				series: @get('series').options
+				axisTitlesPosition: 'in'
+			}
+
+	class LinePresenter extends SeriesPresenter
+		visualization: 'LineChart'
+
+	class AreaPresenter extends SeriesPresenter
+		visualization: 'AreaChart'
+
+	class TablePresenter extends TimelinePresenter
+		visualization: 'Table'
+
+		options: ->
+			$.extend true, super(), {
+				sortColumn: 0
+				sortAscending: false
+			}
+
+	class GaugePresenter extends WidgetPresenter
+		visualization: 'Gauge'
+
+		data: ->
+			data = super()
+			data.addColumn('string', 'Label')
+			data.addColumn('number', @get('valuesTitle'))
+			data.addRows(@get('series'))
+			data
 
 	Widget = Backbone.Model.extend {
 		initialize: ->
@@ -117,95 +241,6 @@ $ ->
 					model.trigger('redraw')
 			}
 
-		pieData: ->
-			data = new google.visualization.DataTable()
-			data.addColumn('string', 'Title')
-			data.addColumn('number', @get('valuesTitle'))
-			data.addRows(@get('series').data)
-			data
-
-		dateOffset: ->
-			if globalOptions.useUtc
-				(new Date).getTimezoneOffset() * 60000
-			else
-				0
-
-		lineData: ->
-			title = @get('title')
-			data = new google.visualization.DataTable()
-			data.addColumn('datetime', 'Time')
-			dateOffset = @dateOffset()
-			series = @get('series')
-			_.each series.titles, (t) ->
-				data.addColumn('number', t)
-
-			_.each series.rows, (row) ->
-				row[0] = new Date(row[0] + dateOffset)
-				data.addRow(row)
-			data
-
-		options: ->
-			{
-				title: @get('title')
-				lineWidth: 1
-				chartArea: {
-					left: 40
-					width: '100%'
-				}
-				height: 300
-				legend: {
-					position: 'bottom'
-				}
-				vAxis: {
-					title: @get('valuesTitle')
-				}
-				axisTitlesPosition: 'in'
-			}
-
-		pieOptions: ->
-			$.extend true, @options(), {
-				slices: @get('series').options
-			}
-
-		lineOptions: ->
-			$.extend true, @options(), {
-				hAxis: {
-					format: 'yyyy.MM.dd HH:mm:ss'
-				}
-				series: @get('series').options
-			}
-
-		tableOptions: ->
-			$.extend true, @lineOptions(), {
-				sortColumn: 0
-				sortAscending: false
-			}
-
-		chartOptions: ->
-			opts = if @get('type') == 'pie'
-				@pieOptions()
-			else if @get('type') == 'table'
-				@tableOptions()
-			else
-				@lineOptions()
-			$.extend true, opts, globalOptions.gchartOptions, pageInfos.selected().get('gchartOptions')
-
-		chartData: ->
-			if @get('type') == 'pie'
-				@pieData()
-			else
-				@lineData()
-
-		chartClass: ->
-			if @get('type') == 'pie'
-				google.visualization.PieChart
-			else if @get('type') == 'area'
-				google.visualization.AreaChart
-			else if @get('type') == 'table'
-				google.visualization.Table
-			else
-				google.visualization.LineChart
-
 	}
 
 	WidgetList = Backbone.Collection.extend {
@@ -221,14 +256,11 @@ $ ->
 			@model.bind 'destroy', @remove, this
 
 		updateData: (min, max) ->
-			@model.cutoff(min, max)
-			@chart.draw(@model.chartData(), @model.chartOptions())
+			@presenter.draw(min, max)
 
 		render: ->
-			chartClass = @model.chartClass()
-			@chart = new chartClass(@el)
-			@updateData()
-
+			@presenter = WidgetPresenter.create(@model, @el)
+			@presenter.draw()
 	}
 
 	WidgetView = Backbone.View.extend {
@@ -276,7 +308,7 @@ $ ->
         model: @model
       }
       @$el.find("#plotarea").append(@chartView.el)
-      @$el.addClass "span#{@model.get('width')}"
+      @$el.addClass("span#{@model.get('width')}")
 
 		cutoffMin: ->
 			val = parseFloat(@controlValue('#cutoff-min'))

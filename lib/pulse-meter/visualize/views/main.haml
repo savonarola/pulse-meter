@@ -10,7 +10,7 @@
     %link{rel: 'stylesheet', href: url("/css/#{cssfile}"), type: 'text/css', media: 'screen'}
   %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
-    google.load("visualization", "1", {packages:["corechart", "table"]});
+    google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
 %body
 
   - PulseMeter::Visualize::DSL::WIDGETS.each do |wtype|
