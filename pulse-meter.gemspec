@@ -24,6 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency('json')
   gem.add_runtime_dependency('redis')
   gem.add_runtime_dependency('sinatra')
+  gem.add_runtime_dependency('sinatra-partial')
   gem.add_runtime_dependency('terminal-table')
   gem.add_runtime_dependency('thor')
 

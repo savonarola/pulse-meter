@@ -93,10 +93,10 @@ $ ->
 				@setNextFetch()
 
 		cutoffValue: (v, min, max) ->
-			if v isnt null
-				if min isnt null && v < min
+			if v?
+				if min? && v < min
 					min
-				else if max isnt null && v > max
+				else if max? && v > max
 					max
 				else
 					v
@@ -106,7 +106,9 @@ $ ->
 		cutoff: (min, max) ->
 			_.each(@get('series').rows, (row) ->
 				for i in [1 .. row.length - 1]
-					row[i] = @cutoffValue(row[i], min, max)
+					value = row[i]
+					value = 0 unless value?
+					row[i] = @cutoffValue(value, min, max)
 			, this)
 
 		forceUpdate: ->
@@ -137,7 +139,6 @@ $ ->
 			_.each series.titles, (t) ->
 				data.addColumn('number', t)
 
-			console.log series
 			_.each series.rows, (row) ->
 				row[0] = new Date(row[0] + dateOffset)
 				data.addRow(row)
@@ -233,7 +234,8 @@ $ ->
 	WidgetView = Backbone.View.extend {
 		tagName: 'div'
 
-		template: _.template($('#widget-template').html())
+		template: ->
+			_.template($(".widget-template[data-widget-type=\"#{@model.get('type')}\"]").html())
 
 		initialize: ->
 			@model.bind('destroy', @remove, this)

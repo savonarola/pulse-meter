@@ -1,0 +1,23 @@
+%script.widget-template{type: 'text/template', 'data-widget-type' => 'table'}
+  #plotarea
+  #chart-controls
+    .form-inline
+      %button#refresh.btn.btn-mini
+        %i.icon-refresh
+        Refresh
+      %span.space
+      %label
+        Refresh:
+        %input.btn-mini#need-refresh{type: :checkbox, checked: :true}
+      %label
+        Timespan:
+        %select#extend-timespan-val.btn-mini.span1
+          = partial "widgets/extend_options"
+        %button#extend-timespan.btn.btn-mini
+          %i.icon-arrow-down
+          Extend
+        %button#reset-timespan.btn.btn-mini
+          %i.icon-arrow-up
+          Reset
+  %hr
+

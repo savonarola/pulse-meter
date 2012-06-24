@@ -1,12 +1,16 @@
-require 'sinatra/base'
-require 'haml'
 require 'gon-sinatra'
+require 'haml'
+require 'sinatra/base'
+require 'sinatra/partial'
 
 module PulseMeter
   module Visualize
     class App < Sinatra::Base
       include PulseMeter::Mixins::Utils
       register Gon::Sinatra
+      register Sinatra::Partial
+
+      set :partial_template_engine, :haml
 
       def initialize(layout)
         @layout = layout

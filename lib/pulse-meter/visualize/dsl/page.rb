@@ -1,7 +1,7 @@
 module PulseMeter
   module Visualize
     module DSL
-      WIDGETS = %w(pie line area table)
+      WIDGETS = %w(pie line area table gauge)
       DEFAULT_GCHART_OPTIONS = {}
 
       class Page

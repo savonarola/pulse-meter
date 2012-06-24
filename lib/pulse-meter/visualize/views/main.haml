@@ -12,57 +12,9 @@
   :javascript
     google.load("visualization", "1", {packages:["corechart", "table"]});
 %body
-  %script#widget-template{type: 'text/template'}
-    #plotarea
-    #chart-controls
-      .form-inline
-        %button#refresh.btn.btn-mini
-          %i.icon-refresh
-          Refresh
-        <% if(type != 'table'){ %>
-        %span.space
-        %label
-          Cutoff min:
-          %input.btn-mini#cutoff-min
-        %span.space
-        %label
-          Cutoff max:
-          %input.btn-mini#cutoff-max
-        <% } %>
-        %span.space
-        %label
-          Refresh:
-          %input.btn-mini#need-refresh{type: :checkbox, checked: :true}
-        <% if(type != 'pie'){ %>
-        %label
-          Timespan:
-          %select#extend-timespan-val.btn-mini.span1
-            %option{value: 60, selected: true} 1 minute
-            %option{value: 60 * 5} 5 minutes
-            %option{value: 60 * 30} 30 minutes
-            %option{value: 60 * 60 * 2} 2 hours
-            %option{value: 60 * 60 * 6 } 6 hours
-            %option{value: 60 * 60 * 24} 1 day
-            %option{value: 60 * 60 * 24 * 2} 2 days
-            %option{value: 60 * 60 * 24 * 7} 1 week
-            %option{value: 60 * 60 * 24 * 7 * 2} 2 weeks
-            %option{value: 60 * 60 * 24 * 30} 1 month
-          %button#extend-timespan.btn.btn-mini
-            <% if(type != 'table'){ %>
-            %i.icon-arrow-left
-            <% } else { %>
-            %i.icon-arrow-down
-            <% } %>
-            Extend
-          %button#reset-timespan.btn.btn-mini
-            <% if(type != 'table'){ %>
-            %i.icon-arrow-right
-            <% } else { %>
-            %i.icon-arrow-up
-            <% } %>
-            Reset
-        <% } %>
-    %hr
+
+  - PulseMeter::Visualize::DSL::WIDGETS.each do |wtype|
+    = partial "widgets/#{wtype}"
 
   .container#main
     .row
