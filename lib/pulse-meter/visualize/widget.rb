@@ -2,7 +2,7 @@ module PulseMeter
   module Visualize
     class Error < StandardError; end
 
-    class Widget
+    class Widget < Base
       class NotATimelinedSensorInWidget < PulseMeter::Visualize::Error; end
       class DifferentSensorIntervalsInWidget < PulseMeter::Visualize::Error; end
       class NotAnIndicatorSensorInGaugeWidget < PulseMeter::Visualize::Error; end

@@ -1,20 +1,6 @@
 module PulseMeter
   module Visualize
-    class Layout
-      attr_reader :pages
-
-      attr_reader :title
-      attr_reader :use_utc
-      attr_reader :gchart_options
-
-      def initialize(args) 
-        raise ArgumentError unless args.respond_to?('[]')
-        @title = args[:title] or raise ArgumentError, ":title not specified"
-        @pages = args[:pages] or raise ArgumentError, ":pages not specified"
-        @use_utc = args[:use_utc]
-        @gchart_options = args[:gchart_options]
-      end
-
+    class Layout < Base
       def to_app
         PulseMeter::Visualize::App.new(self)
       end
@@ -33,8 +19,8 @@ module PulseMeter
 
 			def options
 				{
-					use_utc: @use_utc,
-          gchart_options: @gchart_options
+					use_utc: use_utc,
+          gchart_options: gchart_options
         }
       end
 
@@ -45,7 +31,6 @@ module PulseMeter
       def widgets(page_id)
         pages[page_id].widget_datas
       end
-
     end
   end
 end

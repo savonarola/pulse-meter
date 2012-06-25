@@ -1,18 +1,15 @@
 module PulseMeter
   module Visualize
-    module DSL
-      class Sensor
+    module DSL 
+      class Sensor < Base
+        self.data_class = PulseMeter::Visualize::Sensor
+
         def initialize(name)
-          @args = {:sensor => name}
+          super()
+          self.name(name)
         end
 
-        def process_args(args) 
-          @args.merge!(args)
-        end
-
-        def to_sensor
-          PulseMeter::Visualize::Sensor.new(@args)
-        end
+        string_setter :color
       end
     end
   end
