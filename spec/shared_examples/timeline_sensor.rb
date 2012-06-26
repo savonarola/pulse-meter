@@ -19,9 +19,15 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
 
   before(:each) do
     @interval_id = (Time.now.to_i / interval) * interval
+    @prev_interval_id = (Time.now.to_i / interval) * interval - interval
+
     @raw_data_key = sensor.raw_data_key(@interval_id)
+    @prev_raw_data_key = sensor.raw_data_key(@prev_interval_id)
+
     @next_raw_data_key = sensor.raw_data_key(@interval_id + interval)
+
     @start_of_interval = Time.at(@interval_id)
+    @start_of_prev_interval = Time.at(@prev_interval_id)
   end
 
   describe "#dump" do
@@ -66,12 +72,36 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     end
 
     it "should write data to bucket indicated by truncated timestamp" do
-      key = sensor.raw_data_key(@interval_id)
       expect{
         Timecop.freeze(@start_of_interval) do
           sensor.event(sample_event)
         end
-      }.to change{ redis.ttl(key) }
+      }.to change{ redis.ttl(@raw_data_key) }
+    end
+  end
+
+  describe "#event_at" do
+    let(:now) {Time.now}
+    it "should write events to redis" do
+      expect{
+          sensor.event_at(now, sample_event)
+      }.to change{ redis.keys('*').count }.by(1)
+    end
+
+    it "should write data so that it totally expires after :raw_data_ttl" do
+      key_count = redis.keys('*').count
+      sensor.event_at(now, sample_event)
+      Timecop.freeze(Time.now + raw_data_ttl + 1) do
+        redis.keys('*').count.should == key_count
+      end
+    end
+
+    it "should write data to bucket indicated by passed time" do
+      expect{
+        Timecop.freeze(@start_of_interval) do
+          sensor.event_at(@start_of_prev_interval, sample_event)
+        end
+      }.to change{ redis.ttl(@prev_raw_data_key) }
     end
   end
 
