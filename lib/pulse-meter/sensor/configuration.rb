@@ -27,6 +27,8 @@ module PulseMeter
         name = name.to_s
         if @sensors.has_key?(name)
           @sensors[name].event(*args)
+        elsif (name =~ /^(.*)_at$/) && @sensors.has_key?($1) 
+          @sensors[$1].event_at(*args)
         else
           raise ArgumentError, "Unknown sensor: `#{name}'"
         end
