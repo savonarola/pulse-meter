@@ -13,7 +13,7 @@
     google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
 %body
 
-  - PulseMeter::Visualize::DSL::WIDGETS.each do |wtype|
+  - %w(area line table pie gauge).each do |wtype|
     = partial "widgets/#{wtype}"
 
   .container#main

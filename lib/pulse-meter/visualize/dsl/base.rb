@@ -2,7 +2,7 @@ module PulseMeter
   module Visualize
     module DSL
       class DArray < Array; end 
-      class BadDataClass < PulseMeter::Error; end
+      class BadDataClass < PulseMeter::Visualize::DSL::Error; end
       class Base
         include PulseMeter::Mixins::Utils
 
@@ -81,23 +81,6 @@ module PulseMeter
             end
           end
 
-          def create_dsl_obj(args, klass, block)
-            params, options = extract_params(args)
-            dsl_obj = klass.new(params)
-            dsl_obj.process_args(options)
-            block.call(dsl_obj) if block
-            dsl_obj
-          end
-
-          def extract_params(args)
-            opts = if args.last.is_a?(Hash)
-              args.pop
-            else
-              {}
-            end
-            [args, opts]
-          end
-
           def data_class
             @data_class || PulseMeter::Visualize::Base
           end
@@ -107,6 +90,23 @@ module PulseMeter
             @data_class = klass
           end
 
+        end
+
+        def create_dsl_obj(args, klass, block)
+          params, options = extract_params(args)
+          dsl_obj = klass.new(*params)
+          dsl_obj.process_args(options)
+          block.call(dsl_obj) if block
+          dsl_obj
+        end
+
+        def extract_params(args)
+          opts = if args.last.is_a?(Hash)
+            args.pop
+          else
+            {}
+          end
+          [args, opts]
         end
 
         def to_data

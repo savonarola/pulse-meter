@@ -2,6 +2,10 @@ module PulseMeter
   module Visualize
     module DSL
       class Widget < Base
+        def initialize(title)
+          super()
+          self.title(title)
+        end
 
         hash_extender :gchart_options
        

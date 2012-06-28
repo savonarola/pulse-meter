@@ -92,8 +92,21 @@ $ ->
 
 		chartClass: -> google.visualization[@visualization]
 
+		cutoff: ->
+		
+		cutoffValue: (v, min, max) ->
+			if v?
+				if min? && v < min
+					min
+				else if max? && v > max
+					max
+				else
+					v
+			else
+				0
+
 		draw: (min, max) ->
-			@model.cutoff(min, max)
+			@cutoff(min, max)
 			@chart.draw(@data(), @mergedOptions())
 
 	WidgetPresenter.create = (model, el) ->
@@ -107,6 +120,8 @@ $ ->
 	class PiePresenter extends WidgetPresenter
 		visualization: 'PieChart'
 
+		cutoff: ->
+		
 		data: ->
 			data = super()
 			data.addColumn('string', 'Title')
@@ -156,6 +171,15 @@ $ ->
 				series: @get('series').options
 				axisTitlesPosition: 'in'
 			}
+		
+		cutoff: (min, max) ->
+			_.each(@get('series').rows, (row) ->
+				for i in [1 .. row.length - 1]
+					value = row[i]
+					value = 0 unless value?
+					row[i] = @cutoffValue(value, min, max)
+			, this)
+
 
 	class LinePresenter extends SeriesPresenter
 		visualization: 'LineChart'
@@ -166,6 +190,8 @@ $ ->
 	class TablePresenter extends TimelinePresenter
 		visualization: 'Table'
 
+		cutoff: ->
+
 		options: ->
 			$.extend true, super(), {
 				sortColumn: 0
@@ -174,6 +200,8 @@ $ ->
 
 	class GaugePresenter extends WidgetPresenter
 		visualization: 'Gauge'
+
+		cutoff: ->
 
 		data: ->
 			data = super()
@@ -215,25 +243,6 @@ $ ->
 			if @needFetch()
 				@forceUpdate()
 				@setNextFetch()
-
-		cutoffValue: (v, min, max) ->
-			if v?
-				if min? && v < min
-					min
-				else if max? && v > max
-					max
-				else
-					v
-			else
-				0
-
-		cutoff: (min, max) ->
-			_.each(@get('series').rows, (row) ->
-				for i in [1 .. row.length - 1]
-					value = row[i]
-					value = 0 unless value?
-					row[i] = @cutoffValue(value, min, max)
-			, this)
 
 		forceUpdate: ->
 			@fetch {

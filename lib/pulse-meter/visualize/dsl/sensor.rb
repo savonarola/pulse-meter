@@ -2,6 +2,7 @@ module PulseMeter
   module Visualize
     module DSL 
       class Sensor < Base
+
         self.data_class = PulseMeter::Visualize::Sensor
 
         def initialize(name)
@@ -10,6 +11,7 @@ module PulseMeter
         end
 
         string_setter :color
+        string_setter :name
       end
     end
   end
