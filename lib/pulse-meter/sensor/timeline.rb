@@ -49,6 +49,7 @@ module PulseMeter
       end
 
       # Processes event
+      # @param value event value
       def event(value = nil)
         multi do
           current_key = current_raw_data_key
@@ -57,7 +58,18 @@ module PulseMeter
         end
       end
 
-      
+      # Processes event from the past
+      # @param time [Time] event time
+      # @param value event value
+      def event_at(time, value = nil)
+        multi do
+          interval_id = get_interval_id(time)
+          key = raw_data_key(interval_id)
+          aggregate_event(key, value)
+          redis.expire(key, raw_data_ttl)
+        end
+      end
+
       # Reduces data in given interval. 
       # @note Interval id is
       #   just unixtime of its lower bound. Ruduction is a process

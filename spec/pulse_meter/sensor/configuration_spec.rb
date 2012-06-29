@@ -10,11 +10,19 @@ describe PulseMeter::Sensor::Configuration do
       cfg.sensor(:foo).should_not be_nil
     end
 
-    it "should event shortcut for the sensor" do
+    it "should have event shortcut for the sensor" do
       cfg.add_sensor(:foo, sensor_type: 'counter')
       sensor = cfg.sensor(:foo)
       sensor.should_receive(:event).with(321)
       cfg.foo(321)
+    end
+    
+    it "should have event_at shortcut for the sensor" do
+      cfg.add_sensor(:foo, sensor_type: 'counter')
+      sensor = cfg.sensor(:foo)
+      now = Time.now
+      sensor.should_receive(:event_at).with(now, 321)
+      cfg.foo_at(now, 321)
     end
 
     it "should create sensor with correct type" do
