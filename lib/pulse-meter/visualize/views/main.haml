@@ -11,6 +11,10 @@
   %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
     google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      document.startApp();
+    }
 %body
 
   - %w(area line table pie gauge).each do |wtype|

@@ -1,4 +1,4 @@
-$ ->
+document.startApp = ->
 	globalOptions = gon.options
 	
 	String::capitalize = ->
@@ -276,7 +276,6 @@ $ ->
 
 		render: ->
 			@presenter = WidgetPresenter.create(@model, @el)
-			@presenter.draw()
 	}
 
 	WidgetView = Backbone.View.extend {
@@ -321,10 +320,10 @@ $ ->
 		render: ->
 			@$el.html @template(@model.toJSON())
 			@chartView = new WidgetChartView {
-        model: @model
-      }
-      @$el.find("#plotarea").append(@chartView.el)
-      @$el.addClass("span#{@model.get('width')}")
+				model: @model
+			}
+			@$el.find("#plotarea").append(@chartView.el)
+			@$el.addClass("span#{@model.get('width')}")
 
 		cutoffMin: ->
 			val = parseFloat(@controlValue('#cutoff-min'))
