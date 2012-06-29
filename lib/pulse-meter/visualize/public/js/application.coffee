@@ -153,6 +153,11 @@ $ ->
 
 	class SeriesPresenter extends TimelinePresenter
 		options: ->
+			format = if @model.timespan() > 24 * 60 * 60
+				'yyyy.MM.dd HH:mm:ss'
+			else
+				'HH:mm:ss'
+
 			$.extend true, super(), {
 				lineWidth: 1
 				chartArea: {
@@ -166,7 +171,7 @@ $ ->
 					title: @get('valuesTitle')
 				}
 				hAxis: {
-					format: 'yyyy.MM.dd HH:mm:ss'
+					format: format
 				}
 				series: @get('series').options
 				axisTitlesPosition: 'in'
@@ -224,19 +229,21 @@ $ ->
 			@timespanInc = 0
 			@forceUpdate()
 
+		timespan: -> @get('timespan') + @timespanInc
+
 		url: ->
-			"#{@collection.url()}/#{@get('id')}?timespan=#{@get('timespan') + @timespanInc}"
+			"#{@collection.url()}/#{@get('id')}?timespan=#{@timespan()}"
 
 		time: -> (new Date()).getTime()
 
 		setNextFetch: ->
-			@nextFetch = @time() + @get('interval') * 1000
+			@nextFetch = @time() + @get('redrawInterval') * 1000
 
 		setRefresh: (needRefresh) ->
 			@needRefresh = needRefresh
 
 		needFetch: ->
-			interval = @get('interval')
+			interval = @get('redrawInterval')
 			@time() > @nextFetch && @needRefresh && interval? && interval > 0
 
 		refetch: ->

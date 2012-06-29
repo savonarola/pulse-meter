@@ -3,6 +3,10 @@ module PulseMeter
     class Error < StandardError; end
 
     class Widget < Base
+      def initialize(opts)
+        super
+        @opts[:sensors] ||= []
+      end
 
       def data
         {
@@ -15,11 +19,11 @@ module PulseMeter
         }
       end
 
-      protected
-
       def type
         self.class.to_s.split('::').last.downcase
       end
+
+      protected
 
       def ensure_sensor_match!
         intervals = []

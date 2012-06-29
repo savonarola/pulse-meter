@@ -1,6 +1,12 @@
 module PulseMeter
   module Visualize
     class Layout < Base
+      def initialize(opts)
+        super
+        @opts[:pages] ||= []
+        @opts[:gchart_options] ||= {}
+      end
+
       def to_app
         PulseMeter::Visualize::App.new(self)
       end

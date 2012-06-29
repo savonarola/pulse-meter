@@ -13,8 +13,8 @@ describe PulseMeter::Visualize::SeriesExtractor do
     annotation: 'hashed sensor'
   ) }
 
-  let!(:simple_sensor){PulseMeter::Visualize::Sensor.new(sensor: :simple_sensor)}
-  let!(:hashed_sensor){PulseMeter::Visualize::Sensor.new(sensor: :hashed_sensor)}
+  let!(:simple_sensor){PulseMeter::Visualize::Sensor.new(name: :simple_sensor)}
+  let!(:hashed_sensor){PulseMeter::Visualize::Sensor.new(name: :hashed_sensor)}
 
   describe "simple extractor" do
 

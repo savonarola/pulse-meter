@@ -7,6 +7,13 @@ module PulseMeter
         class NotATimelinedSensorInWidget < PulseMeter::Visualize::Error; end
         class DifferentSensorIntervalsInWidget < PulseMeter::Visualize::Error; end
 
+        DEFAULT_TIMESPAN = 3600
+
+        def initialize(opts)
+          super
+          opts[:timespan] ||= DEFAULT_TIMESPAN
+        end
+
         def data(options = {})
           real_timespan = options[:timespan] || timespan
           super().merge({

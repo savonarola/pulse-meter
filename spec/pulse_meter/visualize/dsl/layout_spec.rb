@@ -8,10 +8,10 @@ describe PulseMeter::Visualize::DSL::Layout do
 
   describe '.new' do
     it "should initialize pages, title, use_utc, gchart_options" do
-      l = layout.to_layout
+      l = layout.to_data
       l.title.should == PulseMeter::Visualize::DSL::Layout::DEFAULT_TITLE
       l.pages.should == []
-      l.use_utc.should be_true
+      l.use_utc.should be_false
       l.gchart_options.should == {}
     end
   end
@@ -24,7 +24,7 @@ describe PulseMeter::Visualize::DSL::Layout do
           w.sensor(sensor_name)
         end
       end
-      l = layout.to_layout
+      l = layout.to_data
       l.pages.size.should == 1
       p = l.pages.first
       p.title.should == "My Foo Page"
@@ -37,27 +37,27 @@ describe PulseMeter::Visualize::DSL::Layout do
   describe "#title" do
     it "should set layout title" do
       layout.title "Foo Title"
-      layout.to_layout.title.should == 'Foo Title'
+      layout.to_data.title.should == 'Foo Title'
     end
   end
 
   describe "#use_utc" do
     it "should set use_utc" do
       layout.use_utc false
-      layout.to_layout.use_utc.should be_false
+      layout.to_data.use_utc.should be_false
     end
   end
 
   describe "#gchart_options" do
     it "should set gchart_options" do
       layout.gchart_options({b: 1})
-      layout.to_layout.gchart_options.should == {b: 1}
+      layout.to_data.gchart_options.should == {b: 1}
     end
   end
 
-  describe "#to_layout" do
+  describe "#to_data" do
     it "should convert layout dsl data to Visualize::Layout" do
-      layout.to_layout.should be_kind_of(PulseMeter::Visualize::Layout)
+      layout.to_data.should be_kind_of(PulseMeter::Visualize::Layout)
     end
   end
 end
