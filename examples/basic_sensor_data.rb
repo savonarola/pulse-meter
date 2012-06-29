@@ -51,7 +51,13 @@ cfg = PulseMeter::Sensor::Configuration.new(
   },
 
   cpu: {sensor_type: 'indicator'},
-  memory: {sensor_type: 'indicator'}
+  memory: {sensor_type: 'indicator'},
+  temperature: {
+    sensor_type: 'hashed_indicator',
+    args: {
+      annotation: 'T'
+    }
+  }
 )
 
 while true
@@ -64,7 +70,8 @@ while true
 
   10.times do
     goose_n = Random.rand(4)
-    cfg.goose_count("goose_#{goose_n}" => 1)
+    cfg.goose_count("g_#{goose_n}" => 1)
+    cfg.temperature("g_#{goose_n}" => Random.rand(50))
   end
 
   cfg.cpu(Random.rand(100))

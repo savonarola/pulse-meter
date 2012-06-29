@@ -65,6 +65,7 @@ layout = PulseMeter::Visualizer.draw do |l|
 
       g.sensor :cpu
       g.sensor :memory
+      g.sensor :temperature
     end
 
     p.table "Rhino & Lama & Goose count comparison" do |c|
