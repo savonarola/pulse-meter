@@ -1,57 +1,31 @@
 module PulseMeter
   module Visualize
     module DSL
-      WIDGETS = %w(pie line area table gauge)
-      DEFAULT_GCHART_OPTIONS = {}
+      class Page < Base
+        self.data_class = PulseMeter::Visualize::Page 
 
-      class Page
-        def initialize(title = nil)
-          @title = title || ""
-          @widgets = []
-          @gchart_options = DEFAULT_GCHART_OPTIONS.dup
+        def initialize(title = '')
+          super()
+          self.title(title)
         end
 
-        def widget(type, title = '', widget_args = nil, &block) 
-          w = PulseMeter::Visualize::DSL::Widget.new(type, title)
-          w.process_args(widget_args) if widget_args
-          yield(w) if block_given?
-          @widgets << w
+        string_setter :title
+
+        dsl_array_extender :widgets, :area,  PulseMeter::Visualize::DSL::Widgets::Area
+        dsl_array_extender :widgets, :line,  PulseMeter::Visualize::DSL::Widgets::Line
+        dsl_array_extender :widgets, :pie,   PulseMeter::Visualize::DSL::Widgets::Pie
+        dsl_array_extender :widgets, :table, PulseMeter::Visualize::DSL::Widgets::Table
+        dsl_array_extender :widgets, :gauge, PulseMeter::Visualize::DSL::Widgets::Gauge
+
+        hash_extender :gchart_options
+
+        def spline(*args)
+          STDERR.puts "DEPRECATION: spline widget is no longer available."
         end
 
-        WIDGETS.each do |wtype|
-          class_eval <<-EVAL
-            def #{wtype}(title = '', args = nil, &block)
-              widget(:#{wtype}, title, args, &block)
-            end
-          EVAL
-        end
-
-        def spline(*args, &block)
-          STDERR.puts "DEPRECATION: spline widget is no longer available. Using `line' as a fallback."
-          line(*args, &block)
-        end
-
-        def title(new_title)
-          @title = new_title || ''
-        end
-
-        def highchart_options(_)
+        def highchart_options(*args)
           STDERR.puts "DEPRECATION: highchart_options DSL helper does not take effect anymore, use gchart_options instead"
         end
-
-        def gchart_options(options = {})
-          @gchart_options.merge!(options)
-        end
-
-        def to_page
-          args = {
-            title: @title,
-            widgets: @widgets.map(&:to_widget),
-            gchart_options: @gchart_options
-          }
-          PulseMeter::Visualize::Page.new(args)
-        end
-
       end
     end
   end

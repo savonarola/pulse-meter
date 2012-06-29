@@ -2,16 +2,7 @@ require "pulse-meter/visualize/series_extractor"
 
 module PulseMeter
   module Visualize
-    class Sensor
-      attr_reader :name
-      attr_reader :color
-
-      def initialize(args) 
-        raise ArgumentError unless args.respond_to?('[]')
-        @name = args[:sensor] or raise ArgumentError, ":sensor not specified"
-        @color = args[:color]
-      end
-
+    class Sensor < Base
       def last_value(now, need_incomplete=false)
         sensor = real_sensor
 
@@ -63,9 +54,8 @@ module PulseMeter
 
       def real_sensor
         # TODO add !temporarily! caching if this will be called too frequently
-        PulseMeter::Sensor::Base.restore(@name)
+        PulseMeter::Sensor::Base.restore(name)
       end
-
 
     end
   end

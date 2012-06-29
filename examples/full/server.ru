@@ -14,7 +14,7 @@ layout = PulseMeter::Visualizer.draw do |l|
 
   # Transfer some global parameters to Google Charts
   l.gchart_options({
-    backgroundColor: '#CCC'
+    background_color: '#CCC'
   })
 
   # Add some pages
@@ -87,7 +87,6 @@ layout = PulseMeter::Visualizer.draw do |l|
         w.sensor sensor
       end
 
-      w.timespan 24 * 60 * 60
       w.redraw_interval 10
       w.show_last_point true
       w.values_label "Request count"

@@ -12,7 +12,7 @@ describe PulseMeter::Visualize::Layout do
       p.line "w3"
       p.line "w4"
     end
-    l.to_layout
+    l.to_data
   end
 
   describe "#page_infos" do
@@ -29,7 +29,7 @@ describe PulseMeter::Visualize::Layout do
       ldsl = PulseMeter::Visualize::DSL::Layout.new
       ldsl.use_utc true
       ldsl.gchart_options({a: 1})
-      l = ldsl.to_layout
+      l = ldsl.to_data
       l.options.should == {use_utc: true, gchart_options: {a: 1}}
     end
   end
