@@ -37,6 +37,7 @@ sub init {
 }
 
 sub r { shift->{redis} }
+sub redis { r(@_) }
 sub name { shift->{name} }
 
 1;

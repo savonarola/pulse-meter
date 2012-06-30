@@ -46,6 +46,9 @@ sub current_raw_data_key {
     $self->raw_data_key($self->current_interval_id);
 }
 
-sub aggregate_event { die('Abstract') }
+sub aggregate_event {
+    my ($self, $key, $value) = @_;
+    $self->r->set($key, $value);
+}
 
 1;
