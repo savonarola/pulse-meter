@@ -64,6 +64,12 @@ sensors = PulseMeter::Sensor::Configuration.new(
       ttl: 60 * 60 * 24,
       p: 0.9
     }
+  },
+  cpu: {
+    sensor_type: 'indicator',
+    args: {
+      annotation: 'CPU%'
+    }
   }
 )
 
@@ -96,6 +102,8 @@ while true
 
   agent_counter = sensors.sensor(agent_names.shuffle.first)
   agent_counter.event(1)
+
+  sensors.cpu(Random.rand(100))
 
   sleep(Random.rand / 10)
 end
