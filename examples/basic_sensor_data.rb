@@ -14,6 +14,15 @@ cfg = PulseMeter::Sensor::Configuration.new(
     }
   },
 
+  lama_count_1min: {
+    sensor_type:'timelined/counter',
+    args: {
+      annotation: 'Lama Count (1 min)',
+      interval: 60,
+      ttl: 3600
+    }
+  },
+
   lama_average_age: {
     sensor_type:'timelined/average',
     args: {
