@@ -238,7 +238,12 @@ module PulseMeter
       private
 
       def sensor_data(interval_id, value)
-        SensorData.new(Time.at(interval_id), value)
+        value = deflate(value) unless value.nil?
+        SensorData.new(Time.at(interval_id + 1000), value)
+      end
+
+      def deflate(value)
+        value
       end
 
     end
