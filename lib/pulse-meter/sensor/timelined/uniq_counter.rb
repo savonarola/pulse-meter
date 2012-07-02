@@ -14,7 +14,7 @@ module PulseMeter
         private
         
         def deflate(value)
-          value.to_s
+          value.to_i
         end
       end
     end
