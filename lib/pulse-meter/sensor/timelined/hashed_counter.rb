@@ -16,6 +16,12 @@ module PulseMeter
             inject({}) {|h, (k, v)| h[k] = v.to_i; h}.
             to_json
         end
+
+        private
+
+        def deflate(value)
+          JSON.parse(value)
+        end
       end
     end
   end

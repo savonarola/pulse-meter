@@ -16,7 +16,7 @@ shared_examples_for "timelined subclass" do |events, result, extra_options|
     end
     Timecop.freeze(start_of_interval + interval) do
       data = sensor.timeline(interval + epsilon).first
-      data.value.should be_generally_equal(result)
+      data.value.should be_generally_equal(sensor.deflate_safe(result))
     end
   end
 

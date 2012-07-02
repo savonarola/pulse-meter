@@ -8,8 +8,15 @@ module PulseMeter
         end
 
         def summarize(key)
-          redis.get(key).to_i
+          redis.get(key)
         end
+
+        private
+
+        def deflate(value)
+          value.to_i
+        end
+
       end
     end
   end

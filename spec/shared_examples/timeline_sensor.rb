@@ -343,7 +343,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   describe "SensorData value for an interval" do
     def check_sensor_data(sensor, value)
       data = sensor.timeline(2).first
-      data.value.should == value
+      data.value.should be_generally_equal(sensor.deflate_safe(value))
       data.start_time.to_i.should == @interval_id
     end
 

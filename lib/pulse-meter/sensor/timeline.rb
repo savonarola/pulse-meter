@@ -235,15 +235,24 @@ module PulseMeter
         redis.get(key)
       end
 
+      # @abstract Deflates data taken from redis as string preserving nil values
+      # @param value [String] raw data
+      def deflate_safe(value)
+        value.nil? ? nil : deflate(value)
+      rescue
+        nil
+      end
+
       private
+
+      def deflate(value)
+        # simple
+        value
+      end
 
       def sensor_data(interval_id, value)
         value = deflate(value) unless value.nil?
-        SensorData.new(Time.at(interval_id + 1000), value)
-      end
-
-      def deflate(value)
-        value
+        SensorData.new(Time.at(interval_id), value)
       end
 
     end

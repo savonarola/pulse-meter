@@ -10,6 +10,12 @@ module PulseMeter
         def summarize(key)
           redis.scard(key)
         end
+
+        private
+        
+        def deflate(value)
+          value.to_s
+        end
       end
     end
   end

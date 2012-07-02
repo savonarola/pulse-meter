@@ -55,4 +55,34 @@ describe PulseMeter::Sensor::Timeline do
     end
 
   end
+
+  describe "#deflate_safe" do
+    class GoodSubclass < described_class
+      def deflate(value)
+        value.to_i
+      end
+    end
+
+    class BadSubclass < described_class
+      def deflate(value)
+        raise "Any conversion error"
+      end
+    end
+
+    let!(:good_instance) { GoodSubclass.new("good", good_init_values) }
+    let!(:bad_instance) { BadSubclass.new("bad", good_init_values) }
+
+    it "preserves nil values" do
+      good_instance.deflate_safe(nil).should be_nil
+    end
+
+    it "converts value as defined in subclass" do
+      good_instance.deflate_safe("10").should == 10
+    end
+
+    it "returns nil if conversion fails" do
+      bad_instance.deflate_safe(:foo).should be_nil
+    end
+  end
+
 end
