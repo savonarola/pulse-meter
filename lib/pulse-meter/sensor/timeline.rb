@@ -132,17 +132,13 @@ module PulseMeter
           keys << data_key(current_interval_id)
           current_interval_id += actual_interval
         end
-        values = if keys.empty?
-          []
-        else
-          redis.mget(*keys)
-        end
+        values = keys.empty? ? [] : redis.mget(*keys)
         res = []
         ids.zip(values) do |(id, val)|
           res << if val.nil?
             get_raw_value(id)
           else
-            SensorData.new(Time.at(id), val)
+            sensor_data(id, val)
           end
         end
         res
@@ -167,8 +163,11 @@ module PulseMeter
       # @return [SensorData]
       def get_raw_value(interval_id)
         interval_raw_data_key = raw_data_key(interval_id)
-        return SensorData.new(Time.at(interval_id), summarize(interval_raw_data_key)) if redis.exists(interval_raw_data_key)
-        SensorData.new(Time.at(interval_id), nil)
+        if redis.exists(interval_raw_data_key)
+          sensor_data(interval_id, summarize(interval_raw_data_key))
+        else
+          sensor_data(interval_id, nil)
+        end
       end
 
       # Drops sensor data within given time
@@ -234,6 +233,12 @@ module PulseMeter
       def summarize(key)
         # simple
         redis.get(key)
+      end
+
+      private
+
+      def sensor_data(interval_id, value)
+        SensorData.new(Time.at(interval_id), value)
       end
 
     end
