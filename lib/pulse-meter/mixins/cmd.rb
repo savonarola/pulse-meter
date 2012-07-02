@@ -15,7 +15,9 @@ module Enumerable
         self.each {|row| csv << row.convert_time}
       end
     else
-      self.each_with_object(Terminal::Table.new) {|row, table| table << row}
+      self.each_with_object(Terminal::Table.new) do |row, table|
+        table << row.map(&:to_s)
+      end
     end
   end
 end
