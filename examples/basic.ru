@@ -19,6 +19,15 @@ layout = PulseMeter::Visualizer.draw do |l|
       c.timespan 1200
     end
 
+    p.line "Lama count 1 min" do |c|
+      c.sensor :lama_count_1min, color: '#FA295C'
+      c.redraw_interval 5
+      c.values_label 'Count'
+      c.width 5
+      c.show_last_point true
+      c.timespan 1200
+    end
+
     p.area "Rhino count", sensor: :rhino_count do |c|
       c.redraw_interval 5
       c.values_label 'Count'

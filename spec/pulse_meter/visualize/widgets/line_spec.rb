@@ -36,6 +36,7 @@ describe PulseMeter::Visualize::Widgets::Line do
       wdata[:width].should == width
       wdata[:gchart_options].should == {a: 1}
       wdata[:timespan].should == timespan
+      wdata[:interval].should == interval
     end
 
     describe "series attribute" do

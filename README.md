@@ -344,6 +344,12 @@ at project root and visit
           ttl: 60 * 60 * 24,
           p: 0.9
         }
+      },
+      cpu: {
+        sensor_type: 'indicator',
+        args: {
+          annotation: 'CPU%'
+        }
       }
     )
 
@@ -377,6 +383,8 @@ at project root and visit
       agent_counter = sensors.sensor(agent_names.shuffle.first)
       agent_counter.event(1)
 
+      sensors.cpu(Random.rand(100))
+
       sleep(Random.rand / 10)
     end
 
@@ -396,7 +404,7 @@ A more complicated visualization
 
       # Transfer some global parameters to Google Charts
       l.gchart_options({
-        backgroundColor: '#CCC'
+        background_color: '#CCC'
       })
 
       # Add some pages
@@ -428,7 +436,7 @@ A more complicated visualization
 
           # Transfer page-wide (and page-specific) options to Google Charts
           p.gchart_options({
-            height: 400
+            height: 500
           })
         end
 
@@ -469,7 +477,6 @@ A more complicated visualization
             w.sensor sensor
           end
 
-          w.timespan 24 * 60 * 60
           w.redraw_interval 10
           w.show_last_point true
           w.values_label "Request count"
@@ -477,9 +484,28 @@ A more complicated visualization
 
         end
 
-        p.ghchart_options({
+        p.gchart_options({
           height: 500
         })
+      end
+
+      l.page "Gauge" do |p|
+
+        p.gauge "CPU Load" do |g|
+          g.redraw_interval 5
+          g.values_label '%'
+          g.width 5
+
+          g.red_from 90
+          g.red_to 100
+          g.yellow_from 75
+          g.yellow_to 90
+          g.minor_ticks 5
+          g.height 200
+
+          g.sensor :cpu
+        end
+
       end
 
     end

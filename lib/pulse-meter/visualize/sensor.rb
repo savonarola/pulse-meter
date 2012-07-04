@@ -31,7 +31,7 @@ module PulseMeter
       end
 
       def annotation
-        real_sensor.annotation || real_sensor.name
+        real_sensor.annotation || ''
       end
 
       def type

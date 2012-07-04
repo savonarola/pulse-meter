@@ -99,6 +99,25 @@ layout = PulseMeter::Visualizer.draw do |l|
     })
   end
 
+  l.page "Gauge" do |p|
+
+    p.gauge "CPU Load" do |g|
+      g.redraw_interval 5
+      g.values_label '%'
+      g.width 5
+
+      g.red_from 90
+      g.red_to 100
+      g.yellow_from 75
+      g.yellow_to 90
+      g.minor_ticks 5
+      g.height 200
+
+      g.sensor :cpu
+    end
+
+  end
+
 end
 
 run layout.to_app

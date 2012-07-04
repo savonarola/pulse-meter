@@ -153,10 +153,11 @@ document.startApp = ->
 
 	class SeriesPresenter extends TimelinePresenter
 		options: ->
+			secondPart = if @get('interval') % 60 == 0 then '' else ':ss'
 			format = if @model.timespan() > 24 * 60 * 60
-				'yyyy.MM.dd HH:mm:ss'
+				"yyyy.MM.dd HH:mm#{secondPart}"
 			else
-				'HH:mm:ss'
+				"HH:mm#{secondPart}"
 
 			$.extend true, super(), {
 				lineWidth: 1

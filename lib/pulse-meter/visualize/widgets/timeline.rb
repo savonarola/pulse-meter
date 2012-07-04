@@ -19,7 +19,8 @@ module PulseMeter
           super().merge({
             values_title: values_label,
             series: series_data(real_timespan),
-            timespan: timespan
+            timespan: timespan,
+            interval: interval
           })
         end
 
@@ -69,6 +70,14 @@ module PulseMeter
           unless intervals.all?{|i| i == intervals.first}
             interval_notice = sensors.map{|s| "#{s.name}: #{s.interval}"}.join(', ')
             raise DifferentSensorIntervalsInWidget, "Sensors with different intervals in a single widget: #{interval_notice}"
+          end
+        end
+
+        def interval
+          if sensors.empty?
+            nil
+          else
+            sensors.first.interval
           end
         end
 
