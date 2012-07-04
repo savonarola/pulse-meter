@@ -141,7 +141,7 @@ document.startApp = ->
 		data: ->
 			data = super()
 			data.addColumn('datetime', 'Time')
-			dateOffset = @dateOffset()
+			dateOffset = @dateOffset() + @get('interval') * 1000
 			series = @get('series')
 			_.each series.titles, (t) ->
 				data.addColumn('number', t)
@@ -233,7 +233,11 @@ document.startApp = ->
 		timespan: -> @get('timespan') + @timespanInc
 
 		url: ->
-			"#{@collection.url()}/#{@get('id')}?timespan=#{@timespan()}"
+			timespan = @timespan()
+			if _.isNaN(timespan)
+				"#{@collection.url()}/#{@get('id')}"
+			else
+				"#{@collection.url()}/#{@get('id')}?timespan=#{timespan}"
 
 		time: -> (new Date()).getTime()
 

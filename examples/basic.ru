@@ -137,7 +137,6 @@ layout = PulseMeter::Visualizer.draw do |l|
     })
   end
 
-  l.use_utc true
   l.gchart_options({
     height: 300
   })
