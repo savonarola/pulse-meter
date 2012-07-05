@@ -11,9 +11,13 @@
   %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
     google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      document.startApp();
+    }
 %body
 
-  - PulseMeter::Visualize::DSL::WIDGETS.each do |wtype|
+  - %w(area line table pie gauge).each do |wtype|
     = partial "widgets/#{wtype}"
 
   .container#main

@@ -14,6 +14,15 @@ cfg = PulseMeter::Sensor::Configuration.new(
     }
   },
 
+  lama_count_1min: {
+    sensor_type:'timelined/counter',
+    args: {
+      annotation: 'Lama Count (1 min)',
+      interval: 60,
+      ttl: 3600
+    }
+  },
+
   lama_average_age: {
     sensor_type:'timelined/average',
     args: {
@@ -51,7 +60,13 @@ cfg = PulseMeter::Sensor::Configuration.new(
   },
 
   cpu: {sensor_type: 'indicator'},
-  memory: {sensor_type: 'indicator'}
+  memory: {sensor_type: 'indicator'},
+  temperature: {
+    sensor_type: 'hashed_indicator',
+    args: {
+      annotation: 'T'
+    }
+  }
 )
 
 while true
@@ -64,7 +79,8 @@ while true
 
   10.times do
     goose_n = Random.rand(4)
-    cfg.goose_count("goose_#{goose_n}" => 1)
+    cfg.goose_count("g_#{goose_n}" => 1)
+    cfg.temperature("g_#{goose_n}" => Random.rand(50))
   end
 
   cfg.cpu(Random.rand(100))

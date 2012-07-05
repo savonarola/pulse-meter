@@ -5,12 +5,12 @@ describe PulseMeter::Visualize::Sensor do
   let(:name) { "some_sensor" }
   let(:annotation) { 'sensor descr' }
   let!(:real_sensor){ PulseMeter::Sensor::Timelined::Counter.new(name, ttl: 1000, interval: interval, annotation: annotation) }
-  let(:sensor) { described_class.new(sensor: name) }
+  let(:sensor) { described_class.new(name: name) }
 
   let(:color){ '#ABCDEF' }
-  let(:sensor_with_color) { described_class.new(sensor: name, color: color) }
+  let(:sensor_with_color) { described_class.new(name: name, color: color) }
 
-  let(:bad_sensor) { described_class.new(sensor: "bad_sensor_name") }
+  let(:bad_sensor) { described_class.new(name: "bad_sensor_name") }
   let(:interval_start){ Time.at((Time.now.to_i / interval) * interval) }
 
   describe '#last_value' do

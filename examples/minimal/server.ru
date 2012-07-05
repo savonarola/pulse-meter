@@ -12,7 +12,8 @@ layout = PulseMeter::Visualizer.draw do |l|
     p.area "Live Counter",
       sensor: :simple_sample_counter,
       timespan: 5 * 60,
-      redraw_interval: 1
+      redraw_interval: 1,
+      width: 10
   end
 
 end

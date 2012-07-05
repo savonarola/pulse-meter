@@ -1,15 +1,10 @@
 module PulseMeter
   module Visualize
-    class Page
-      attr_reader :widgets
-      attr_reader :title
-      attr_reader :gchart_options
-
-      def initialize(args) 
-        raise ArgumentError unless args.respond_to?('[]')
-        @title = args[:title] or raise ArgumentError, ":title not specified"
-        @widgets = args[:widgets] or raise ArgumentError, ":widgets not specified"
-        @gchart_options = args[:gchart_options] or raise ArgumentError, ":gchart_options not specified"
+    class Page < Base
+      def initialize(opts)
+        super
+        @opts[:widgets] ||= []
+        @opts[:gchart_options] ||= {}
       end
 
       def widget_data(widget_id, opts = {})

@@ -42,7 +42,7 @@ describe PulseMeter::Visualize::Page do
       w.sensor :a_sensor, color: a_color
       w.sensor :b_sensor, color: b_color
     end
-    p.to_page
+    p.to_data
   end
 
   before(:each) do

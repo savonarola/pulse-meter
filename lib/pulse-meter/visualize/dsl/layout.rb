@@ -1,54 +1,25 @@
 module PulseMeter
   module Visualize
     module DSL
-      class Layout
+      class Layout < Base
         DEFAULT_TITLE = "Pulse Meter"
-        DEFAULT_GCHART_OPTIONS = {}
+
+        self.data_class = PulseMeter::Visualize::Layout
 
         def initialize
-          @pages = []
-          @title = DEFAULT_TITLE
-          @use_utc = true
-          @gchart_options = DEFAULT_GCHART_OPTIONS.dup
+          super()
+          self.title(DEFAULT_TITLE)
+          self.use_utc(false)
         end
 
-        def title(title)
-          @title = title
-        end
+        string_setter :title
+        bool_setter :use_utc
+        hash_extender :gchart_options
 
-        def use_utc(use = true)
-          @use_utc = use
-        end
+        deprecated_setter :outlier_color
+        deprecated_setter :highchart_options
 
-        def outlier_color(_)
-          STDERR.puts "DEPRECATION: outlier_color DSL helper does not take effect anymore"
-        end
-
-        def highchart_options(_)
-          STDERR.puts "DEPRECATION: highchart_options DSL helper does not take effect anymore, use gchart_options instead"
-        end
-
-        def gchart_options(options = {})
-          @gchart_options.merge!(options)
-        end
-
-        def page(title, &block)
-          page = PulseMeter::Visualize::DSL::Page.new(title)
-          yield(page)
-          @pages << page
-        end
-
-        def to_layout
-          pages = @pages.map(&:to_page)
-          title = @title || ''
-          PulseMeter::Visualize::Layout.new( {
-            pages: pages,
-            title: title,
-            use_utc: @use_utc,
-            gchart_options: @gchart_options
-          } )
-        end
-
+        dsl_array_extender :pages, :page, PulseMeter::Visualize::DSL::Page
       end
     end
   end
