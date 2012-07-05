@@ -48,16 +48,6 @@ module PulseMeter
         super
       end
 
-      # Processes event
-      # @param value event value
-      def event(value = nil)
-        multi do
-          current_key = current_raw_data_key
-          aggregate_event(current_key, value)
-          redis.expire(current_key, raw_data_ttl)
-        end
-      end
-
       # Processes event from the past
       # @param time [Time] event time
       # @param value event value
@@ -253,6 +243,16 @@ module PulseMeter
       def sensor_data(interval_id, value)
         value = deflate(value) unless value.nil?
         SensorData.new(Time.at(interval_id), value)
+      end
+
+      # Processes event
+      # @param value event value
+      def process_event(value = nil)
+        multi do
+          current_key = current_raw_data_key
+          aggregate_event(current_key, value)
+          redis.expire(current_key, raw_data_ttl)
+        end
       end
 
     end

@@ -89,8 +89,17 @@ describe PulseMeter::Sensor::Base do
   end
 
   describe "#event" do
-    it "should actually do nothing for base sensor" do
-      sensor.event(nil)
+    context "when everything is ok" do
+      it "should do nothing and return true" do
+        sensor.event(nil).should be_true
+      end
+    end
+
+    context "when an error occures while processing event" do
+      it "should catch StandardErrors and return false" do
+        sensor.stub(:process_event) {raise StandardError}
+        sensor.event(nil).should be_false
+      end
     end
   end
 

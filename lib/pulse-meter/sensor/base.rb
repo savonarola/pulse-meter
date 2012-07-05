@@ -49,10 +49,13 @@ module PulseMeter
         cleanup_dump
       end
   
-      # @abstract Processes event
+      # Processes event
       # @param value [Object] value produced by some kind of event
       def event(value)
-        # do nothing here
+        process_event(value)
+        true
+      rescue StandardError
+        false
       end
 
       protected
@@ -68,6 +71,12 @@ module PulseMeter
         redis.multi do
           yield
         end
+      end
+
+      private
+
+      def process_event(value)
+        # do nothing here
       end
 
     end
