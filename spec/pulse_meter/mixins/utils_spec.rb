@@ -72,6 +72,10 @@ describe PulseMeter::Mixins::Utils do
     end
   end
 
+  describe "#assert_array!" do
+    pending "TODO"
+  end
+
   describe "#assert_ranged_float!" do
 
     it "should extract float value from hash by passed key" do
@@ -136,6 +140,19 @@ describe PulseMeter::Mixins::Utils do
     it "should convert symbolizable keys to symbols" do
       dummy.symbolize_keys({"a" => 5, 6 => 7}).should == {a: 5, 6 => 7}
     end
+  end
 
+  describe "#subsets_of" do
+    it "returns all subsets of given array" do
+      dummy.subsets_of([1, 2]).sort.should == [[], [1], [2], [1, 2]].sort
+    end
+  end
+
+  describe "#each_subset" do
+    it "iterates over each subset" do
+      subsets = []
+      dummy.each_subset([1, 2]) {|s| subsets << s}
+      subsets.sort.should == [[], [1], [2], [1, 2]].sort
+    end
   end
 end
