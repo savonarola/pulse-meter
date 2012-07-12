@@ -3,6 +3,8 @@ module PulseMeter
     class Configuration
       include PulseMeter::Mixins::Utils
 
+      attr_reader :sensors
+
       def initialize(opts = {})
         @sensors = {}
         opts.each do |name, opts|
@@ -21,6 +23,16 @@ module PulseMeter
 
       def sensor(name)
         @sensors[name.to_s]
+      end
+
+      def to_a
+        @sensors.values
+      end
+
+      def each_sensor
+        @sensors.each_pair do |name, sensor|
+          yield(name.to_sym, sensor)
+        end
       end
 
       def method_missing(name, *args)
@@ -42,7 +54,6 @@ module PulseMeter
         end
         entries.unshift('PulseMeter::Sensor').join('::')
       end
-
 
     end
   end

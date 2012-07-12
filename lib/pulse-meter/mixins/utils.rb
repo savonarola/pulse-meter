@@ -24,7 +24,7 @@ module PulseMeter
       def assert_array!(options, key, default = nil)
         value = options[key] || default
         raise ArgumentError, "#{key} should be defined" unless value
-        raise ArgumentError, "#{key} should be array" unless value.is_a(Array)
+        raise ArgumentError, "#{key} should be array" unless value.is_a?(Array)
         value
       end
 

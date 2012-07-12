@@ -73,7 +73,33 @@ describe PulseMeter::Mixins::Utils do
   end
 
   describe "#assert_array!" do
-    pending "TODO"
+    it "should extract value from hash by passed key" do
+      dummy.assert_array!({:val => [:foo]}, :val).should == [:foo]
+    end
+
+    context "when no default value given" do
+      it "should raise exception if th value is not an Array" do
+        expect{ dummy.assert_array!({:val => :bad}, :val) }.to raise_exception(ArgumentError)
+      end
+
+      it "should raise exception if the value is not defined" do
+        expect{ dummy.assert_array!({}, :val) }.to raise_exception(ArgumentError)
+      end
+    end
+
+    context "when default value given" do
+      it "should prefer value from options to default" do
+        dummy.assert_array!({:val => [:foo]}, :val, []).should == [:foo]
+      end
+
+      it "should use default value when there is no one in options" do
+        dummy.assert_array!({}, :val, []).should == []
+      end
+
+      it "should check default value if it is to be used" do
+        expect{dummy.assert_array!({}, :val, :bad)}.to raise_exception(ArgumentError)
+      end
+    end
   end
 
   describe "#assert_ranged_float!" do
