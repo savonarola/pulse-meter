@@ -2,6 +2,7 @@ module PulseMeter
   module Sensor
     class Configuration
       include PulseMeter::Mixins::Utils
+      include Enumerable
 
       attr_reader :sensors
 
@@ -25,13 +26,9 @@ module PulseMeter
         @sensors[name.to_s]
       end
 
-      def to_a
-        @sensors.values
-      end
-
-      def each_sensor
-        @sensors.each_pair do |name, sensor|
-          yield(name.to_sym, sensor)
+      def each
+        @sensors.each_value do |sensor|
+          yield(sensor)
         end
       end
 

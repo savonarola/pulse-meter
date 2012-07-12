@@ -80,8 +80,7 @@ describe PulseMeter::Sensor::Multi do
 
       it "assign names based on factors' names and values" do
         sensor.event(factor_values, 1)
-        names = []
-        sensor.sensors.each_sensor { |name, s| names << name.to_s }
+        names = sensor.sensors.to_a.map(&:name)
         names.sort.should == [
           "#{name}",
           "#{name}_f1_v1",
@@ -92,7 +91,7 @@ describe PulseMeter::Sensor::Multi do
 
       it "creates sensors of given type with configuration options passed" do
         sensor.event(factor_values, 1)
-        sensor.sensors.each_sensor do |n, s|
+        sensor.sensors.each do |s|
           s.should be_instance_of(PulseMeter::Sensor::Counter)
           s.annotation.should == annotation
         end

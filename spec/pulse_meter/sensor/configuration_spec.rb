@@ -90,13 +90,6 @@ describe PulseMeter::Sensor::Configuration do
     end
   end
 
-  describe "#to_a" do
-    it "returns array of sensors" do
-      cfg = described_class.new(counter_config)
-      cfg.to_a.should == [cfg.sensor(:cnt)]
-    end
-  end
-
   describe "#sensors" do
     it "returns hash of sensors" do
       cfg = described_class.new(counter_config)
@@ -108,7 +101,7 @@ describe PulseMeter::Sensor::Configuration do
     it "yields block for each name/sensor pair" do
       cfg = described_class.new(counter_config)
       sensors = {}
-      cfg.each_sensor {|n, s| sensors[n] = s}
+      cfg.each {|s| sensors[s.name.to_sym] = s}
       sensors.should == {:cnt => cfg.sensor(:cnt)}
     end
   end
