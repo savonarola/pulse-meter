@@ -41,7 +41,7 @@ module PulseMeter
 
       def each
         PulseMeter::Sensor::Base.list_objects.each do |sensor|
-          is_subsensor?(sensor) ? yield(sensor) : next
+          yield(sensor) if is_subsensor?(sensor)
         end
       end
 
