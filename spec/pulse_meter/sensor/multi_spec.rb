@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe PulseMeter::Sensor::Multi do
-  let(:name){ :multi }
+  let(:name){ :foo }
   let(:annotation) { "Multi sensor" }
   let(:type) {'counter'}
   let(:factors) {[:f1, :f2]}
@@ -78,14 +78,14 @@ describe PulseMeter::Sensor::Multi do
         expect {sensor.event(factor_values, 1)}.to change{sensor.sensors.to_a.count}
       end
 
-      it "assign names based on factors' names and values" do
+      it "assigns names based on factors' names and values" do
         sensor.event(factor_values, 1)
         names = sensor.sensors.to_a.map(&:name)
         names.sort.should == [
-          "#{name}",
-          "#{name}_f1_v1",
-          "#{name}_f2_v2",
-          "#{name}_f1_v1_f2_v2"
+          "multi_#{name}",
+          "multi_#{name}_f1_v1",
+          "multi_#{name}_f2_v2",
+          "multi_#{name}_f1_v1_f2_v2"
         ].sort
       end
 
@@ -102,16 +102,31 @@ describe PulseMeter::Sensor::Multi do
       sensor.event({f1: :f1v1, f2: :f2v1}, 1)
       sensor.event({f1: :f1v2, f2: :f2v1}, 2)
       [
-        ["#{name}", 3],
-        ["#{name}_f1_f1v1", 1],
-        ["#{name}_f1_f1v2", 2],
-        ["#{name}_f2_f2v1", 3],
-        ["#{name}_f1_f1v1_f2_f2v1", 1],
-        ["#{name}_f1_f1v2_f2_f2v1", 2]
+        ["multi_#{name}", 3],
+        ["multi_#{name}_f1_f1v1", 1],
+        ["multi_#{name}_f1_f1v2", 2],
+        ["multi_#{name}_f2_f2v1", 3],
+        ["multi_#{name}_f1_f1v1_f2_f2v1", 1],
+        ["multi_#{name}_f1_f1v2_f2_f2v1", 2]
       ].each do |sensor_name, sum|
         s = sensor.sensor(sensor_name)
         s.value.should == sum
       end
+    end
+  end
+
+  describe "#each" do
+    before {described_class.flush!}
+
+    it "when used by Enumerable it lists all ever created subsensors of multisensor" do
+      sensor.event({f1: :f1v1, f2: :f2v1}, 1)
+      described_class.flush!
+      sensor.to_a.map(&:name).sort.should == [
+        "multi_#{name}",
+        "multi_#{name}_f1_f1v1",
+        "multi_#{name}_f2_f2v1",
+        "multi_#{name}_f1_f1v1_f2_f2v1",
+      ].sort
     end
   end
 

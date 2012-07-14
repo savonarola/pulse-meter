@@ -2,6 +2,7 @@ module PulseMeter
   module Sensor
     class Multi
       include PulseMeter::Mixins::Utils
+      include Enumerable
 
       attr_reader :name
       attr_reader :factors
@@ -38,7 +39,17 @@ module PulseMeter
         @@sensors = PulseMeter::Sensor::Configuration.new
       end
 
+      def each
+        PulseMeter::Sensor::Base.list_objects.each do |sensor|
+          is_subsensor?(sensor) ? yield(sensor) : next
+        end
+      end
+
       protected
+
+      def is_subsensor?(sensor)
+        sensor.name.start_with?(get_sensor_name([], []).to_s)
+      end
 
       def get_or_create_sensor(factor_names, factor_values)
         name = get_sensor_name(factor_names, factor_values)
@@ -66,7 +77,7 @@ module PulseMeter
       end
 
       def get_sensor_name(factor_names, factor_values)
-        sensor_name = name.to_s
+        sensor_name = "multi_" + name.to_s
         unless factor_names.empty?
           factor_names.zip(factor_values).each do |n, v|
             sensor_name << "_#{n}_#{v}"
