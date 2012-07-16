@@ -1,28 +1,24 @@
 module PulseMeter
   module Sensor
-    class Multi
+    class Multi < Base
       include PulseMeter::Mixins::Utils
       include Enumerable
 
       attr_reader :name
       attr_reader :factors
+      attr_reader :sensors
       attr_reader :configuration_options
-
-      @@sensors = PulseMeter::Sensor::Configuration.new
-
-      def sensors
-        @@sensors
-      end
-
-      def sensor(name)
-        @@sensors.sensor(name)
-      end
 
       def initialize(name, options)
         @name = name
         @factors = assert_array!(options, :factors)
+        @sensors = PulseMeter::Sensor::Configuration.new
         @configuration_options = options[:configuration]
         raise ArgumentError, "configuration option missing" unless @configuration_options
+      end
+
+      def sensor(name)
+        sensors.sensor(name)
       end
 
       def event(factors_hash, value)
@@ -35,14 +31,8 @@ module PulseMeter
         end
       end
 
-      def self.flush!
-        @@sensors = PulseMeter::Sensor::Configuration.new
-      end
-
       def each
-        PulseMeter::Sensor::Base.list_objects.each do |sensor|
-          yield(sensor) if is_subsensor?(sensor)
-        end
+        sensors.each {|s| yield(s)}
       end
 
       protected
@@ -53,7 +43,11 @@ module PulseMeter
 
       def get_or_create_sensor(factor_names, factor_values)
         name = get_sensor_name(factor_names, factor_values)
-        sensor(name) || sensors.add_sensor(name, configuration_options)
+        unless sensor(name)
+          sensors.add_sensor(name, configuration_options)
+          dump!(false)
+        end
+        sensor(name)
       end
 
       def ensure_valid_factors!(factors_hash)
@@ -77,7 +71,7 @@ module PulseMeter
       end
 
       def get_sensor_name(factor_names, factor_values)
-        sensor_name = "multi_" + name.to_s
+        sensor_name = name.to_s
         unless factor_names.empty?
           factor_names.zip(factor_values).each do |n, v|
             sensor_name << "_#{n}_#{v}"

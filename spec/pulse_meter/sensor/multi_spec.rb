@@ -48,23 +48,9 @@ describe PulseMeter::Sensor::Multi do
     it "returns PulseMeter::Sensor::Configuration instance" do
       sensor.sensors.should be_instance_of(PulseMeter::Sensor::Configuration)
     end
-
-    it "returns class attribute" do
-      another_sensor = described_class.new("another_sensor", init_values)
-      another_sensor.sensors.object_id.should == sensor.sensors.object_id
-    end
-  end
-
-  describe ".flush!" do
-    it "makes class forget all previously created sensors" do
-      sensor.event({f1: :v1, f2: :v2}, 1)
-      described_class.flush!
-      sensor.sensors.to_a.should == []
-    end
   end
 
   describe "#event" do
-    before {described_class.flush!}
 
     it "raises ArgumentError unless all factors' values given" do
       expect {sensor.event({f1: :v1}, 1)}.to raise_exception(ArgumentError)
@@ -82,10 +68,10 @@ describe PulseMeter::Sensor::Multi do
         sensor.event(factor_values, 1)
         names = sensor.sensors.to_a.map(&:name)
         names.sort.should == [
-          "multi_#{name}",
-          "multi_#{name}_f1_v1",
-          "multi_#{name}_f2_v2",
-          "multi_#{name}_f1_v1_f2_v2"
+          "#{name}",
+          "#{name}_f1_v1",
+          "#{name}_f2_v2",
+          "#{name}_f1_v1_f2_v2"
         ].sort
       end
 
@@ -102,12 +88,12 @@ describe PulseMeter::Sensor::Multi do
       sensor.event({f1: :f1v1, f2: :f2v1}, 1)
       sensor.event({f1: :f1v2, f2: :f2v1}, 2)
       [
-        ["multi_#{name}", 3],
-        ["multi_#{name}_f1_f1v1", 1],
-        ["multi_#{name}_f1_f1v2", 2],
-        ["multi_#{name}_f2_f2v1", 3],
-        ["multi_#{name}_f1_f1v1_f2_f2v1", 1],
-        ["multi_#{name}_f1_f1v2_f2_f2v1", 2]
+        ["#{name}", 3],
+        ["#{name}_f1_f1v1", 1],
+        ["#{name}_f1_f1v2", 2],
+        ["#{name}_f2_f2v1", 3],
+        ["#{name}_f1_f1v1_f2_f2v1", 1],
+        ["#{name}_f1_f1v2_f2_f2v1", 2]
       ].each do |sensor_name, sum|
         s = sensor.sensor(sensor_name)
         s.value.should == sum
@@ -116,16 +102,15 @@ describe PulseMeter::Sensor::Multi do
   end
 
   describe "#each" do
-    before {described_class.flush!}
-
     it "when used by Enumerable it lists all ever created subsensors of multisensor" do
       sensor.event({f1: :f1v1, f2: :f2v1}, 1)
-      described_class.flush!
-      sensor.to_a.map(&:name).sort.should == [
-        "multi_#{name}",
-        "multi_#{name}_f1_f1v1",
-        "multi_#{name}_f2_f2v1",
-        "multi_#{name}_f1_f1v1_f2_f2v1",
+      restored_sensor = PulseMeter::Sensor::Base.restore(name)
+
+      restored_sensor.to_a.map(&:name).sort.should == [
+        "#{name}",
+        "#{name}_f1_f1v1",
+        "#{name}_f2_f2v1",
+        "#{name}_f1_f1v1_f2_f2v1",
       ].sort
     end
   end
