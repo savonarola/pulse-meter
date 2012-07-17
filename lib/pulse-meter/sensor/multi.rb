@@ -9,6 +9,8 @@ module PulseMeter
       attr_reader :sensors
       attr_reader :configuration_options
 
+      # TODO restore in initializer
+
       def initialize(name, options)
         @name = name
         @factors = assert_array!(options, :factors)
@@ -33,6 +35,12 @@ module PulseMeter
 
       def each
         sensors.each {|s| yield(s)}
+      end
+
+      def sensor_for_factors(factor_names, factor_values)
+        sensor(
+           get_sensor_name(factor_names, factor_values)
+        )
       end
 
       protected

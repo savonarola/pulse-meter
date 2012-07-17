@@ -115,4 +115,20 @@ describe PulseMeter::Sensor::Multi do
     end
   end
 
+  describe "#sensor_for_factors" do
+    context "when sensor has already been created" do
+      it "returns sensor for given combination of factors and their values" do
+        sensor.event({f1: :f1v1, f2: :f2v1}, 1)
+        sensor.sensor_for_factors([:f1, :f2], [:f1v1, :f2v1]).name.should == "#{name}_f1_f1v1_f2_f2v1"
+        sensor.sensor_for_factors([:f1], [:f1v1]).name.should == "#{name}_f1_f1v1"
+      end
+    end
+
+    context "when such a sensor was not created" do
+      it "returns nil" do
+        sensor.sensor_for_factors([:foo], [:bar]).should be_nil
+      end
+    end
+  end
+
 end
