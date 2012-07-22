@@ -63,6 +63,7 @@ The following timeline sensors are available:
   * Hashed counter
   * Max value
   * Min value
+  * Multifactor sensor
   * Median value
   * Percentile
   * Unique counter
