@@ -16,7 +16,11 @@ module Enumerable
       end
     else
       self.each_with_object(Terminal::Table.new) do |row, table|
-        table << row.map(&:to_s)
+        table << if row.respond_to?(:map)
+          row.map(&:to_s)
+        else
+          row
+        end
       end
     end
   end
