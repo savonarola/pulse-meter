@@ -3,13 +3,7 @@ module Enumerable
   require 'terminal-table'
 
   def convert_time
-    map do |el|
-      if el.is_a?(Time)
-        el.to_i
-      else
-        el
-      end
-    end
+    map {|el| el.is_a?(Time) ? el.to_i : el}
   end
 
   def to_table(format = nil)
