@@ -1,4 +1,7 @@
 module Enumerable
+  require 'csv'
+  require 'terminal-table'
+
   def convert_time
     map do |el|
       if el.is_a?(Time)
@@ -10,7 +13,7 @@ module Enumerable
   end
 
   def to_table(format = nil)
-    if "csv" == format
+    if "csv" == format.to_s
       CSV.generate(:col_sep => ';') do |csv|
         self.each {|row| csv << row.convert_time}
       end
@@ -52,7 +55,7 @@ module PulseMeter
         data = [
           ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"],
         ]
-        data << :separator unless format == 'csv'
+        data << :separator unless 'csv' == format.to_s
         all_sensors.each do |s|
           if s.kind_of? PulseMeter::Sensor::Timeline
             data << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]
