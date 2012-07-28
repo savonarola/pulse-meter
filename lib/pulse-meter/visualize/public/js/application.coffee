@@ -15,6 +15,10 @@ document.startApp = ->
 			
 		selectFirst: ->
 			@at(0).set('selected', true) if @length > 0
+		
+		selectNone: ->
+			@each (m) ->
+				m.set 'selected', false
 
 		selectPage: (id) ->
 			@each (m) ->
@@ -270,6 +274,32 @@ document.startApp = ->
 			ROOT + 'pages/' + pageInfos.selected().id + '/widgets'
 	}
 
+	SensorInfo = Backbone.Model.extend {
+
+	}
+
+	SensorInfoList = Backbone.Collection.extend {
+		model: SensorInfo
+		url: ->
+			ROOT + 'widgets'
+	}
+
+	SensorInfoListView = Backbone.View.extend {
+		tagName: 'div'
+	}
+
+	DynamicWidgetView = Backbone.View.extend {
+
+		initialize: ->
+			
+		render: ->
+			container = $('#widgets')
+			container.empty()
+	}
+
+	dynamicWidget = new DynamicWidgetView
+
+
 	WidgetChartView = Backbone.View.extend {
 		tagName: 'div'
 
@@ -346,8 +376,9 @@ document.startApp = ->
 
 	widgetList = new WidgetList
 	setInterval( ->
-		widgetList.each (w) ->
-			w.refetch()
+		if pageInfos.selected()
+			widgetList.each (w) ->
+				w.refetch()
 	, 200)
 
 	WidgetListView = Backbone.View.extend {
@@ -371,12 +402,16 @@ document.startApp = ->
 	AppRouter = Backbone.Router.extend {
 		routes: {
 			'pages/:id': 'getPage'
+			'dynamic': 'dynamic'
 			'*actions': 'defaultRoute'
 		}
 		getPage: (ids) ->
 			id = parseInt(ids)
 			pageInfos.selectPage(id)
 			widgetList.fetch()
+		dynamic: ->
+			pageInfos.selectNone()
+			dynamicWidget.render()
 		defaultRoute: (actions) ->
 			@navigate('//pages/1') if pageInfos.length > 0
 	}

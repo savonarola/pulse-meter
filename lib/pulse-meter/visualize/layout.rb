@@ -37,6 +37,20 @@ module PulseMeter
       def widgets(page_id)
         pages[page_id].widget_datas
       end
+
+      def sensor_list
+        PulseMeter::Sensor::Base
+          .list_objects
+          .select{|s| s.is_a?(PulseMeter::Sensor::Timeline)}
+          .map do |s|
+          {
+            id: s.name,
+            annotation: s.annotation,
+            type: s.class
+          }
+        end
+      end
+
     end
   end
 end
