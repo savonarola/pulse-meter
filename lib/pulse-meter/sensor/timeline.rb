@@ -108,12 +108,17 @@ module PulseMeter
       # Returts sensor data within given time
       # @param from [Time] lower bound
       # @param till [Time] upper bound
+      # @param skip_optimization [Boolean] must be set to true to skip interval optimization
       # @return [Array<SensorData>]
       # @raise ArgumentError if argumets are not valid time objects
-      def timeline_within(from, till)
+      def timeline_within(from, till, skip_optimization = false)
         raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
         start_time, end_time = from.to_i, till.to_i
-        actual_interval = optimized_inteval(start_time, end_time)
+        actual_interval = if skip_optimization
+          interval
+        else
+          optimized_interval(start_time, end_time)
+        end
         current_interval_id = get_interval_id(start_time) + actual_interval
         keys = []
         ids = []
@@ -132,19 +137,6 @@ module PulseMeter
           end
         end
         res
-      end
-
-      # Makes interval optimization so that the requested timespan contains less than MAX_TIMESPAN_POINTS values
-      # @param start_time [Fixnum] unix timestamp of timespan start
-      # @param end_time [Fixnum] unix timestamp of timespan start
-      # @return [Fixnum] optimized interval in seconds.
-      def optimized_inteval(start_time, end_time)
-        res_interval = interval
-        timespan = end_time - start_time
-        while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
-          res_interval *= 2
-        end
-        res_interval
       end
 
       # Returns sensor data for given interval making in-memory summarization
@@ -174,11 +166,7 @@ module PulseMeter
           keys << raw_data_key(current_interval_id)
           current_interval_id += interval
         end
-        if keys.empty?
-          0
-        else
-          redis.del(*keys)
-        end
+        keys.empty? ? 0 : redis.del(*keys)
       end
 
       # Returns Redis key by which raw data for current interval is stored
@@ -254,6 +242,20 @@ module PulseMeter
           redis.expire(current_key, raw_data_ttl)
         end
       end
+
+      # Makes interval optimization so that the requested timespan contains less than MAX_TIMESPAN_POINTS values
+      # @param start_time [Fixnum] unix timestamp of timespan start
+      # @param end_time [Fixnum] unix timestamp of timespan start
+      # @return [Fixnum] optimized interval in seconds.
+      def optimized_interval(start_time, end_time)
+        res_interval = interval
+        timespan = end_time - start_time
+        while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
+          res_interval *= 2
+        end
+        res_interval
+      end
+
 
     end
   end
