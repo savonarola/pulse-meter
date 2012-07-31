@@ -46,7 +46,8 @@ module PulseMeter
           {
             id: s.name,
             annotation: s.annotation,
-            type: s.class
+            type: s.class.to_s.split('::').last,
+            interval: s.interval
           }
         end
       end

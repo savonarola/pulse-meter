@@ -46,7 +46,7 @@ module PulseMeter
 
       get '/sensors' do
         content_type :json
-        camelize_keys(@layout.widget_list).to_json
+        camelize_keys(@layout.sensor_list).to_json
       end
 
       get '/dynamic_widget' do

@@ -6,6 +6,28 @@ document.startApp = ->
 	String::strip = ->
 		if String::trim? then @trim() else @replace /^\s+|\s+$/g, ""
 
+	Number::humanize = ->
+		interval = this
+		res = ""
+		s = interval % 60
+		res = "#{s} s" if s > 0
+		interval = (interval - s) / 60
+		return res unless interval > 0
+
+		m = interval % 60
+		res = "#{m} m #{res}".strip() if m > 0
+		interval = (interval - m) / 60
+		return res unless interval > 0
+
+		h = interval % 24
+		res = "#{h} h #{res}".strip() if h > 0
+		d = (interval - h) / 24
+		if d > 0
+			"#{d} d #{res}".strip()
+		else
+			res
+
+
 	PageInfo = Backbone.Model.extend {
 	}
 
@@ -185,26 +207,7 @@ document.startApp = ->
 			}
 
 		humanizedInterval: ->
-			interval = @get('interval')
-			res = ""
-			s = interval % 60
-			res = "#{s} s" if s > 0
-			interval = (interval - s) / 60
-			return res unless interval > 0
-
-			m = interval % 60
-			res = "#{m} m #{res}".strip() if m > 0
-			interval = (interval - m) / 60
-			return res unless interval > 0
-
-			h = interval % 24
-			res = "#{h} h #{res}".strip() if h > 0
-			d = (interval - h) / 24
-			if d > 0
-				"#{d} d #{res}".strip()
-			else
-				res
-
+			@get('interval').humanize()
 		
 		cutoff: (min, max) ->
 			_.each(@get('series').rows, (row) ->
@@ -305,20 +308,43 @@ document.startApp = ->
 	SensorInfoList = Backbone.Collection.extend {
 		model: SensorInfo
 		url: ->
-			ROOT + 'widgets'
+			ROOT + 'sensors'
 	}
+
 
 	SensorInfoListView = Backbone.View.extend {
 		tagName: 'div'
+
+		template: ->
+			_.template($("#sensor-list").html())
+
+		initialize: (args) ->
+			console.log args
+			@sensorInfo = args.sensorInfo
+			@sensorInfo.bind 'reset', @render, this
+
+		render: ->
+			console.log  @sensorInfo.toJSON()
+			@$el.html @template()({sensors: @sensorInfo.toJSON()})
 	}
 
 	DynamicWidgetView = Backbone.View.extend {
 
 		initialize: ->
+			@sensorInfo = new SensorInfoList
+
+		template: ->
+			_.template($("#dynamic-widget").html())
 			
 		render: ->
 			container = $('#widgets')
 			container.empty()
+			container.html(@template())
+			@sensorListView = new SensorInfoListView {
+				sensorInfo: @sensorInfo
+			}
+			container.find('#sensor-list-area').append(@sensorListView.el)
+			@sensorInfo.fetch()
 	}
 
 	dynamicWidget = new DynamicWidgetView

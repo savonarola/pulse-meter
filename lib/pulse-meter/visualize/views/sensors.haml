@@ -1,0 +1,26 @@
+%script#sensor-list{type: 'text/template'}
+  %table.table.table-striped
+    %tr
+      %th
+      %th Name
+      %th Title
+      %th Type
+      %th Interval
+    <% _.each(sensors, function(sensor) { %>
+    %tr
+      %td
+        %input{type: 'checkbox'}
+      %td <%= sensor.id %>
+      %td <%= sensor.annotation %>
+      %td <%= sensor.type %>
+      %td <%= sensor.interval.humanize() %>
+    <% }) %>
+
+%script#dynamic-widget{type: 'text/template'}
+  .span10
+    #plotarea
+      somechart
+  .span10
+    #sensor-list-area
+
+
