@@ -3,6 +3,8 @@ document.startApp = ->
 	
 	String::capitalize = ->
 	  @charAt(0).toUpperCase() + @slice(1)
+	String::strip = ->
+		if String::trim? then @trim() else @replace /^\s+|\s+$/g, ""
 
 	PageInfo = Backbone.Model.extend {
 	}
@@ -173,7 +175,7 @@ document.startApp = ->
 					position: 'bottom'
 				}
 				vAxis: {
-					title: @get('valuesTitle')
+					title: "#{@get('valuesTitle')} / #{@humanizedInterval()}"
 				}
 				hAxis: {
 					format: format
@@ -181,6 +183,28 @@ document.startApp = ->
 				series: @get('series').options
 				axisTitlesPosition: 'in'
 			}
+
+		humanizedInterval: ->
+			interval = @get('interval')
+			res = ""
+			s = interval % 60
+			res = "#{s} s" if s > 0
+			interval = (interval - s) / 60
+			return res unless interval > 0
+
+			m = interval % 60
+			res = "#{m} m #{res}".strip() if m > 0
+			interval = (interval - m) / 60
+			return res unless interval > 0
+
+			h = interval % 24
+			res = "#{h} h #{res}".strip() if h > 0
+			d = (interval - h) / 24
+			if d > 0
+				"#{d} d #{res}".strip()
+			else
+				res
+
 		
 		cutoff: (min, max) ->
 			_.each(@get('series').rows, (row) ->
