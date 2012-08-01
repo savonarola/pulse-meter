@@ -242,12 +242,32 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       end
     end
 
-    it "should not return more than #{PulseMeter::Sensor::Timeline::MAX_TIMESPAN_POINTS} points" do
-      max = PulseMeter::Sensor::Timeline::MAX_TIMESPAN_POINTS
-      (1..10).each do |i|
-        timespan = sensor.interval * max * (2**i)
-        sensor.timeline_within(Time.now, Time.now - timespan).size.should < max
+    context "to avoid getting to much data" do
+      let(:max) {PulseMeter::Sensor::Timeline::MAX_TIMESPAN_POINTS}
 
+      it "should skip some points not to exceed MAX_TIMESPAN_POINTS" do
+        count = max * 2
+        sensor.timeline_within(
+          Time.at(@start_of_interval - 1),
+          Time.at(@start_of_interval + count * interval)
+        ).size.should < max
+      end
+
+      it "should not skip any points when timeline orginal size is less then MAX_TIMESPAN_POINTS" do
+        count = max - 1
+        sensor.timeline_within(
+          Time.at(@start_of_interval - 1),
+          Time.at(@start_of_interval + count * interval)
+        ).size.should == count
+      end
+
+      it "should give full data in case skip_optimization parameter set to true" do
+        count = max * 2
+        sensor.timeline_within(
+          Time.at(@start_of_interval - 1),
+          Time.at(@start_of_interval + count * interval),
+          true
+        ).size.should == count
       end
     end
   end
