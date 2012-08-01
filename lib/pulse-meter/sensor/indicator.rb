@@ -9,12 +9,6 @@ module PulseMeter
         super
       end
 
-      # Sets indicator value
-      # @param value [Float] new indicator value
-      def event(value)
-        redis.set(value_key, value.to_f)
-      end
-
       # Get indicator value
       # @return [Fixnum] indicator value or zero unless it was initialized
       def value
@@ -26,6 +20,14 @@ module PulseMeter
       # @return [String]
       def value_key
         @value_key ||= "pulse_meter:value:#{name}"
+      end
+
+      private
+
+      # Sets indicator value
+      # @param value [Float] new indicator value
+      def process_event(value)
+        redis.set(value_key, value.to_f)
       end
 
     end

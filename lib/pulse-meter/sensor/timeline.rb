@@ -48,16 +48,6 @@ module PulseMeter
         super
       end
 
-      # Processes event
-      # @param value event value
-      def event(value = nil)
-        multi do
-          current_key = current_raw_data_key
-          aggregate_event(current_key, value)
-          redis.expire(current_key, raw_data_ttl)
-        end
-      end
-
       # Processes event from the past
       # @param time [Time] event time
       # @param value event value
@@ -118,12 +108,17 @@ module PulseMeter
       # Returts sensor data within given time
       # @param from [Time] lower bound
       # @param till [Time] upper bound
+      # @param skip_optimization [Boolean] must be set to true to skip interval optimization
       # @return [Array<SensorData>]
       # @raise ArgumentError if argumets are not valid time objects
-      def timeline_within(from, till)
+      def timeline_within(from, till, skip_optimization = false)
         raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
         start_time, end_time = from.to_i, till.to_i
-        actual_interval = optimized_inteval(start_time, end_time)
+        actual_interval = if skip_optimization
+          interval
+        else
+          optimized_interval(start_time, end_time)
+        end
         current_interval_id = get_interval_id(start_time) + actual_interval
         keys = []
         ids = []
@@ -132,33 +127,16 @@ module PulseMeter
           keys << data_key(current_interval_id)
           current_interval_id += actual_interval
         end
-        values = if keys.empty?
-          []
-        else
-          redis.mget(*keys)
-        end
+        values = keys.empty? ? [] : redis.mget(*keys)
         res = []
         ids.zip(values) do |(id, val)|
           res << if val.nil?
             get_raw_value(id)
           else
-            SensorData.new(Time.at(id), val)
+            sensor_data(id, val)
           end
         end
         res
-      end
-
-      # Makes interval optimization so that the requested timespan contains less than MAX_TIMESPAN_POINTS values
-      # @param start_time [Fixnum] unix timestamp of timespan start
-      # @param end_time [Fixnum] unix timestamp of timespan start
-      # @return [Fixnum] optimized interval in seconds.
-      def optimized_inteval(start_time, end_time)
-        res_interval = interval
-        timespan = end_time - start_time
-        while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
-          res_interval *= 2
-        end
-        res_interval
       end
 
       # Returns sensor data for given interval making in-memory summarization
@@ -167,8 +145,11 @@ module PulseMeter
       # @return [SensorData]
       def get_raw_value(interval_id)
         interval_raw_data_key = raw_data_key(interval_id)
-        return SensorData.new(Time.at(interval_id), summarize(interval_raw_data_key)) if redis.exists(interval_raw_data_key)
-        SensorData.new(Time.at(interval_id), nil)
+        if redis.exists(interval_raw_data_key)
+          sensor_data(interval_id, summarize(interval_raw_data_key))
+        else
+          sensor_data(interval_id, nil)
+        end
       end
 
       # Drops sensor data within given time
@@ -185,11 +166,7 @@ module PulseMeter
           keys << raw_data_key(current_interval_id)
           current_interval_id += interval
         end
-        if keys.empty?
-          0
-        else
-          redis.del(*keys)
-        end
+        keys.empty? ? 0 : redis.del(*keys)
       end
 
       # Returns Redis key by which raw data for current interval is stored
@@ -235,6 +212,50 @@ module PulseMeter
         # simple
         redis.get(key)
       end
+
+      # @abstract Deflates data taken from redis as string preserving nil values
+      # @param value [String] raw data
+      def deflate_safe(value)
+        value.nil? ? nil : deflate(value)
+      rescue
+        nil
+      end
+
+      private
+
+      def deflate(value)
+        # simple
+        value
+      end
+
+      def sensor_data(interval_id, value)
+        value = deflate(value) unless value.nil?
+        SensorData.new(Time.at(interval_id), value)
+      end
+
+      # Processes event
+      # @param value event value
+      def process_event(value = nil)
+        multi do
+          current_key = current_raw_data_key
+          aggregate_event(current_key, value)
+          redis.expire(current_key, raw_data_ttl)
+        end
+      end
+
+      # Makes interval optimization so that the requested timespan contains less than MAX_TIMESPAN_POINTS values
+      # @param start_time [Fixnum] unix timestamp of timespan start
+      # @param end_time [Fixnum] unix timestamp of timespan start
+      # @return [Fixnum] optimized interval in seconds.
+      def optimized_interval(start_time, end_time)
+        res_interval = interval
+        timespan = end_time - start_time
+        while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
+          res_interval *= 2
+        end
+        res_interval
+      end
+
 
     end
   end

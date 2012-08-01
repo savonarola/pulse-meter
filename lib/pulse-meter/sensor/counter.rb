@@ -14,12 +14,6 @@ module PulseMeter
         event(1)
       end
 
-      # Processes event by incremnting counter by given value
-      # @param value [Fixnum] increment
-      def event(value)
-        redis.incrby(value_key, value.to_i)
-      end
-
       # Gets counter value
       # @return [Fixnum]
       def value
@@ -31,6 +25,15 @@ module PulseMeter
       def value_key
         @value_key ||= "pulse_meter:value:#{name}"
       end
+
+      private
+
+      # Processes event by incremnting counter by given value
+      # @param value [Fixnum] increment
+      def process_event(value)
+        redis.incrby(value_key, value.to_i)
+      end
+
     end
   end
 end

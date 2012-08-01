@@ -72,6 +72,36 @@ describe PulseMeter::Mixins::Utils do
     end
   end
 
+  describe "#assert_array!" do
+    it "should extract value from hash by passed key" do
+      dummy.assert_array!({:val => [:foo]}, :val).should == [:foo]
+    end
+
+    context "when no default value given" do
+      it "should raise exception if th value is not an Array" do
+        expect{ dummy.assert_array!({:val => :bad}, :val) }.to raise_exception(ArgumentError)
+      end
+
+      it "should raise exception if the value is not defined" do
+        expect{ dummy.assert_array!({}, :val) }.to raise_exception(ArgumentError)
+      end
+    end
+
+    context "when default value given" do
+      it "should prefer value from options to default" do
+        dummy.assert_array!({:val => [:foo]}, :val, []).should == [:foo]
+      end
+
+      it "should use default value when there is no one in options" do
+        dummy.assert_array!({}, :val, []).should == []
+      end
+
+      it "should check default value if it is to be used" do
+        expect{dummy.assert_array!({}, :val, :bad)}.to raise_exception(ArgumentError)
+      end
+    end
+  end
+
   describe "#assert_ranged_float!" do
 
     it "should extract float value from hash by passed key" do
@@ -136,6 +166,19 @@ describe PulseMeter::Mixins::Utils do
     it "should convert symbolizable keys to symbols" do
       dummy.symbolize_keys({"a" => 5, 6 => 7}).should == {a: 5, 6 => 7}
     end
+  end
 
+  describe "#subsets_of" do
+    it "returns all subsets of given array" do
+      dummy.subsets_of([1, 2]).sort.should == [[], [1], [2], [1, 2]].sort
+    end
+  end
+
+  describe "#each_subset" do
+    it "iterates over each subset" do
+      subsets = []
+      dummy.each_subset([1, 2]) {|s| subsets << s}
+      subsets.sort.should == [[], [1], [2], [1, 2]].sort
+    end
   end
 end

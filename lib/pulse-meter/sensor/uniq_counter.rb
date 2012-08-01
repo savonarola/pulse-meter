@@ -5,16 +5,18 @@ module PulseMeter
   module Sensor
     class UniqCounter < Counter
 
-      # Processes event
-      # @param name [String] value to be counted
-      def event(name)
-        redis.sadd(value_key, name)
-      end
-
       # Returs number of unique values ever sent to counter
       # @return [Fixnum]
       def value
         redis.scard(value_key)
+      end
+
+      private
+
+      # Processes event
+      # @param name [String] value to be counted
+      def process_event(name)
+        redis.sadd(value_key, name)
       end
 
     end

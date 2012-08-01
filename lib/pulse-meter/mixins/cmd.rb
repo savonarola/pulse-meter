@@ -1,24 +1,4 @@
-module Enumerable
-  def convert_time
-    map do |el|
-      if el.is_a?(Time)
-        el.to_i
-      else
-        el
-      end
-    end
-  end
-
-  def to_table(format = nil)
-    if "csv" == format
-      CSV.generate(:col_sep => ';') do |csv|
-        self.each {|row| csv << row.convert_time}
-      end
-    else
-      self.each_with_object(Terminal::Table.new) {|row, table| table << row}
-    end
-  end
-end
+require 'pulse-meter/extensions/enumerable'
 
 module PulseMeter
   module Mixins
@@ -46,7 +26,7 @@ module PulseMeter
         data = [
           ["Name", "Class", "ttl", "raw data ttl", "interval", "reduce delay"],
         ]
-        data << :separator unless format == 'csv'
+        data << :separator unless 'csv' == format.to_s
         all_sensors.each do |s|
           if s.kind_of? PulseMeter::Sensor::Timeline
             data << [s.name, s.class, s.ttl, s.raw_data_ttl, s.interval, s.reduce_delay]

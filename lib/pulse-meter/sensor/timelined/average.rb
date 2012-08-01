@@ -19,6 +19,12 @@ module PulseMeter
           end
         end
 
+        private
+
+        def deflate(value)
+          value.to_f
+        end
+
       end
     end
   end

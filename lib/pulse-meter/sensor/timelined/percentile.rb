@@ -19,10 +19,16 @@ module PulseMeter
           if count > 0
             position = @p_value > 0 ? (@p_value * count).round - 1 : 0
             el = redis.zrange(key, position, position)[0]
-            redis.zscore(key, el).to_f
+            redis.zscore(key, el)
           else
             nil
           end
+        end
+
+        private
+        
+        def deflate(value)
+          value.to_f
         end
 
       end

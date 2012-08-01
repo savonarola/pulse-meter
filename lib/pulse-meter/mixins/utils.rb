@@ -15,6 +15,19 @@ module PulseMeter
         nil
       end
 
+      # Ensures that hash value specified by key is Array
+      # @param options [Hash] hash to be looked at
+      # @param key [Object] hash key
+      # @param default [Object] default value to be returned
+      # @raise [ArgumentError] unless value is Array
+      # @return [Array]
+      def assert_array!(options, key, default = nil)
+        value = options[key] || default
+        raise ArgumentError, "#{key} should be defined" unless value
+        raise ArgumentError, "#{key} should be array" unless value.is_a?(Array)
+        value
+      end
+
       # Ensures that hash value specified by key can be converted to positive integer.
       # In case it can makes in-place conversion and returns the value.
       # @param options [Hash] hash to be looked at
@@ -97,6 +110,18 @@ module PulseMeter
         else
           item
         end
+      end
+      
+      # Yields block for each subset of given array
+      # @param array [Array] given array
+      def each_subset(array)
+        subsets_of(array).each {|subset| yield(subset)}
+      end
+
+      # Returs all array's subsets
+      # @param array [Array]
+      def subsets_of(array)
+        0.upto(array.length).flat_map { |n| array.combination(n).to_a }
       end
     end
   end

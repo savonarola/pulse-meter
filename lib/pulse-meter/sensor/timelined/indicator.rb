@@ -1,21 +1,22 @@
 module PulseMeter
   module Sensor
     module Timelined
-      # Counts unique events per interval
-      class UniqCounter < Timeline
+      # Saves last registered flag float value for each interval
+      class Indicator < Timeline
         def aggregate_event(key, value)
-          redis.sadd(key, value)
+          redis.set(key, value.to_f)
         end
 
         def summarize(key)
-          redis.scard(key)
+          redis.get(key)
         end
 
         private
-        
+
         def deflate(value)
-          value.to_i
+          value.to_f
         end
+
       end
     end
   end

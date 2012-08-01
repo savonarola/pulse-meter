@@ -1,6 +1,17 @@
 require "spec_helper"
 
 describe PulseMeter::Sensor::Configuration do
+  let(:counter_config) {
+    {
+      cnt: {
+        sensor_type: 'counter',
+        args: {
+          annotation: "MySensor"
+        }
+      },
+    }
+  }
+
   describe "#add_sensor" do
     let(:cfg) {described_class.new}
 
@@ -52,8 +63,6 @@ describe PulseMeter::Sensor::Configuration do
       cfg.add_sensor(:foo, Dummy.new)
       cfg.sensor(:foo).annotation.should == "My Foo Counter"
     end
-
-
   end
 
   describe ".new" do
@@ -75,17 +84,25 @@ describe PulseMeter::Sensor::Configuration do
 
   describe "#sensor" do
     it "should give access to added sensors" do
-      opts = {
-        cnt: {
-          sensor_type: 'counter',
-          args: {
-            annotation: "MySensor"
-          }
-        },
-      }
-      cfg = described_class.new(opts)
+      cfg = described_class.new(counter_config)
       cfg.sensor(:cnt).annotation.should == "MySensor"
       cfg.sensor("cnt").annotation.should == "MySensor"
+    end
+  end
+
+  describe "#sensors" do
+    it "returns hash of sensors" do
+      cfg = described_class.new(counter_config)
+      cfg.sensors.should == {"cnt" => cfg.sensor(:cnt)}
+    end
+  end
+
+  describe "#each_sensor" do
+    it "yields block for each name/sensor pair" do
+      cfg = described_class.new(counter_config)
+      sensors = {}
+      cfg.each {|s| sensors[s.name.to_sym] = s}
+      sensors.should == {:cnt => cfg.sensor(:cnt)}
     end
   end
 end

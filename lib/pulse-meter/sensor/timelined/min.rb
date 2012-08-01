@@ -13,10 +13,16 @@ module PulseMeter
           count = redis.zcard(key)
           if count > 0
             min_el = redis.zrange(key, 0, 0)[0]
-            redis.zscore(key, min_el).to_f
+            redis.zscore(key, min_el)
           else
             nil
           end
+        end
+
+        private
+
+        def deflate(value)
+          value.to_f
         end
 
       end
