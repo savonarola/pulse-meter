@@ -50,6 +50,7 @@ module PulseMeter
       end
 
       get '/dynamic_widget' do
+        STDERR.puts params.inspect
         content_type :json
         {}
       end
