@@ -7,7 +7,10 @@ module PulseMeter
       # Good replacement for multiple counters to be visualized together
       class HashedCounter < Timeline
         def aggregate_event(key, data)
-          data.each_pair {|k, v| redis.hincrby(key, k, v)}
+          data.each_pair do |k, v|
+            redis.hincrby(key, k, v)
+            redis.hincrby(key, :total, v)
+          end
         end
 
         def summarize(key)

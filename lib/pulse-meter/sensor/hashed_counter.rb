@@ -25,7 +25,10 @@ module PulseMeter
       # @param data [Hash] hash where keys represent counter keys
       #   and values are increments for their keys
       def process_event(data)
-        data.each_pair {|k, v| redis.hincrby(value_key, k, v.to_i)}
+        data.each_pair do |k, v|
+          redis.hincrby(value_key, k, v.to_i)
+          redis.hincrby(value_key, :total, v.to_i)
+        end
       end
 
     end
