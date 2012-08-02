@@ -2,7 +2,6 @@
   %table#sensors.table.table-striped
     %tr
       %th
-      %th Name
       %th Title
       %th Type
       %th Interval
@@ -11,8 +10,9 @@
       %td
         :plain
           <input class="sensor-box" type="checkbox" id="<%- sensor.id %>" />
-      %td <%- sensor.id %>
-      %td <%- sensor.annotation %>
+      %td 
+        <%- sensor.annotation %>
+        %sub <%- sensor.id %>
       %td <%- sensor.type %>
       %td <%- sensor.interval.humanize() %>
     <% }) %>
@@ -32,21 +32,33 @@
   .span10
     #dynamic-plotarea
   .span10
-    #sensor-list-controls.form-horizontal
+    #sensor-controls.form-horizontal
       %p
-        %button#refresh.btn.btn-mini
+        %button#refresh-chart.btn.btn-mini
           %i.icon-refresh
-          Refresh sensor list
-        %button#draw.btn.btn-mini
-          %i.icon-play
-          Draw
+          Refresh chart
+        Timespan:
+        %select#extend-timespan-val.btn-mini.span1
+          = partial "widgets/extend_options"
+        %button#extend-timespan.btn.btn-mini
+          %i.icon-arrow-left
+          Extend
+        %button#reset-timespan.btn.btn-mini
+          %i.icon-arrow-right
+          Reset
       %p
         %label
           Chart type 
-          %select#chart-type{value: 'Area'}
-            %option{value: 'Area'} Area
-            %option{value: 'Line'} Line
-            %option{value: 'Table'} Table
+          %select#chart-type{value: 'area'}
+            %option{value: 'area'} Area
+            %option{value: 'line'} Line
+            %option{value: 'table'} Table
+          %button#draw.btn.btn-mini.btn-primary
+            %i.icon-play
+            Draw
+          %button#refresh.btn.btn-mini
+            %i.icon-refresh
+            Refresh sensor list
     #sensor-list-area
         
 

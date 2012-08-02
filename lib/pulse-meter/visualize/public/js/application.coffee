@@ -2,7 +2,7 @@ document.startApp = ->
 	globalOptions = gon.options
 	
 	String::capitalize = ->
-	  @charAt(0).toUpperCase() + @slice(1)
+		@charAt(0).toUpperCase() + @slice(1)
 	String::strip = ->
 		if String::trim? then @trim() else @replace /^\s+|\s+$/g, ""
 
@@ -26,7 +26,6 @@ document.startApp = ->
 			"#{d} d #{res}".strip()
 		else
 			res
-
 
 	PageInfo = Backbone.Model.extend {
 	}
@@ -309,16 +308,14 @@ document.startApp = ->
 	}
 
 	DynamicWidget = Backbone.Model.extend {
-		initialize: ->
-			@timespanInc = 0
 
 		increaseTimespan: (inc) ->
-			@timespanInc = @timespanInc + inc
+			@set('timespan', @timespan() + inc)
 
 		resetTimespan: ->
-			@timespanInc = 0
+			@set('timespan', null)
 
-		timespan: -> @get('timespan') + @timespanInc
+		timespan: -> @get('timespan')
 
 		sensorArgs: ->
 			_.map(@get('sensorIds'), (name) -> "sensor[]=#{name}").join('&')
@@ -327,7 +324,7 @@ document.startApp = ->
 			url = "#{ROOT}dynamic_widget?#{@sensorArgs()}&type=#{@get('type')}"
 			
 			timespan = @timespan()
-			url = "#{url}&timespan=#{timespan}" unless _.isNaN(timespan)
+			url = "#{url}&timespan=#{timespan}" if timespan? && !_.isNaN(timespan)
 
 			url
 
@@ -383,7 +380,7 @@ document.startApp = ->
 			@widget = new DynamicWidget
 			
 			@widget.bind('destroy', @remove, this)
-			@widget.bind('redraw', @updateChart, this)
+			@widget.bind('redraw', @redrawChart, this)
 
 		tagName: 'div'
 
@@ -397,6 +394,10 @@ document.startApp = ->
 		render: ->
 			@$el.html(@template())
 
+		increaseTimespan: (inc) -> @widget.increaseTimespan(inc)
+		resetTimespan: -> @widget.resetTimespan()
+			
+
 		intervalsEqual: (sensors) ->
 			interval = @sensors[0].get('interval')
 			badIntervals = _.filter(@sensors, (s) ->
@@ -406,10 +407,11 @@ document.startApp = ->
 
 		sensorIds: -> _.map(@sensors, (s) -> s.id)
 
-		updateChart: ->
-			console.log @$el.find('#chart').first()
-			console.log @widget
+		redrawChart: ->
 			@presenter = WidgetPresenter.create(@widget, @$el.find('#chart')[0])
+
+		update: ->
+			@widget.forceUpdate()
 
 		draw: (sensors, type) ->
 			@sensors = sensors
@@ -434,16 +436,37 @@ document.startApp = ->
 			@sensorListView = new SensorInfoListView(@sensorInfo)
 			@chartView = new DynamicChartView
 		
+			@$el.html(@template()())
+
+			@$el.find('#sensor-list-area').append(@sensorListView.el)
+			@$el.find('#dynamic-plotarea').append(@chartView.el)
+
 		events: {
-			"click #sensor-list-controls #refresh": 'refresh'
-			"click #sensor-list-controls #draw": 'draw'
+			"click #sensor-controls #refresh": 'refresh'
+			"click #sensor-controls #draw": 'draw'
+			"click #sensor-controls #refresh-chart": 'refreshChart'
+			"click #sensor-controls #extend-timespan": 'extendTimespan'
+			"click #sensor-controls #reset-timespan": 'resetTimespan'
 		}
+
+		extendTimespan: ->
+			select = @$el.find("#sensor-controls #extend-timespan-val")
+			val = select.first().val()
+			@chartView.increaseTimespan(parseInt(val))
+			@refreshChart()
+
+		resetTimespan: ->
+			@chartView.resetTimespan()
+			@refreshChart()
 
 		template: ->
 			_.template($("#dynamic-widget").html())
 
 		refresh: ->
 			@sensorInfo.fetch()
+
+		refreshChart: ->
+			@chartView.update()
 
 		draw: ->
 			selectedSensors = @sensorListView.selectedSensors()
@@ -454,17 +477,9 @@ document.startApp = ->
 		render: (container) ->
 			container.empty()
 			container.append(@$el)
-			@$el.html(@template())
-
-			@$el.find('#sensor-list-area').append(@sensorListView.el)
-
 			@chartView.render()
-			@$el.find('#dynamic-plotarea').append(@chartView.el)
-
 			@sensorInfo.fetch()
 	}
-
-	dynamicWidget = new DynamicWidgetView
 
 
 	WidgetChartView = Backbone.View.extend {
@@ -556,9 +571,7 @@ document.startApp = ->
 			container = $('#widgets')
 			container.empty()
 			widgetList.each (w) ->
-				view = new WidgetView {
-					model: w
-				}
+				view = new WidgetView { model: w }
 				view.render()
 				container.append(view.el)
 				view.renderChart()
@@ -578,6 +591,7 @@ document.startApp = ->
 			widgetList.fetch()
 		custom: ->
 			pageInfos.selectNone()
+			dynamicWidget = new DynamicWidgetView
 			dynamicWidget.render($('#widgets'))
 		defaultRoute: (actions) ->
 			@navigate('//custom')

@@ -66,7 +66,7 @@ module PulseMeter
         end
 
         type = args[:type]
-        widget_dsl_class = constantize("PulseMeter::Visualize::DSL::Widgets::#{type}")
+        widget_dsl_class = constantize("PulseMeter::Visualize::DSL::Widgets::#{type.capitalize}")
         widget = widget_dsl_class.new('Dynamic Widget')
         widget.timespan(timespan)
         sensor_names.each{|n| widget.sensor(n)}
