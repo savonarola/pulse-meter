@@ -36,7 +36,7 @@ document.startApp = ->
 		selected: ->
 			@find (m) ->
 				m.get 'selected'
-			
+
 		selectFirst: ->
 			@at(0).set('selected', true) if @length > 0
 		
@@ -109,12 +109,18 @@ document.startApp = ->
 				height: 300
 			}
 
-		mergedOptions: -> $.extend(true,
-			@options(),
-			globalOptions.gchartOptions,
-			pageInfos.selected().get('gchartOptions')
-			@get('gchartOptions')
-		)
+		mergedOptions: ->
+			pageOptions = if pageInfos.selected()
+				pageInfos.selected().get('gchartOptions')
+			else
+				{}
+
+			$.extend(true,
+				@options(),
+				globalOptions.gchartOptions,
+				pageOptions,
+				@get('gchartOptions')
+			)
 
 		data: -> new google.visualization.DataTable
 
@@ -197,7 +203,7 @@ document.startApp = ->
 					position: 'bottom'
 				}
 				vAxis: {
-					title: "#{@get('valuesTitle')} / #{@humanizedInterval()}"
+					title: @valuesTitle()
 				}
 				hAxis: {
 					format: format
@@ -205,6 +211,13 @@ document.startApp = ->
 				series: @get('series').options
 				axisTitlesPosition: 'in'
 			}
+
+		valuesTitle: ->
+			if @get('valuesTitle')
+				"#{@get('valuesTitle')} / #{@humanizedInterval()}"
+			else
+				@humanizedInterval()
+
 
 		humanizedInterval: ->
 			@get('interval').humanize()
@@ -311,13 +324,18 @@ document.startApp = ->
 			_.map(@get('sensorIds'), (name) -> "sensor[]=#{name}").join('&')
 
 		url: ->
-			url = "#{ROOT}dynamic_widget?#{@sensorArgs()}"
+			url = "#{ROOT}dynamic_widget?#{@sensorArgs()}&type=#{@get('type')}"
 			
 			timespan = @timespan()
-			unless _.isNaN(timespan)
-				url = "#{url}&timespan=#{timespan}"
+			url = "#{url}&timespan=#{timespan}" unless _.isNaN(timespan)
 
 			url
+
+		forceUpdate: ->
+			@fetch {
+				success: (model, response) ->
+					model.trigger('redraw')
+			}
 	}
 
 	WidgetList = Backbone.Collection.extend {
@@ -363,6 +381,9 @@ document.startApp = ->
 			@sensors = []
 			@type = 'Area'
 			@widget = new DynamicWidget
+			
+			@widget.bind('destroy', @remove, this)
+			@widget.bind('redraw', @updateChart, this)
 
 		tagName: 'div'
 
@@ -385,6 +406,11 @@ document.startApp = ->
 
 		sensorIds: -> _.map(@sensors, (s) -> s.id)
 
+		updateChart: ->
+			console.log @$el.find('#chart').first()
+			console.log @widget
+			@presenter = WidgetPresenter.create(@widget, @$el.find('#chart')[0])
+
 		draw: (sensors, type) ->
 			@sensors = sensors
 			@type = type
@@ -394,9 +420,9 @@ document.startApp = ->
 				return
 
 			@widget.set('sensorIds', @sensorIds())
-			@widget.fetch()
-
-
+			@widget.set('type', @type)
+			
+			@widget.forceUpdate()
 	}
 
 	DynamicWidgetView = Backbone.View.extend {

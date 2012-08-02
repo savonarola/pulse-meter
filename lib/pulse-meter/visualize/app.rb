@@ -50,9 +50,12 @@ module PulseMeter
       end
 
       get '/dynamic_widget' do
-        STDERR.puts params.inspect
         content_type :json
-        {}
+        camelize_keys(@layout.dynamic_widget(
+          timespan:  params[:timespan],
+          sensors: params[:sensor],
+          type: params[:type])
+        ).to_json
       end
     end
   end
