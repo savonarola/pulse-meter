@@ -384,46 +384,51 @@ document.startApp = ->
 
 		tagName: 'div'
 
-		errorTemplate: -> _.template($("#dynamic-widget-error").html())
+		events: {
+			"click #refresh-chart": 'update'
+			"click #extend-timespan": 'extendTimespan'
+			"click #reset-timespan": 'resetTimespan'
+		}
 
 		template: -> _.template($("#dynamic-widget-plotarea").html())
 
-		error: (error)->
-			@$el.append(@errorTemplate()(error: error))
-
 		render: ->
-			@$el.html(@template())
+			@$el.html(@template()())
 
-		increaseTimespan: (inc) -> @widget.increaseTimespan(inc)
-		resetTimespan: -> @widget.resetTimespan()
-			
+		extendTimespan: ->
+			select = @$el.find("#extend-timespan-val")
+			val = select.first().val()
+			@widget.increaseTimespan(parseInt(val))
+			@update()
 
-		intervalsEqual: (sensors) ->
-			interval = @sensors[0].get('interval')
-			badIntervals = _.filter(@sensors, (s) ->
-				s.get('interval') != interval
-			)
-			badIntervals.length == 0
+		resetTimespan: ->
+			@widget.resetTimespan()
+			@update()
 
 		sensorIds: -> _.map(@sensors, (s) -> s.id)
 
 		redrawChart: ->
-			@presenter = WidgetPresenter.create(@widget, @$el.find('#chart')[0])
+			if @presenter
+				@presenter.draw()
+			else
+				@presenter = WidgetPresenter.create(@widget, @chartContainer())
+
+
+		chartContainer: ->
+			@$el.find('#chart')[0]
 
 		update: ->
-			@widget.forceUpdate()
+			@widget.forceUpdate() if @sensors.length > 0
 
 		draw: (sensors, type) ->
 			@sensors = sensors
 			@type = type
 
-			unless @intervalsEqual()
-				@error("Selected sensors have different intervals")
-				return
-
 			@widget.set('sensorIds', @sensorIds())
 			@widget.set('type', @type)
 			
+			@presenter = null
+			$(@chartContainer()).empty()
 			@widget.forceUpdate()
 	}
 
@@ -439,46 +444,51 @@ document.startApp = ->
 			@$el.html(@template()())
 
 			@$el.find('#sensor-list-area').append(@sensorListView.el)
+			
+			@chartView.render()
 			@$el.find('#dynamic-plotarea').append(@chartView.el)
 
 		events: {
 			"click #sensor-controls #refresh": 'refresh'
-			"click #sensor-controls #draw": 'draw'
-			"click #sensor-controls #refresh-chart": 'refreshChart'
-			"click #sensor-controls #extend-timespan": 'extendTimespan'
-			"click #sensor-controls #reset-timespan": 'resetTimespan'
+			"click #sensor-controls #draw": 'drawChart'
 		}
-
-		extendTimespan: ->
-			select = @$el.find("#sensor-controls #extend-timespan-val")
-			val = select.first().val()
-			@chartView.increaseTimespan(parseInt(val))
-			@refreshChart()
-
-		resetTimespan: ->
-			@chartView.resetTimespan()
-			@refreshChart()
 
 		template: ->
 			_.template($("#dynamic-widget").html())
 
+		errorTemplate: -> _.template($("#dynamic-widget-error").html())
+
+		error: (error)->
+			@$el.find('#errors').append(@errorTemplate()(error: error))
+
+
 		refresh: ->
 			@sensorInfo.fetch()
 
-		refreshChart: ->
-			@chartView.update()
+		intervalsEqual: (sensors) ->
+			interval = sensors[0].get('interval')
+			badIntervals = _.filter(sensors, (s) ->
+				s.get('interval') != interval
+			)
+			badIntervals.length == 0
 
-		draw: ->
+		drawChart: ->
 			selectedSensors = @sensorListView.selectedSensors()
+			return unless selectedSensors.length > 0
+	
+			unless @intervalsEqual(selectedSensors)
+				@error('Selected sensors have different intervals')
+				return
+
 			type = @$el.find('#chart-type').val()
-			@chartView.draw(selectedSensors, type) if selectedSensors.length > 0
-			
+			@chartView.draw(selectedSensors, type)
 			
 		render: (container) ->
 			container.empty()
 			container.append(@$el)
-			@chartView.render()
 			@sensorInfo.fetch()
+			@chartView.update()
+			
 	}
 
 
