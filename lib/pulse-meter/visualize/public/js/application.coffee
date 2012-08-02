@@ -444,6 +444,9 @@ document.startApp = ->
 			@$el.html(@template()())
 
 			@$el.find('#sensor-list-area').append(@sensorListView.el)
+			
+			@chartView.render()
+			@$el.find('#dynamic-plotarea').append(@chartView.el)
 
 		events: {
 			"click #sensor-controls #refresh": 'refresh'
@@ -483,9 +486,8 @@ document.startApp = ->
 		render: (container) ->
 			container.empty()
 			container.append(@$el)
-			@chartView.render()
-			@$el.find('#dynamic-plotarea').append(@chartView.el)
 			@sensorInfo.fetch()
+			@chartView.update()
 			
 	}
 
