@@ -19,6 +19,7 @@
 
   - %w(area line table pie gauge).each do |wtype|
     = partial "widgets/#{wtype}"
+  = partial "sensors"
 
   .container#main
     .row
@@ -26,7 +27,8 @@
         .navbar
           .navbar-inner
             .container
-              %span.brand= @title 
-              %ul.nav#page-titles
+              %a{href: '#/custom'}
+                %span.brand= @title 
+                %ul.nav#page-titles
         #widgets.row
 

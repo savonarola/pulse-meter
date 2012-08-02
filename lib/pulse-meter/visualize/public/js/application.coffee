@@ -2,9 +2,30 @@ document.startApp = ->
 	globalOptions = gon.options
 	
 	String::capitalize = ->
-	  @charAt(0).toUpperCase() + @slice(1)
+		@charAt(0).toUpperCase() + @slice(1)
 	String::strip = ->
 		if String::trim? then @trim() else @replace /^\s+|\s+$/g, ""
+
+	Number::humanize = ->
+		interval = this
+		res = ""
+		s = interval % 60
+		res = "#{s} s" if s > 0
+		interval = (interval - s) / 60
+		return res unless interval > 0
+
+		m = interval % 60
+		res = "#{m} m #{res}".strip() if m > 0
+		interval = (interval - m) / 60
+		return res unless interval > 0
+
+		h = interval % 24
+		res = "#{h} h #{res}".strip() if h > 0
+		d = (interval - h) / 24
+		if d > 0
+			"#{d} d #{res}".strip()
+		else
+			res
 
 	PageInfo = Backbone.Model.extend {
 	}
@@ -14,9 +35,13 @@ document.startApp = ->
 		selected: ->
 			@find (m) ->
 				m.get 'selected'
-			
+
 		selectFirst: ->
 			@at(0).set('selected', true) if @length > 0
+		
+		selectNone: ->
+			@each (m) ->
+				m.set 'selected', false
 
 		selectPage: (id) ->
 			@each (m) ->
@@ -83,12 +108,18 @@ document.startApp = ->
 				height: 300
 			}
 
-		mergedOptions: -> $.extend(true,
-			@options(),
-			globalOptions.gchartOptions,
-			pageInfos.selected().get('gchartOptions')
-			@get('gchartOptions')
-		)
+		mergedOptions: ->
+			pageOptions = if pageInfos.selected()
+				pageInfos.selected().get('gchartOptions')
+			else
+				{}
+
+			$.extend(true,
+				@options(),
+				globalOptions.gchartOptions,
+				pageOptions,
+				@get('gchartOptions')
+			)
 
 		data: -> new google.visualization.DataTable
 
@@ -171,7 +202,7 @@ document.startApp = ->
 					position: 'bottom'
 				}
 				vAxis: {
-					title: "#{@get('valuesTitle')} / #{@humanizedInterval()}"
+					title: @valuesTitle()
 				}
 				hAxis: {
 					format: format
@@ -180,27 +211,15 @@ document.startApp = ->
 				axisTitlesPosition: 'in'
 			}
 
-		humanizedInterval: ->
-			interval = @get('interval')
-			res = ""
-			s = interval % 60
-			res = "#{s} s" if s > 0
-			interval = (interval - s) / 60
-			return res unless interval > 0
-
-			m = interval % 60
-			res = "#{m} m #{res}".strip() if m > 0
-			interval = (interval - m) / 60
-			return res unless interval > 0
-
-			h = interval % 24
-			res = "#{h} h #{res}".strip() if h > 0
-			d = (interval - h) / 24
-			if d > 0
-				"#{d} d #{res}".strip()
+		valuesTitle: ->
+			if @get('valuesTitle')
+				"#{@get('valuesTitle')} / #{@humanizedInterval()}"
 			else
-				res
+				@humanizedInterval()
 
+
+		humanizedInterval: ->
+			@get('interval').humanize()
 		
 		cutoff: (min, max) ->
 			_.each(@get('series').rows, (row) ->
@@ -288,11 +307,180 @@ document.startApp = ->
 
 	}
 
+	DynamicWidget = Backbone.Model.extend {
+
+		increaseTimespan: (inc) ->
+			@set('timespan', @timespan() + inc)
+
+		resetTimespan: ->
+			@set('timespan', null)
+
+		timespan: -> @get('timespan')
+
+		sensorArgs: ->
+			_.map(@get('sensorIds'), (name) -> "sensor[]=#{name}").join('&')
+
+		url: ->
+			url = "#{ROOT}dynamic_widget?#{@sensorArgs()}&type=#{@get('type')}"
+			
+			timespan = @timespan()
+			url = "#{url}&timespan=#{timespan}" if timespan? && !_.isNaN(timespan)
+
+			url
+
+		forceUpdate: ->
+			@fetch {
+				success: (model, response) ->
+					model.trigger('redraw')
+			}
+	}
+
 	WidgetList = Backbone.Collection.extend {
 		model: Widget
 		url: ->
 			ROOT + 'pages/' + pageInfos.selected().id + '/widgets'
 	}
+
+	SensorInfo = Backbone.Model.extend {
+
+	}
+
+	SensorInfoList = Backbone.Collection.extend {
+		model: SensorInfo
+		url: ->
+			ROOT + 'sensors'
+	}
+
+
+	SensorInfoListView = Backbone.View.extend {
+		tagName: 'div'
+
+		template: ->
+			_.template($("#sensor-list").html())
+
+		initialize: (sensorInfo) ->
+			@sensorInfo = sensorInfo
+			@sensorInfo.bind 'reset', @render, this
+
+		render: ->
+			@$el.html @template()({sensors: @sensorInfo.toJSON()})
+
+		selectedSensors: ->
+			checked = _.filter @$el.find('.sensor-box'), (el) -> $(el).is(':checked')
+			ids = {}
+			_.each checked, (box) -> ids[box.id] = true
+			selected = @sensorInfo.filter (sensor) -> ids[sensor.id]
+			
+	}
+
+	DynamicChartView = Backbone.View.extend {
+		initialize: ->
+			@sensors = []
+			@type = 'Area'
+			@widget = new DynamicWidget
+			
+			@widget.bind('destroy', @remove, this)
+			@widget.bind('redraw', @redrawChart, this)
+
+		tagName: 'div'
+
+		errorTemplate: -> _.template($("#dynamic-widget-error").html())
+
+		template: -> _.template($("#dynamic-widget-plotarea").html())
+
+		error: (error)->
+			@$el.append(@errorTemplate()(error: error))
+
+		render: ->
+			@$el.html(@template())
+
+		increaseTimespan: (inc) -> @widget.increaseTimespan(inc)
+		resetTimespan: -> @widget.resetTimespan()
+			
+
+		intervalsEqual: (sensors) ->
+			interval = @sensors[0].get('interval')
+			badIntervals = _.filter(@sensors, (s) ->
+				s.get('interval') != interval
+			)
+			badIntervals.length == 0
+
+		sensorIds: -> _.map(@sensors, (s) -> s.id)
+
+		redrawChart: ->
+			@presenter = WidgetPresenter.create(@widget, @$el.find('#chart')[0])
+
+		update: ->
+			@widget.forceUpdate()
+
+		draw: (sensors, type) ->
+			@sensors = sensors
+			@type = type
+
+			unless @intervalsEqual()
+				@error("Selected sensors have different intervals")
+				return
+
+			@widget.set('sensorIds', @sensorIds())
+			@widget.set('type', @type)
+			
+			@widget.forceUpdate()
+	}
+
+	DynamicWidgetView = Backbone.View.extend {
+		tagName: 'div'
+
+		initialize: ->
+			@sensorInfo = new SensorInfoList
+
+			@sensorListView = new SensorInfoListView(@sensorInfo)
+			@chartView = new DynamicChartView
+		
+			@$el.html(@template()())
+
+			@$el.find('#sensor-list-area').append(@sensorListView.el)
+			@$el.find('#dynamic-plotarea').append(@chartView.el)
+
+		events: {
+			"click #sensor-controls #refresh": 'refresh'
+			"click #sensor-controls #draw": 'draw'
+			"click #sensor-controls #refresh-chart": 'refreshChart'
+			"click #sensor-controls #extend-timespan": 'extendTimespan'
+			"click #sensor-controls #reset-timespan": 'resetTimespan'
+		}
+
+		extendTimespan: ->
+			select = @$el.find("#sensor-controls #extend-timespan-val")
+			val = select.first().val()
+			@chartView.increaseTimespan(parseInt(val))
+			@refreshChart()
+
+		resetTimespan: ->
+			@chartView.resetTimespan()
+			@refreshChart()
+
+		template: ->
+			_.template($("#dynamic-widget").html())
+
+		refresh: ->
+			@sensorInfo.fetch()
+
+		refreshChart: ->
+			@chartView.update()
+
+		draw: ->
+			selectedSensors = @sensorListView.selectedSensors()
+			type = @$el.find('#chart-type').val()
+			@chartView.draw(selectedSensors, type) if selectedSensors.length > 0
+			
+			
+		render: (container) ->
+			container.empty()
+			container.append(@$el)
+			@chartView.render()
+			@sensorInfo.fetch()
+	}
+
 
 	WidgetChartView = Backbone.View.extend {
 		tagName: 'div'
@@ -370,8 +558,9 @@ document.startApp = ->
 
 	widgetList = new WidgetList
 	setInterval( ->
-		widgetList.each (w) ->
-			w.refetch()
+		if pageInfos.selected()
+			widgetList.each (w) ->
+				w.refetch()
 	, 200)
 
 	WidgetListView = Backbone.View.extend {
@@ -382,9 +571,7 @@ document.startApp = ->
 			container = $('#widgets')
 			container.empty()
 			widgetList.each (w) ->
-				view = new WidgetView {
-					model: w
-				}
+				view = new WidgetView { model: w }
 				view.render()
 				container.append(view.el)
 				view.renderChart()
@@ -395,14 +582,19 @@ document.startApp = ->
 	AppRouter = Backbone.Router.extend {
 		routes: {
 			'pages/:id': 'getPage'
+			'custom': 'custom'
 			'*actions': 'defaultRoute'
 		}
 		getPage: (ids) ->
 			id = parseInt(ids)
 			pageInfos.selectPage(id)
 			widgetList.fetch()
+		custom: ->
+			pageInfos.selectNone()
+			dynamicWidget = new DynamicWidgetView
+			dynamicWidget.render($('#widgets'))
 		defaultRoute: (actions) ->
-			@navigate('//pages/1') if pageInfos.length > 0
+			@navigate('//custom')
 	}
 
 	appRouter = new AppRouter

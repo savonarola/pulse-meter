@@ -43,6 +43,20 @@ module PulseMeter
 				content_type :json
         camelize_keys(@layout.widget(page_id - 1, id - 1, timespan: timespan)).to_json
 			end
+
+      get '/sensors' do
+        content_type :json
+        camelize_keys(@layout.sensor_list).to_json
+      end
+
+      get '/dynamic_widget' do
+        content_type :json
+        camelize_keys(@layout.dynamic_widget(
+          timespan:  params[:timespan],
+          sensors: params[:sensor],
+          type: params[:type])
+        ).to_json
+      end
     end
   end
 end
