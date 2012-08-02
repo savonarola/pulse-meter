@@ -10,6 +10,10 @@
 	margin-bottom: 50px;
 }
 
+#dynamic-chart-controls{
+	margin-top: 20px;
+}
+
 #chart-controls input{
   width: 30px;
 }

@@ -26,14 +26,8 @@
   .well
     #chart
       %h3 Choose sensors to plot 
-
-
-%script#dynamic-widget{type: 'text/template'}
-  .span10
-    #dynamic-plotarea
-  .span10
-    #sensor-controls.form-horizontal
-      %p
+    #dynamic-chart-controls
+      .form-inline
         %button#refresh-chart.btn.btn-mini
           %i.icon-refresh
           Refresh chart
@@ -46,19 +40,26 @@
         %button#reset-timespan.btn.btn-mini
           %i.icon-arrow-right
           Reset
-      %p
-        %label
-          Chart type 
-          %select#chart-type{value: 'area'}
-            %option{value: 'area'} Area
-            %option{value: 'line'} Line
-            %option{value: 'table'} Table
-          %button#draw.btn.btn-mini.btn-primary
-            %i.icon-play
-            Draw
-          %button#refresh.btn.btn-mini
-            %i.icon-refresh
-            Refresh sensor list
+
+
+%script#dynamic-widget{type: 'text/template'}
+  .span10
+    #dynamic-plotarea
+    #errors
+  .span10
+    #sensor-controls.form-horizontal
+      %p.form-inline
+        Chart type 
+        %select#chart-type{value: 'area'}
+          %option{value: 'area'} Area
+          %option{value: 'line'} Line
+          %option{value: 'table'} Table
+        %button#draw.btn.btn-mini.btn-primary
+          %i.icon-play
+          Draw
+        %button#refresh.btn.btn-mini
+          %i.icon-refresh
+          Refresh sensor list
     #sensor-list-area
         
 
