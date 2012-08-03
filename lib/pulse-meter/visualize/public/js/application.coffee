@@ -604,7 +604,10 @@ document.startApp = ->
 			dynamicWidget = new DynamicWidgetView
 			dynamicWidget.render($('#widgets'))
 		defaultRoute: (actions) ->
-			@navigate('//custom')
+			if pageInfos.length > 0
+				@navigate('//pages/1')
+			else
+				@navigate('//custom')
 	}
 
 	appRouter = new AppRouter
