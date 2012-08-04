@@ -47,7 +47,7 @@ module PulseMeter
           .map do |s|
           {
             id: s.name,
-            annotation: s.annotation,
+            annotation: s.annotation || '',
             type: s.class.to_s.split('::').last,
             interval: s.interval
           }

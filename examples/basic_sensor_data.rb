@@ -59,6 +59,14 @@ cfg = PulseMeter::Sensor::Configuration.new(
     }
   },
 
+  sensor_without_annotation: {
+    sensor_type:'timelined/average',
+    args: {
+      interval: 20,
+      ttl: 3600
+    }
+  },
+
   cpu: {sensor_type: 'indicator'},
   memory: {sensor_type: 'indicator'},
   temperature: {
