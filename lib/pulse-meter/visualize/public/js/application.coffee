@@ -195,7 +195,6 @@ document.startApp = ->
 			$.extend true, super(), {
 				lineWidth: 1
 				chartArea: {
-					left: 40
 					width: '100%'
 				}
 				legend: {
@@ -203,6 +202,7 @@ document.startApp = ->
 				}
 				vAxis: {
 					title: @valuesTitle()
+					textPosition: 'in'
 				}
 				hAxis: {
 					format: format

@@ -80,7 +80,7 @@ cfg = PulseMeter::Sensor::Configuration.new(
 while true
   sleep(Random.rand)
   STDERR.puts "tick"
-  cfg.lama_count(1)
+  cfg.lama_count(100000)
   cfg.rhino_count(2)
   cfg.lama_average_age(Random.rand(50))
   cfg.rhino_average_age(Random.rand(100))
