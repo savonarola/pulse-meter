@@ -4,6 +4,7 @@ require "pulse-meter/version"
 require "pulse-meter/mixins/dumper"
 require "pulse-meter/mixins/utils"
 require "pulse-meter/mixins/cmd"
+require "pulse-meter/observer"
 require "pulse-meter/sensor"
 require "pulse-meter/sensor/configuration"
 
