@@ -25,7 +25,7 @@ describe PulseMeter::Observer do
   end
 
   def create_observer(method = :incr, increment = 1)
-    described_class.observe_method_with_sensor(Dummy, method, sensor) do |*args|
+    described_class.observe_method(Dummy, method, sensor) do |*args|
       event(increment)
     end
   end
@@ -34,7 +34,7 @@ describe PulseMeter::Observer do
     described_class.unobserve_method(Dummy, method)
   end
 
-  describe ".observe_method_with_sensor" do
+  describe ".observe_method" do
     it "executes block in context of sensor each time specified method of given class called" do
       create_observer
       5.times {dummy.incr}
@@ -48,7 +48,7 @@ describe PulseMeter::Observer do
     end
 
     it "passes arguments' params to block" do
-      described_class.observe_method_with_sensor(Dummy, :incr, sensor) do |cnt|
+      described_class.observe_method(Dummy, :incr, sensor) do |cnt|
         event(cnt)
       end
 
@@ -57,7 +57,7 @@ describe PulseMeter::Observer do
     end
 
     it "does not break observed method even is observer raises error" do
-      described_class.observe_method_with_sensor(Dummy, :incr, sensor) do |*args|
+      described_class.observe_method(Dummy, :incr, sensor) do |*args|
         raise RuntimeError
       end
 
@@ -104,7 +104,7 @@ describe PulseMeter::Observer do
 
     #it "foo", :focus => true do
     #  h = PulseMeter::Sensor::HashedCounter.new :h
-    #  described_class.observe_method_with_sensor(User, :create, h) do |attrs|
+    #  described_class.observe_method(User, :create, h) do |attrs|
     #    event({attrs[:name] => 1})
     #  end
     #

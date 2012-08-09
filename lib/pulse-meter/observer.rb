@@ -8,12 +8,14 @@ module PulseMeter
         without_observer = method_without_observer(method)
 
         return unless klass.method_defined? with_observer
-        klass.send :alias_method, method, without_observer
-        klass.send :remove_method, with_observer
-        klass.send :remove_method, without_observer
+        klass.class_eval do
+          alias_method method, without_observer
+          remove_method with_observer
+          remove_method without_observer
+        end
       end
 
-      def observe_method_with_sensor(klass, method, sensor, &proc)
+      def observe_method(klass, method, sensor, &proc)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)
 
