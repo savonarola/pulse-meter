@@ -21,18 +21,20 @@ module PulseMeter
           return # avoid double observation
         end
             
-        klass.send :alias_method, without_observer, method
-        klass.send :define_method, with_observer do |*args|
-          result = nil
-          begin
-            sensor.instance_exec *args, &proc
-          rescue Exception
-          ensure
-            result = self.send without_observer, *args
+        klass.class_eval do
+          alias_method without_observer, method
+          define_method with_observer do |*args|
+            result = nil
+            begin
+              sensor.instance_exec *args, &proc
+            rescue Exception
+            ensure
+              result = self.send without_observer, *args
+            end
+            result
           end
-          result
+          alias_method method, with_observer
         end
-        klass.send :alias_method, method, with_observer
       end
 
       private
