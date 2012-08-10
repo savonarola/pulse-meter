@@ -82,11 +82,11 @@ module PulseMeter
       end
 
       def method_with_observer(method)
-        (method.to_s + "_with_observer").to_sym
+        "#{method}_with_observer"
       end
 
       def method_without_observer(method)
-        without_observer = (method.to_s + "_without_observer").to_sym
+        "#{method}_without_observer"
       end
     end
   end
