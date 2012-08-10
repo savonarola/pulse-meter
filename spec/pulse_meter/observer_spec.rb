@@ -98,24 +98,6 @@ describe PulseMeter::Observer do
         dummy.incr
         sensor.value.should == 1
       end
-
-      #class User
-      #  def create(attrs)
-      #  end
-      #end
-
-      #it "foo", :focus => true do
-      #  h = PulseMeter::Sensor::HashedCounter.new :h
-      #  described_class.observe_method(User, :create, h) do |attrs|
-      #    event({attrs[:name] => 1})
-      #  end
-      #
-      #  User.new.create :name => :a
-      #  User.new.create :name => :a
-      #  User.new.create :name => :b
-      #  puts h.value.inspect
-      #  
-      #end
     end
   end
 
@@ -221,24 +203,6 @@ describe PulseMeter::Observer do
         dummy.incr
         sensor.value.should == 1
       end
-
-      #class User
-      #  def create(attrs)
-      #  end
-      #end
-
-      #it "foo", :focus => true do
-      #  h = PulseMeter::Sensor::HashedCounter.new :h
-      #  described_class.observe_method(User, :create, h) do |attrs|
-      #    event({attrs[:name] => 1})
-      #  end
-      #
-      #  User.new.create :name => :a
-      #  User.new.create :name => :a
-      #  User.new.create :name => :b
-      #  puts h.value.inspect
-      #  
-      #end
     end
   end
 end

@@ -3,6 +3,9 @@ require 'pulse-meter'
 module PulseMeter
   class Observer
     class << self
+      # Removes observation from instance method
+      # @param klass [Class] class
+      # @param method [Symbol] instance method name
       def unobserve_method(klass, method)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)
@@ -15,6 +18,9 @@ module PulseMeter
         end
       end
 
+      # Removes observation from class method
+      # @param klass [Class] class
+      # @param method [Symbol] class method name
       def unobserve_class_method(klass, method)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)
@@ -27,6 +33,11 @@ module PulseMeter
         end
       end
 
+      # Registeres an observer for instance method
+      # @param klass [Class] class
+      # @param method [Symbol] instance method
+      # @param sensor [Object] notifications receiver
+      # @param proc [Proc] proc to be called in context of receiver each time observed method called
       def observe_method(klass, method, sensor, &proc)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)
@@ -49,6 +60,11 @@ module PulseMeter
         end
       end
 
+      # Registeres an observer for class method
+      # @param klass [Class] class
+      # @param method [Symbol] class method
+      # @param sensor [Object] notifications receiver
+      # @param proc [Proc] proc to be called in context of receiver each time observed method called
       def observe_class_method(klass, method, sensor, &proc)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)

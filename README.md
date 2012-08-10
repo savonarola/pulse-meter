@@ -76,9 +76,25 @@ There are several caveats with timeline sensors:
     When building a visualisation you may choose to display the last value or not.
   * For some sensors (currently Median and Percentile) considerable amount of data should be stored for a
     particular interval to obtain value for this interval. So it is a good idea to schedule
-    <tt>pulse reduce</tt>
+    `pulse reduce`
     command on a regular basis. This command reduces the stored data for passed intervals to single values,
     so that they do not consume storage space.
+
+
+### Observers
+
+Observer allows to notify a sensor each time some class or instance method is called
+Suppose you have a user model and want to count users distribytion by name. To do this you have to observe class method `create` of User class:
+
+    counter = PulseMeter::Sensor::HashedCounter.new :users_by_name
+    PulseMeter::Observer.observe_class_method(User, :create, counter) do |attrs|
+      event({attrs[:name] => 1})
+    end
+    
+Block recieves all observed method's argements and is executed in context of sensor passed to observer (this means that event method refers to `counter`).    
+To observe instance methods use `observe_method`. 
+
+`unobserve_class_method` and `unobserve_method` remove observations from class or instace method.
 
 ## Client usage
 
@@ -146,7 +162,7 @@ Just create sensor objects and write data. Some examples below.
     # 2012-05-24 11:07:00 +0400: 3.0
     # 2012-05-24 11:08:00 +0400: 7.0
  
- There is also an alternative and a bit more DRY way for sensor creation, management and usage using <tt>PulseMeter::Sensor::Configuration</tt> class. It is also convenient for creating a bunch of sensors from some configuration data.  
+ There is also an alternative and a bit more DRY way for sensor creation, management and usage using `PulseMeter::Sensor::Configuration` class. It is also convenient for creating a bunch of sensors from some configuration data.  
  
 	require 'pulse-meter'
 	PulseMeter.redis = Redis.new
@@ -205,12 +221,12 @@ Just create sensor objects and write data. Some examples below.
 
 ## Command line interface
 
-Gem includes a tool <tt>pulse</tt>, which allows to send events to sensors, list them, etc.
-You should pay attention to the command <tt>pulse reduce</tt>, which is generally should be
+Gem includes a tool `pulse`, which allows to send events to sensors, list them, etc.
+You should pay attention to the command `pulse reduce`, which is generally should be
 scheduled on a regular basis to keep data in Redis small.
 
-To see available commands of this tool one can run the example above(see <tt>examples/readme\_client\_example.rb</tt>)
-and run <tt>pulse help</tt>.
+To see available commands of this tool one can run the example above(see `examples/readme\_client\_example.rb`)
+and run `pulse help`.
 
 ## Visualisation
 
@@ -225,12 +241,12 @@ There is a minimal and a full example below.
 
 ### Minimal example
 
-It can be found in <tt>examples/minimal</tt> folder. To run it, execute
-<tt>bundle && cd examples/minimal && bundle exec foreman start</tt> (or just <tt>rake example:minimal</tt>)
+It can be found in `examples/minimal` folder. To run it, execute
+`bundle && cd examples/minimal && bundle exec foreman start` (or just `rake example:minimal`)
 at project root and visit
-<tt>http://localhost:9292</tt> at your browser.
+`http://localhost:9292` at your browser.
 
-<tt>client.rb</tt> just creates a timelined counter an sends data to it in an infinite loop.
+`client.rb` just creates a timelined counter an sends data to it in an infinite loop.
 
     require "pulse-meter"
 
@@ -247,7 +263,7 @@ at project root and visit
       sleep(Random.rand)
     end
 
-<tt>server.ru</tt> is a Rackup file creating a simple layout with one page and one widget on it, which displays
+`server.ru` is a Rackup file creating a simple layout with one page and one widget on it, which displays
 the sensor's data. The layout is converted to a rack application and launched.
 
     require "pulse-meter/visualizer"
@@ -269,19 +285,19 @@ the sensor's data. The layout is converted to a rack application and launched.
 
     run layout.to_app
 
-<tt>Procfile</tt> allows to launch both "client" script and the web server with <tt>foreman</tt>.
+`Procfile` allows to launch both "client" script and the web server with `foreman`.
 
     web: bundle exec rackup server.ru
     sensor_data_generator: bundle exec ruby client.rb
 
 ### Full example with DSL explanation
 
-It can be found in <tt>examples/full</tt> folder. To run it, execute
-<tt>bundle && cd examples/full && bundle exec foreman start</tt> (or just <tt>rake example:full</tt>)
+It can be found in `examples/full` folder. To run it, execute
+`bundle && cd examples/full && bundle exec foreman start` (or just `rake example:full`)
 at project root and visit
-<tt>http://localhost:9292</tt> at your browser.
+`http://localhost:9292` at your browser.
 
-<tt>client.rb</tt> imitating users visiting some imaginary site.
+`client.rb` imitating users visiting some imaginary site.
 
     require "pulse-meter"
 
