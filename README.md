@@ -225,7 +225,7 @@ Gem includes a tool `pulse`, which allows to send events to sensors, list them, 
 You should pay attention to the command `pulse reduce`, which is generally should be
 scheduled on a regular basis to keep data in Redis small.
 
-To see available commands of this tool one can run the example above(see `examples/readme\_client\_example.rb`)
+To see available commands of this tool one can run the example above(see `examples/readme_client_example.rb`)
 and run `pulse help`.
 
 ## Visualisation
