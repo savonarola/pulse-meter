@@ -11,8 +11,10 @@ describe PulseMeter::Observer do
         @count = 0
       end
 
-      def incr(value = 1)
+      def incr(value = 1, &proc)
         @count += value
+        @count += proc.call if proc
+        @count
       end
 
       def error
@@ -84,6 +86,14 @@ describe PulseMeter::Observer do
         create_observer
         dummy.incr.should == 1
       end
+
+      it "allows to pass blocks to observed method" do
+        create_observer
+        dummy.incr do
+          2
+        end
+        dummy.count.should == 3
+      end
     end
 
     describe ".unobserve_method" do
@@ -114,8 +124,10 @@ describe PulseMeter::Observer do
           @@count = 0
         end
 
-        def incr(value = 1)
+        def incr(value = 1, &proc)
           @@count += value
+          @@count += proc.call if proc
+          @@count
         end
 
         def error
@@ -188,6 +200,14 @@ describe PulseMeter::Observer do
       it "makes observed method return its value" do
         create_observer
         dummy.incr.should == 1
+      end
+
+      it "allows to pass blocks to observed method" do
+        create_observer
+        dummy.incr do
+          2
+        end
+        dummy.count.should == 3
       end
     end
 

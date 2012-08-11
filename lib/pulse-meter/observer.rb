@@ -46,13 +46,13 @@ module PulseMeter
             
         klass.class_eval do
           alias_method without_observer, method
-          define_method with_observer do |*args|
+          define_method with_observer do |*args, &block|
             result = nil
             begin
               sensor.instance_exec *args, &proc
             rescue Exception
             ensure
-              result = self.send without_observer, *args
+              result = self.send without_observer, *args, &block
             end
             result
           end
@@ -73,13 +73,13 @@ module PulseMeter
 
         metaclass(klass).instance_eval do
           alias_method without_observer, method
-          define_method with_observer do |*args|
+          define_method with_observer do |*args, &block|
             result = nil
             begin
               sensor.instance_exec *args, &proc
             rescue Exception
             ensure
-              result = self.send without_observer, *args
+              result = self.send without_observer, *args, &block
             end
             result
           end
