@@ -12,6 +12,7 @@ describe PulseMeter::Observer do
       end
 
       def incr(value = 1, &proc)
+        Timecop.travel(Time.now + 1)
         @count += value
         @count += proc.call if proc
         @count
@@ -52,12 +53,23 @@ describe PulseMeter::Observer do
       end
 
       it "passes methods' params to block" do
-        described_class.observe_method(Dummy, :incr, sensor) do |cnt|
+        described_class.observe_method(Dummy, :incr, sensor) do |time, cnt|
           event(cnt)
         end
 
         5.times {dummy.incr(10)}
         sensor.value.should == 50
+      end
+
+      it "passes execution time in milliseconds to block" do
+        Timecop.freeze do
+          described_class.observe_method(Dummy, :incr, sensor) do |time, cnt|
+            event(time)
+          end
+
+          dummy.incr
+          sensor.value.should == 1000
+        end
       end
 
       it "does not break observed method even is observer raises error" do
@@ -125,6 +137,7 @@ describe PulseMeter::Observer do
         end
 
         def incr(value = 1, &proc)
+          Timecop.travel(Time.now + 1)
           @@count += value
           @@count += proc.call if proc
           @@count
@@ -167,12 +180,23 @@ describe PulseMeter::Observer do
       end
 
       it "passes methods' params to block" do
-        described_class.observe_class_method(Dummy, :incr, sensor) do |cnt|
+        described_class.observe_class_method(Dummy, :incr, sensor) do |time, cnt|
           event(cnt)
         end
 
         5.times {dummy.incr(10)}
         sensor.value.should == 50
+      end
+
+      it "passes execution time in milliseconds to block" do
+        Timecop.freeze do
+          described_class.observe_class_method(Dummy, :incr, sensor) do |time, cnt|
+            event(time)
+          end
+
+          dummy.incr
+          sensor.value.should == 1000
+        end
       end
 
       it "does not break observed method even is observer raises error" do

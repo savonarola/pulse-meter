@@ -48,11 +48,15 @@ module PulseMeter
           alias_method without_observer, method
           define_method with_observer do |*args, &block|
             result = nil
+            start_time = Time.now
             begin
-              sensor.instance_exec *args, &proc
-            rescue Exception
-            ensure
               result = self.send without_observer, *args, &block
+            ensure
+              begin
+                delta = ((Time.now - start_time) * 1000).to_i
+                sensor.instance_exec delta, *args, &proc
+              rescue Exception
+              end
             end
             result
           end
@@ -75,11 +79,15 @@ module PulseMeter
           alias_method without_observer, method
           define_method with_observer do |*args, &block|
             result = nil
+            start_time = Time.now
             begin
-              sensor.instance_exec *args, &proc
-            rescue Exception
-            ensure
               result = self.send without_observer, *args, &block
+            ensure
+              begin
+                delta = ((Time.now - start_time) * 1000).to_i
+                sensor.instance_exec delta, *args, &proc
+              rescue Exception
+              end
             end
             result
           end
