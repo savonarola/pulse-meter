@@ -87,11 +87,11 @@ Observer allows to notify a sensor each time some class or instance method is ca
 Suppose you have a user model and want to count users distribytion by name. To do this you have to observe class method `create` of User class:
 
     counter = PulseMeter::Sensor::HashedCounter.new :users_by_name
-    PulseMeter::Observer.observe_class_method(User, :create, counter) do |attrs|
+    PulseMeter::Observer.observe_class_method(User, :create, counter) do |execution_time, attrs|
       event({attrs[:name] => 1})
     end
     
-Block recieves all observed method's argements and is executed in context of sensor passed to observer (this means that event method refers to `counter`).    
+Block recieves all execution time and observed method's argements and is executed in context of sensor passed to observer (this means that event method refers to `counter`).    
 To observe instance methods use `observe_method`. 
 
 `unobserve_class_method` and `unobserve_method` remove observations from class or instace method.
