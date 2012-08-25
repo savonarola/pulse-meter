@@ -31,6 +31,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('coffee-script')
   gem.add_development_dependency('foreman')
   gem.add_development_dependency('hashie')
+  gem.add_development_dependency('listen')
   gem.add_development_dependency('mock_redis')
   gem.add_development_dependency('rack-test')
   gem.add_development_dependency('rake')
