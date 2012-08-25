@@ -26,7 +26,7 @@ namespace :coffee do
     puts "application.js compiled"
   end
 
-  desc "Complile coffee to js"
+  desc "Compile coffee to js"
   task :compile do
     compile_js
   end
