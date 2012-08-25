@@ -1,7 +1,9 @@
 #!/usr/bin/env rake
 require 'bundler/gem_tasks'
+require 'coffee-script'
 require 'rspec/core/rake_task'
-require "yard"
+require 'sprockets'
+require 'yard'
 require 'yard/rake/yardoc_task'
 
 RSpec::Core::RakeTask.new(:spec)
@@ -12,18 +14,15 @@ ROOT = File.dirname(__FILE__)
 
 task :default => :spec
 
-namespace :coffee do
-	desc "Complile coffee to js"
-	task :compile do
-		system 'coffee', '-c', "#{ROOT}/lib/pulse-meter/visualize/public/"
-		puts "Done"
-	end
-
-	desc "Watch coffee files and recomplile them immediately"
-	task :watch do
-		system 'coffee', '--watch', '-c', "#{ROOT}/lib/pulse-meter/visualize/public/"
-	end
-
+namespace :assets do
+  desc "Compile assests"
+  task :compile do
+    env = Sprockets::Environment.new
+    env.append_path "#{ROOT}/lib/pulse-meter/visualize/public/coffee"
+    data = env['application.coffee']
+    open("#{ROOT}/lib/pulse-meter/visualize/public/js/application.js", "w").write(data)
+    puts "application.js compiled"
+  end
 end
 
 namespace :yard do

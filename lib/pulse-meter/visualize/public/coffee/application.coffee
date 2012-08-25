@@ -1,3 +1,5 @@
+#= require foo
+
 document.startApp = ->
 	globalOptions = gon.options
 	
