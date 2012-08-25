@@ -68,7 +68,7 @@ describe PulseMeter::Observer do
           end
 
           dummy.incr
-          sensor.value.should == 1000
+          sensor.value.should >= 1000
         end
       end
 
