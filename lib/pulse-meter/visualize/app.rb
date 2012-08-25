@@ -24,7 +24,7 @@ module PulseMeter
       get '/' do
         @title = @layout.title
         gon.pageInfos = camelize_keys(@layout.page_infos)
-                gon.options = camelize_keys(@layout.options)
+        gon.options = camelize_keys(@layout.options)
         haml :main
       end
 
