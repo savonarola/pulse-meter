@@ -4,6 +4,7 @@ require 'coffee-script'
 require 'listen'
 require 'rspec/core/rake_task'
 require 'sprockets'
+require 'tilt'
 require 'yard'
 require 'yard/rake/yardoc_task'
 
@@ -19,6 +20,7 @@ namespace :coffee do
   COFFEE_PATH = "#{ROOT}/lib/pulse-meter/visualize/public/coffee"
 
   def compile_js
+    Tilt::CoffeeScriptTemplate.default_bare = true
     env = Sprockets::Environment.new
     env.append_path COFFEE_PATH
     data = env['application.coffee']
