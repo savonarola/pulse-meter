@@ -1,93 +1,20 @@
-#= require foo
+#= require extensions
+#= require models/page_info
+#= require models/widget
+#= require models/dinamic_widget
+#= require models/sensor_info
+#= require collections/page_info_list
+#= require collections/sensor_info_list
+#= require collections/widget_list
+#= require views/page_title
+#= require views/page_titles
 
 document.startApp = ->
 	globalOptions = gon.options
-	
-	String::capitalize = ->
-		@charAt(0).toUpperCase() + @slice(1)
-	String::strip = ->
-		if String::trim? then @trim() else @replace /^\s+|\s+$/g, ""
-
-	Number::humanize = ->
-		interval = this
-		res = ""
-		s = interval % 60
-		res = "#{s} s" if s > 0
-		interval = (interval - s) / 60
-		return res unless interval > 0
-
-		m = interval % 60
-		res = "#{m} m #{res}".strip() if m > 0
-		interval = (interval - m) / 60
-		return res unless interval > 0
-
-		h = interval % 24
-		res = "#{h} h #{res}".strip() if h > 0
-		d = (interval - h) / 24
-		if d > 0
-			"#{d} d #{res}".strip()
-		else
-			res
-
-	PageInfo = Backbone.Model.extend {
-	}
-
-	PageInfoList = Backbone.Collection.extend {
-		model: PageInfo
-		selected: ->
-			@find (m) ->
-				m.get 'selected'
-
-		selectFirst: ->
-			@at(0).set('selected', true) if @length > 0
-		
-		selectNone: ->
-			@each (m) ->
-				m.set 'selected', false
-
-		selectPage: (id) ->
-			@each (m) ->
-				m.set 'selected', m.id == id
-	}
-
 	pageInfos = new PageInfoList
 
-	PageTitleView = Backbone.View.extend {
-		tagName: 'li'
-
-		template: _.template('<a href="#/pages/<%= id  %>"><%= title %></a>')
-			
-		initialize: ->
-			@model.bind 'change', @render, this
-			@model.bind 'destroy', @remove, this
-
-		render: ->
-			@$el.html @template(@model.toJSON())
-			if @model.get('selected')
-				@$el.addClass('active')
-			else
-				@$el.removeClass('active')
-	}
-
-	PageTitlesView = Backbone.View.extend {
-		initialize: ->
-			pageInfos.bind 'reset', @render, this
-
-		addOne: (pageInfo) ->
-			view = new PageTitleView {
-				model: pageInfo
-			}
-			view.render()
-			$('#page-titles').append(view.el)
-
-		render: ->
-			$('#page-titles').empty()
-			pageInfos.each(@addOne)
-	}
-
-	pageTitlesApp = new PageTitlesView
+	pageTitlesApp = new PageTitlesView(pageInfos)
 	pageInfos.reset gon.pageInfos
-
 
 	class WidgetPresenter
 		constructor: (model, el) ->
@@ -260,99 +187,6 @@ document.startApp = ->
 			data.addColumn('number', @get('valuesTitle'))
 			data.addRows(@get('series'))
 			data
-
-	Widget = Backbone.Model.extend {
-		initialize: ->
-			@needRefresh = true
-			@setNextFetch()
-			@timespanInc = 0
-
-		increaseTimespan: (inc) ->
-			@timespanInc = @timespanInc + inc
-			@forceUpdate()
-
-		resetTimespan: ->
-			@timespanInc = 0
-			@forceUpdate()
-
-		timespan: -> @get('timespan') + @timespanInc
-
-		url: ->
-			timespan = @timespan()
-			if _.isNaN(timespan)
-				"#{@collection.url()}/#{@get('id')}"
-			else
-				"#{@collection.url()}/#{@get('id')}?timespan=#{timespan}"
-
-		time: -> (new Date()).getTime()
-
-		setNextFetch: ->
-			@nextFetch = @time() + @get('redrawInterval') * 1000
-
-		setRefresh: (needRefresh) ->
-			@needRefresh = needRefresh
-
-		needFetch: ->
-			interval = @get('redrawInterval')
-			@time() > @nextFetch && @needRefresh && interval? && interval > 0
-
-		refetch: ->
-			if @needFetch()
-				@forceUpdate()
-				@setNextFetch()
-
-		forceUpdate: ->
-			@fetch {
-				success: (model, response) ->
-					model.trigger('redraw')
-			}
-
-	}
-
-	DynamicWidget = Backbone.Model.extend {
-
-		increaseTimespan: (inc) ->
-			@set('timespan', @timespan() + inc)
-
-		resetTimespan: ->
-			@set('timespan', null)
-
-		timespan: -> @get('timespan')
-
-		sensorArgs: ->
-			_.map(@get('sensorIds'), (name) -> "sensor[]=#{name}").join('&')
-
-		url: ->
-			url = "#{ROOT}dynamic_widget?#{@sensorArgs()}&type=#{@get('type')}"
-			
-			timespan = @timespan()
-			url = "#{url}&timespan=#{timespan}" if timespan? && !_.isNaN(timespan)
-
-			url
-
-		forceUpdate: ->
-			@fetch {
-				success: (model, response) ->
-					model.trigger('redraw')
-			}
-	}
-
-	WidgetList = Backbone.Collection.extend {
-		model: Widget
-		url: ->
-			ROOT + 'pages/' + pageInfos.selected().id + '/widgets'
-	}
-
-	SensorInfo = Backbone.Model.extend {
-
-	}
-
-	SensorInfoList = Backbone.Collection.extend {
-		model: SensorInfo
-		url: ->
-			ROOT + 'sensors'
-	}
-
 
 	SensorInfoListView = Backbone.View.extend {
 		tagName: 'div'
@@ -569,6 +403,8 @@ document.startApp = ->
 	}
 
 	widgetList = new WidgetList
+	widgetList.setContext(pageInfos)
+
 	setInterval( ->
 		if pageInfos.selected()
 			widgetList.each (w) ->
@@ -592,6 +428,7 @@ document.startApp = ->
 	widgetListApp = new WidgetListView
 
 	AppRouter = Backbone.Router.extend {
+		initialize: (@pageInfos, @widgetList) ->
 		routes: {
 			'pages/:id': 'getPage'
 			'custom': 'custom'
@@ -599,20 +436,19 @@ document.startApp = ->
 		}
 		getPage: (ids) ->
 			id = parseInt(ids)
-			pageInfos.selectPage(id)
-			widgetList.fetch()
+			@pageInfos.selectPage(id)
+			@widgetList.fetch()
 		custom: ->
-			pageInfos.selectNone()
+			@pageInfos.selectNone()
 			dynamicWidget = new DynamicWidgetView
 			dynamicWidget.render($('#widgets'))
 		defaultRoute: (actions) ->
-			if pageInfos.length > 0
+			if @pageInfos.length > 0
 				@navigate('//pages/1')
 			else
 				@navigate('//custom')
 	}
-
-	appRouter = new AppRouter
+	appRouter = new AppRouter(pageInfos, widgetList)
 
 	Backbone.history.start()
 

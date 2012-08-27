@@ -1,0 +1,2 @@
+SensorInfo = Backbone.Model.extend {
+}

@@ -17,7 +17,7 @@ ROOT = File.dirname(__FILE__)
 task :default => :spec
 
 namespace :coffee do
-  COFFEE_PATH = "#{ROOT}/lib/pulse-meter/visualize/public/coffee"
+  COFFEE_PATH = "#{ROOT}/lib/pulse-meter/visualize/coffee"
 
   def compile_js
     Tilt::CoffeeScriptTemplate.default_bare = true
