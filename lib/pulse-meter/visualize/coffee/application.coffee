@@ -8,184 +8,19 @@
 #= require collections/widget_list
 #= require views/page_title
 #= require views/page_titles
+#= require presenters/widget
+#= require presenters/pie
+#= require presenters/timeline
+#= require presenters/series
+#= require presenters/line
+#= require presenters/area
+#= require presenters/table
+#= require presenters/gauge
 
 document.startApp = ->
 	pageInfos = new PageInfoList
 	pageTitlesApp = new PageTitlesView(pageInfos)
 	pageInfos.reset gon.pageInfos
-
-	class WidgetPresenter
-		constructor: (@pageInfos, @model, el) ->
-			chartClass = @chartClass()
-			@chart = new chartClass(el)
-			@draw()
-
-		get: (arg) -> @model.get(arg)
-
-		globalOptions: -> gon.options
-	
-		dateOffset: ->
-			if @globalOptions.useUtc
-				(new Date).getTimezoneOffset() * 60000
-			else
-				0
-		
-		options: ->
-			{
-				title: @get('title')
-				height: 300
-			}
-
-		mergedOptions: ->
-			pageOptions = if @pageInfos.selected()
-				@pageInfos.selected().get('gchartOptions')
-			else
-				{}
-
-			$.extend(true,
-				@options(),
-				@globalOptions.gchartOptions,
-				pageOptions,
-				@get('gchartOptions')
-			)
-
-		data: -> new google.visualization.DataTable
-
-		chartClass: -> google.visualization[@visualization]
-
-		cutoff: ->
-		
-		cutoffValue: (v, min, max) ->
-			if v?
-				if min? && v < min
-					min
-				else if max? && v > max
-					max
-				else
-					v
-			else
-				0
-
-		draw: (min, max) ->
-			@cutoff(min, max)
-			@chart.draw(@data(), @mergedOptions())
-
-	WidgetPresenter.create = (pageInfos, model, el) ->
-		type = model.get('type')
-		if type? && type.match(/^\w+$/)
-			presenterClass = eval("#{type.capitalize()}Presenter")
-			new presenterClass(pageInfos, model, el)
-		else
-			null
-
-	class PiePresenter extends WidgetPresenter
-		visualization: 'PieChart'
-
-		cutoff: ->
-		
-		data: ->
-			data = super()
-			data.addColumn('string', 'Title')
-			data.addColumn('number', @get('valuesTitle'))
-			data.addRows(@get('series').data)
-			data
-
-		options: ->
-			$.extend true, super(), {
-				slices: @get('series').options
-				legend: {
-					position: 'bottom'
-				}
-			}
-
-	class TimelinePresenter extends WidgetPresenter
-		data: ->
-			data = super()
-			data.addColumn('datetime', 'Time')
-			dateOffset = @dateOffset() + @get('interval') * 1000
-			series = @get('series')
-			_.each series.titles, (t) ->
-				data.addColumn('number', t)
-
-			_.each series.rows, (row) ->
-				row[0] = new Date(row[0] + dateOffset)
-				data.addRow(row)
-			data
-
-	class SeriesPresenter extends TimelinePresenter
-		options: ->
-			secondPart = if @get('interval') % 60 == 0 then '' else ':ss'
-			format = if @model.timespan() > 24 * 60 * 60
-				"yyyy.MM.dd HH:mm#{secondPart}"
-			else
-				"HH:mm#{secondPart}"
-
-			$.extend true, super(), {
-				lineWidth: 1
-				chartArea: {
-					width: '100%'
-				}
-				legend: {
-					position: 'bottom'
-				}
-				vAxis: {
-					title: @valuesTitle()
-					textPosition: 'in'
-				}
-				hAxis: {
-					format: format
-				}
-				series: @get('series').options
-				axisTitlesPosition: 'in'
-			}
-
-		valuesTitle: ->
-			if @get('valuesTitle')
-				"#{@get('valuesTitle')} / #{@humanizedInterval()}"
-			else
-				@humanizedInterval()
-
-
-		humanizedInterval: ->
-			@get('interval').humanize()
-		
-		cutoff: (min, max) ->
-			_.each(@get('series').rows, (row) ->
-				for i in [1 .. row.length - 1]
-					value = row[i]
-					value = 0 unless value?
-					row[i] = @cutoffValue(value, min, max)
-			, this)
-
-
-	class LinePresenter extends SeriesPresenter
-		visualization: 'LineChart'
-
-	class AreaPresenter extends SeriesPresenter
-		visualization: 'AreaChart'
-
-	class TablePresenter extends TimelinePresenter
-		visualization: 'Table'
-
-		cutoff: ->
-
-		options: ->
-			$.extend true, super(), {
-				sortColumn: 0
-				sortAscending: false
-			}
-
-	class GaugePresenter extends WidgetPresenter
-		visualization: 'Gauge'
-
-		cutoff: ->
-
-		data: ->
-			data = super()
-			data.addColumn('string', 'Label')
-			data.addColumn('number', @get('valuesTitle'))
-			data.addRows(@get('series'))
-			data
 
 	SensorInfoListView = Backbone.View.extend {
 		tagName: 'div'
