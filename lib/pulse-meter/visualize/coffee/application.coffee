@@ -10,23 +10,22 @@
 #= require views/page_titles
 
 document.startApp = ->
-	globalOptions = gon.options
 	pageInfos = new PageInfoList
-
 	pageTitlesApp = new PageTitlesView(pageInfos)
 	pageInfos.reset gon.pageInfos
 
 	class WidgetPresenter
-		constructor: (model, el) ->
-			@model = model
+		constructor: (@pageInfos, @model, el) ->
 			chartClass = @chartClass()
 			@chart = new chartClass(el)
 			@draw()
 
 		get: (arg) -> @model.get(arg)
+
+		globalOptions: -> gon.options
 	
 		dateOffset: ->
-			if globalOptions.useUtc
+			if @globalOptions.useUtc
 				(new Date).getTimezoneOffset() * 60000
 			else
 				0
@@ -38,14 +37,14 @@ document.startApp = ->
 			}
 
 		mergedOptions: ->
-			pageOptions = if pageInfos.selected()
-				pageInfos.selected().get('gchartOptions')
+			pageOptions = if @pageInfos.selected()
+				@pageInfos.selected().get('gchartOptions')
 			else
 				{}
 
 			$.extend(true,
 				@options(),
-				globalOptions.gchartOptions,
+				@globalOptions.gchartOptions,
 				pageOptions,
 				@get('gchartOptions')
 			)
@@ -71,11 +70,11 @@ document.startApp = ->
 			@cutoff(min, max)
 			@chart.draw(@data(), @mergedOptions())
 
-	WidgetPresenter.create = (model, el) ->
+	WidgetPresenter.create = (pageInfos, model, el) ->
 		type = model.get('type')
 		if type? && type.match(/^\w+$/)
 			presenterClass = eval("#{type.capitalize()}Presenter")
-			new presenterClass(model, el)
+			new presenterClass(pageInfos, model, el)
 		else
 			null
 
@@ -247,7 +246,7 @@ document.startApp = ->
 			if @presenter
 				@presenter.draw()
 			else
-				@presenter = WidgetPresenter.create(@widget, @chartContainer())
+				@presenter = WidgetPresenter.create(pageInfos, @widget, @chartContainer())
 
 
 		chartContainer: ->
@@ -338,7 +337,7 @@ document.startApp = ->
 			@presenter.draw(min, max)
 
 		render: ->
-			@presenter = WidgetPresenter.create(@model, @el)
+			@presenter = WidgetPresenter.create(pageInfos, @model, @el)
 	}
 
 	WidgetView = Backbone.View.extend {
@@ -404,12 +403,7 @@ document.startApp = ->
 
 	widgetList = new WidgetList
 	widgetList.setContext(pageInfos)
-
-	setInterval( ->
-		if pageInfos.selected()
-			widgetList.each (w) ->
-				w.refetch()
-	, 200)
+	widgetList.startPolling()
 
 	WidgetListView = Backbone.View.extend {
 		initialize: ->
