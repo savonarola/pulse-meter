@@ -44,7 +44,10 @@ document.startApp = ->
 	}
 
 	DynamicChartView = Backbone.View.extend {
-		initialize: ->
+		initialize: (options) ->
+			console.log "DynamicChartView"
+			console.log options
+			@pageInfos = options['pageInfos']
 			@sensors = []
 			@type = 'Area'
 			@widget = new DynamicWidget
@@ -81,7 +84,7 @@ document.startApp = ->
 			if @presenter
 				@presenter.draw()
 			else
-				@presenter = WidgetPresenter.create(pageInfos, @widget, @chartContainer())
+				@presenter = WidgetPresenter.create(@pageInfos, @widget, @chartContainer())
 
 
 		chartContainer: ->
@@ -105,11 +108,14 @@ document.startApp = ->
 	DynamicWidgetView = Backbone.View.extend {
 		tagName: 'div'
 
-		initialize: ->
+		initialize: (options) ->
+			@pageInfos = options['pageInfos']
+			console.log "DynamicWidgetView: "
+			console.log @pageInfos
 			@sensorInfo = new SensorInfoList
 
 			@sensorListView = new SensorInfoListView(@sensorInfo)
-			@chartView = new DynamicChartView
+			@chartView = new DynamicChartView {pageInfos: @pageInfos}
 		
 			@$el.html(@template()())
 
@@ -165,14 +171,17 @@ document.startApp = ->
 	WidgetChartView = Backbone.View.extend {
 		tagName: 'div'
 
-		initialize: ->
+		initialize: (options) ->
+			console.log "WidgetChartView"
+			console.log options
+			@pageInfos = options['pageInfos']
 			@model.bind 'destroy', @remove, this
 
 		updateData: (min, max) ->
 			@presenter.draw(min, max)
 
 		render: ->
-			@presenter = WidgetPresenter.create(pageInfos, @model, @el)
+			@presenter = WidgetPresenter.create(@pageInfos, @model, @el)
 	}
 
 	WidgetView = Backbone.View.extend {
@@ -181,7 +190,10 @@ document.startApp = ->
 		template: ->
 			_.template($(".widget-template[data-widget-type=\"#{@model.get('type')}\"]").html())
 
-		initialize: ->
+		initialize: (options) ->
+			console.log "WidgetView"
+			console.log options
+			@pageInfos = options['pageInfos']
 			@model.bind('destroy', @remove, this)
 			@model.bind('redraw', @updateChart, this)
 
@@ -217,6 +229,7 @@ document.startApp = ->
 		render: ->
 			@$el.html @template(@model.toJSON())
 			@chartView = new WidgetChartView {
+				pageInfos: @pageInfos
 				model: @model
 			}
 			@$el.find("#plotarea").append(@chartView.el)
@@ -241,20 +254,25 @@ document.startApp = ->
 	widgetList.startPolling()
 
 	WidgetListView = Backbone.View.extend {
-		initialize: ->
-			widgetList.bind 'reset', @render, this
+		initialize: (options) ->
+			console.log "WidgetListView"
+			console.log options
+			@widgetList = options['widgetList']
+			@pageInfos = options['pageInfos']
+			console.log @pageInfos
+			@widgetList.bind 'reset', @render, this
 			
 		render: ->
 			container = $('#widgets')
 			container.empty()
-			widgetList.each (w) ->
-				view = new WidgetView { model: w }
+			@widgetList.each (w) =>
+				view = new WidgetView { pageInfos: @pageInfos, model: w }
 				view.render()
 				container.append(view.el)
 				view.renderChart()
 	}
 
-	widgetListApp = new WidgetListView
+	widgetListApp = new WidgetListView {widgetList: widgetList, pageInfos: pageInfos}
 
 	AppRouter = Backbone.Router.extend {
 		initialize: (@pageInfos, @widgetList) ->
@@ -269,7 +287,7 @@ document.startApp = ->
 			@widgetList.fetch()
 		custom: ->
 			@pageInfos.selectNone()
-			dynamicWidget = new DynamicWidgetView
+			dynamicWidget = new DynamicWidgetView {pageInfos: @pageInfos}
 			dynamicWidget.render($('#widgets'))
 		defaultRoute: (actions) ->
 			if @pageInfos.length > 0
