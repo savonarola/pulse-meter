@@ -1,7 +1,5 @@
 class WidgetPresenter
 	constructor: (@pageInfos, @model, el) ->
-		console.log "WidgetPresenter"
-		console.log @pageInfos
 		chartClass = @chartClass()
 		@chart = new chartClass(el)
 		@draw()
