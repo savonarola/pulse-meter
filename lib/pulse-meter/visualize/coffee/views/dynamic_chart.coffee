@@ -57,4 +57,3 @@ DynamicChartView = Backbone.View.extend {
 		$(@chartContainer()).empty()
 		@widget.forceUpdate()
 }
-

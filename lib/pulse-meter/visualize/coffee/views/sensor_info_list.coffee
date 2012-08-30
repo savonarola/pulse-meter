@@ -16,5 +16,4 @@ SensorInfoListView = Backbone.View.extend {
 		ids = {}
 		_.each checked, (box) -> ids[box.id] = true
 		selected = @sensorInfo.filter (sensor) -> ids[sensor.id]
-		
 }

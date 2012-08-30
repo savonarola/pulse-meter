@@ -11,4 +11,3 @@ class TimelinePresenter extends WidgetPresenter
 			row[0] = new Date(row[0] + dateOffset)
 			data.addRow(row)
 		data
-

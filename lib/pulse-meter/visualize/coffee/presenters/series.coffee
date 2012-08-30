@@ -36,9 +36,9 @@ class SeriesPresenter extends TimelinePresenter
 		@get('interval').humanize()
 	
 	cutoff: (min, max) ->
-		_.each(@get('series').rows, (row) ->
+		_.each(@get('series').rows, (row) =>
 			for i in [1 .. row.length - 1]
 				value = row[i]
 				value = 0 unless value?
 				row[i] = @cutoffValue(value, min, max)
-		, this)
+		)
