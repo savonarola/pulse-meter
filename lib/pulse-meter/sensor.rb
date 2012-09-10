@@ -15,6 +15,7 @@ require 'pulse-meter/sensor/timelined/hashed_indicator'
 require 'pulse-meter/sensor/timelined/min'
 require 'pulse-meter/sensor/timelined/max'
 require 'pulse-meter/sensor/timelined/percentile'
+require 'pulse-meter/sensor/timelined/multi_percentile'
 require 'pulse-meter/sensor/timelined/median'
 require 'pulse-meter/sensor/timelined/uniq_counter'
 
