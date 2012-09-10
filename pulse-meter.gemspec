@@ -28,14 +28,17 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency('terminal-table')
   gem.add_runtime_dependency('thor')
 
+  gem.add_development_dependency('coffee-script')
   gem.add_development_dependency('foreman')
   gem.add_development_dependency('hashie')
+  gem.add_development_dependency('listen')
   gem.add_development_dependency('mock_redis')
   gem.add_development_dependency('rack-test')
   gem.add_development_dependency('rake')
   gem.add_development_dependency('redcarpet')
   gem.add_development_dependency('rspec')
   gem.add_development_dependency('simplecov')
+  gem.add_development_dependency('sprockets')
   gem.add_development_dependency('timecop')
   gem.add_development_dependency('yard')
 

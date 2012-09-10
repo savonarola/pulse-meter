@@ -1,4 +1,4 @@
-$: << File.join(File.absolute_path(__FILE__), '..', 'lib')
+$: << File.join(File.dirname(__FILE__), '..', 'lib')
 
 require 'pulse-meter/visualizer'
 
