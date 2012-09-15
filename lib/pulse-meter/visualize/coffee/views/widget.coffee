@@ -13,6 +13,7 @@ WidgetView = Backbone.View.extend {
 		"click #refresh": 'refresh'
 		"click #need-refresh": 'setRefresh'
 		"click #extend-timespan": 'extendTimespan'
+		"click #set-start": 'setStart'
 		"click #reset-timespan": 'resetTimespan'
 	}
 
@@ -28,6 +29,9 @@ WidgetView = Backbone.View.extend {
 		select = @$el.find("#extend-timespan-val")
 		val = select.first().val()
 		@model.increaseTimespan(parseInt(val))
+
+	setStart: ->
+		unixtime = @$el.find("#start-time").datetimepicker("getDate").getTime() / 1000
 
 	resetTimespan: ->
 		@model.resetTimespan()
@@ -46,7 +50,10 @@ WidgetView = Backbone.View.extend {
 		}
 		@$el.find("#plotarea").append(@chartView.el)
 		@$el.addClass("span#{@model.get('width')}")
-		@$el.find("#datepicker").each (i) ->
+		@initDatePicker()
+	
+	initDatePicker: ->
+		@$el.find(".datepicker").each (i) ->
 			$(this).datetimepicker
 				showOtherMonths: true
 				selectOtherMonths: true

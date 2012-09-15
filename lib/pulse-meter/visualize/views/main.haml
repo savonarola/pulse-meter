@@ -6,7 +6,7 @@
   = include_gon
   - %w{jquery-1.7.2.min.js jquery-ui-1.8.23.custom.min.js jquery-ui-timepicker-addon.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
     %script{type: 'text/javascript', src: url("/js/#{jsfile}")}
-  - %w{bootstrap.min.css application.css jquery-ui-1.8.23.custom.css jquery-ui-timepicker-addon.css}.each do |cssfile|
+  - %w{bootstrap.min.css application.css jquery-ui-1.8.23.custom.css}.each do |cssfile|
     %link{rel: 'stylesheet', href: url("/css/#{cssfile}"), type: 'text/css', media: 'screen'}
   %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
