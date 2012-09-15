@@ -46,6 +46,10 @@ WidgetView = Backbone.View.extend {
 		}
 		@$el.find("#plotarea").append(@chartView.el)
 		@$el.addClass("span#{@model.get('width')}")
+		@$el.find("#datepicker").each (i) ->
+			$(this).datetimepicker
+				showOtherMonths: true
+				selectOtherMonths: true
 
 	cutoffMin: ->
 		val = parseFloat(@controlValue('#cutoff-min'))
