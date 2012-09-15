@@ -13,8 +13,9 @@ WidgetView = Backbone.View.extend {
 		"click #refresh": 'refresh'
 		"click #need-refresh": 'setRefresh'
 		"click #extend-timespan": 'extendTimespan'
-		"click #set-start": 'setStart'
 		"click #reset-timespan": 'resetTimespan'
+		"change #start-time": 'maybeEnableStopTime'
+		"click #set-interval": 'setTimelineInterval'
 	}
 
 	refresh: ->
@@ -30,8 +31,17 @@ WidgetView = Backbone.View.extend {
 		val = select.first().val()
 		@model.increaseTimespan(parseInt(val))
 
-	setStart: ->
-		unixtime = @$el.find("#start-time").datetimepicker("getDate").getTime() / 1000
+	setTimelineInterval: ->
+		console.log "setTimelineInterval"
+		start = @unixtimeFromDatepicker("#start-time")
+		end = @unixtimeFromDatepicker("#end-time")
+		console.log start
+		console.log end
+
+	maybeEnableStopTime: ->
+		date = @dateFromDatepicker("#start-time")
+		disabled = if date then false else true
+		@$el.find("#end-time").prop("disabled", disabled)
 
 	resetTimespan: ->
 		@model.resetTimespan()
@@ -50,13 +60,14 @@ WidgetView = Backbone.View.extend {
 		}
 		@$el.find("#plotarea").append(@chartView.el)
 		@$el.addClass("span#{@model.get('width')}")
-		@initDatePicker()
+		@initDatePickers()
 	
-	initDatePicker: ->
+	initDatePickers: ->
 		@$el.find(".datepicker").each (i) ->
 			$(this).datetimepicker
 				showOtherMonths: true
 				selectOtherMonths: true
+		@$el.find("#end-time").prop("disabled", true)
 
 	cutoffMin: ->
 		val = parseFloat(@controlValue('#cutoff-min'))
@@ -69,5 +80,14 @@ WidgetView = Backbone.View.extend {
 	controlValue: (id) ->
 		val = @$el.find(id).first().val()
 
+	dateFromDatepicker: (id) ->
+		@$el.find(id).datetimepicker("getDate")
+
+	unixtimeFromDatepicker: (id) ->
+		date = @dateFromDatepicker(id)
+		if date
+			date.getTime() / 1000
+		else
+			null
 
 }
