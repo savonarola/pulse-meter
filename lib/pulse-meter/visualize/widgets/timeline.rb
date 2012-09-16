@@ -16,6 +16,7 @@ module PulseMeter
 
         def data(options = {})
           real_timespan = options[:timespan] || timespan
+
           super().merge({
             values_title: values_label,
             series: series_data(real_timespan),

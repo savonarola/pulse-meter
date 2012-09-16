@@ -32,11 +32,10 @@ WidgetView = Backbone.View.extend {
 		@model.increaseTimespan(parseInt(val))
 
 	setTimelineInterval: ->
-		console.log "setTimelineInterval"
 		start = @unixtimeFromDatepicker("#start-time")
 		end = @unixtimeFromDatepicker("#end-time")
-		console.log start
-		console.log end
+		@model.setStartTime(start)
+		@model.setEndTime(end)
 
 	maybeEnableStopTime: ->
 		date = @dateFromDatepicker("#start-time")

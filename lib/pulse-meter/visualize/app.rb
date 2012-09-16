@@ -39,9 +39,19 @@ module PulseMeter
         page_id = params[:page_id].to_i 
         id = params[:id].to_i
         timespan = params[:timespan].to_i
+				start_time = params[:startTime].to_i
+				end_time = params[:endTime].to_i
 
         content_type :json
-        camelize_keys(@layout.widget(page_id - 1, id - 1, timespan: timespan)).to_json
+        camelize_keys(
+					@layout.widget(
+						page_id - 1,
+						id - 1,
+						timespan: timespan,
+						start_time: start_time,
+						end_time: end_time
+					)
+				).to_json
       end
 
       get '/sensors' do

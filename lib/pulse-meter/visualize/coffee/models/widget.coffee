@@ -4,22 +4,30 @@ Widget = Backbone.Model.extend {
 		@setNextFetch()
 		@timespanInc = 0
 
+	setStartTime: (@startTime) ->
+
+	setEndTime: (@endTime) ->
+
 	increaseTimespan: (inc) ->
 		@timespanInc = @timespanInc + inc
 		@forceUpdate()
 
 	resetTimespan: ->
 		@timespanInc = 0
+		@startTime = null
+		@endTime = null
 		@forceUpdate()
 
 	timespan: -> @get('timespan') + @timespanInc
 
 	url: ->
 		timespan = @timespan()
-		if _.isNaN(timespan)
-			"#{@collection.url()}/#{@get('id')}"
-		else
-			"#{@collection.url()}/#{@get('id')}?timespan=#{timespan}"
+		url = "#{@collection.url()}/#{@get('id')}?foo=1"
+		url += "&timespan=#{timespan}" unless _.isNaN(timespan)
+		url += "&startTime=#{@startTime}" if @startTime
+		url += "&endTime=#{@endTime}" if @endTime
+		console.log(url)
+		url
 
 	time: -> (new Date()).getTime()
 
