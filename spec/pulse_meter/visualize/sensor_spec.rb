@@ -89,7 +89,7 @@ describe PulseMeter::Visualize::Sensor do
 
     context "when sensor does not exist" do
       it "should raise RestoreError" do
-        expect{ bad_sensor.timeline_data(Time.now, interval) }.to raise_exception(PulseMeter::RestoreError)
+        expect{ bad_sensor.timeline_data(Time.now - interval, Time.now) }.to raise_exception(PulseMeter::RestoreError)
       end
     end
 
@@ -97,20 +97,20 @@ describe PulseMeter::Visualize::Sensor do
     describe "returned value" do
       it "should contain sensor annotation" do
         Timecop.freeze(interval_start + interval + 1) do
-          sensor.timeline_data(Time.now, interval).first[:name].should == annotation
+          sensor.timeline_data(Time.now - interval, Time.now).first[:name].should == annotation
         end
       end
       it "should contain sensor color" do
         Timecop.freeze(interval_start + interval + 1) do
-          sensor_with_color.timeline_data(Time.now, interval).first[:color].should == color
+          sensor_with_color.timeline_data(Time.now - interval, Time.now).first[:color].should == color
         end
       end
 
       it "should contain [interval_start, value] pairs for each interval" do
         Timecop.freeze(interval_start + interval + 1) do
-          data = sensor.timeline_data(Time.now, interval * 2)
+          data = sensor.timeline_data(Time.now - interval * 2, Time.now)
           data.first[:data].should == [{x: interval_start.to_i * 1000, y: 101}]
-          data = sensor.timeline_data(Time.now, interval * 2, true)
+          data = sensor.timeline_data(Time.now - interval * 2, Time.now, true)
           data.first[:data].should == [{x: interval_start.to_i * 1000, y: 101}, {x: (interval_start + interval).to_i * 1000, y: 55}]
         end
       end
