@@ -82,6 +82,16 @@ shared_examples_for "widget" do
         end
       end
 
+      it "should accept start_time and end_time" do
+        Timecop.freeze(@current_time + interval) do
+          widget.data(start_time: (Time.now - timespan).to_i)[:series][:rows].size.should == 1
+          widget.data(
+            start_time: (Time.now - interval - timespan).to_i,
+            end_time: Time.now.to_i
+          )[:series][:rows].size.should == 2
+        end
+      end
+
     end
   end
 end

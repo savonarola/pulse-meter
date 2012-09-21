@@ -18,6 +18,7 @@ Dir['spec/shared_examples/**/*.rb'].each{|f| require File.join(ROOT,f)}
 RSpec.configure do |config|
   config.before(:each) do
     PulseMeter.redis = MockRedis.new
+    Timecop.return
   end
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true

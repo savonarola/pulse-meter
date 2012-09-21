@@ -34,7 +34,7 @@ module PulseMeter
             Time.now - tspan
           end
 
-          till = if options[:start_time] && (options[:end_time] > 0)
+          till = if options[:end_time] && (options[:end_time] > 0)
             Time.at options[:end_time]
           else
             Time.now
