@@ -26,7 +26,6 @@ Widget = Backbone.Model.extend {
 		url += "&timespan=#{timespan}" unless _.isNaN(timespan)
 		url += "&startTime=#{@startTime}" if @startTime
 		url += "&endTime=#{@endTime}" if @endTime
-		console.log(url)
 		url
 
 	time: -> (new Date()).getTime()

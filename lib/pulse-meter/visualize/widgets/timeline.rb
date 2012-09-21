@@ -15,11 +15,10 @@ module PulseMeter
         end
 
         def data(options = {})
-          real_timespan = options[:timespan] || timespan
-
+          from, till = get_interval_borders(options)
           super().merge({
             values_title: values_label,
-            series: series_data(real_timespan),
+            series: series_data(from, till),
             timespan: timespan,
             interval: interval
           })
@@ -27,11 +26,26 @@ module PulseMeter
 
         protected
 
-        def series_data(tspan)
+        def get_interval_borders(options)
+          from = if options[:start_time] && (options[:start_time] > 0)
+            Time.at options[:start_time]
+          else
+            tspan = options[:timespan] || timespan
+            Time.now - tspan
+          end
+
+          till = if options[:start_time] && (options[:end_time] > 0)
+            Time.at options[:end_time]
+          else
+            Time.now
+          end
+          [from, till]
+        end
+
+        def series_data(from, till)
           ensure_sensor_match!
-          now = Time.now
           sensor_datas = sensors.map{ |s|
-            s.timeline_data(now, tspan, show_last_point)
+            s.timeline_data(from, till, show_last_point)
           }
           rows = []
           titles = []
