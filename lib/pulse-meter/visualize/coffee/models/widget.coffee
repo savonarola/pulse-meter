@@ -22,7 +22,7 @@ Widget = Backbone.Model.extend {
 
 	url: ->
 		timespan = @timespan()
-		url = "#{@collection.url()}/#{@get('id')}?foo=1"
+		url = "#{@collection.url()}/#{@get('id')}?"
 		url += "&timespan=#{timespan}" unless _.isNaN(timespan)
 		url += "&startTime=#{@startTime}" if @startTime
 		url += "&endTime=#{@endTime}" if @endTime
