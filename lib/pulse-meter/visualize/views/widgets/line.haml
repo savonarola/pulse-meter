@@ -30,10 +30,14 @@
       %span.space
       %label
         From:
-        %input#start-time.datepicker
+        %span#start-time
+          :plain
+            <input id="start-time-<%- id %>" class="datepicker" />
       %label
         Till:
-        %input#end-time.datepicker
+        %span#end-time
+          :plain
+            <input id="end-time-<%- id %>" class="datepicker" />
       %button#set-interval.btn.btn-mini
         %i.icon-time
         Set interval

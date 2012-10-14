@@ -1,8 +1,8 @@
 WidgetView = Backbone.View.extend {
 	tagName: 'div'
 
-	template: ->
-		_.template($(".widget-template[data-widget-type=\"#{@model.get('type')}\"]").html())
+	template: (args) ->
+		_.template($(".widget-template[data-widget-type=\"#{@model.get('type')}\"]").html())(args)
 
 	initialize: (options) ->
 		@pageInfos = options['pageInfos']
@@ -14,7 +14,7 @@ WidgetView = Backbone.View.extend {
 		"click #need-refresh": 'setRefresh'
 		"click #extend-timespan": 'extendTimespan'
 		"click #reset-timespan": 'resetTimespan'
-		"change #start-time": 'maybeEnableStopTime'
+		"change #start-time input": 'maybeEnableStopTime'
 		"click #set-interval": 'setTimelineInterval'
 	}
 
@@ -32,15 +32,15 @@ WidgetView = Backbone.View.extend {
 		@model.increaseTimespan(parseInt(val))
 
 	setTimelineInterval: ->
-		start = @unixtimeFromDatepicker("#start-time")
-		end = @unixtimeFromDatepicker("#end-time")
+		start = @unixtimeFromDatepicker("#start-time input")
+		end = @unixtimeFromDatepicker("#end-time input")
 		@model.setStartTime(start)
 		@model.setEndTime(end)
 
 	maybeEnableStopTime: ->
-		date = @dateFromDatepicker("#start-time")
+		date = @dateFromDatepicker("#start-time input")
 		disabled = if date then false else true
-		@$el.find("#end-time").prop("disabled", disabled)
+		@$el.find("#end-time input").prop("disabled", disabled)
 
 	resetTimespan: ->
 		@model.resetTimespan()
@@ -52,6 +52,7 @@ WidgetView = Backbone.View.extend {
 		@chartView.updateData(@cutoffMin(), @cutoffMax())
 
 	render: ->
+		console.log @template, @model.toJSON()
 		@$el.html @template(@model.toJSON())
 		@chartView = new WidgetChartView {
 			pageInfos: @pageInfos
@@ -66,7 +67,7 @@ WidgetView = Backbone.View.extend {
 			$(this).datetimepicker
 				showOtherMonths: true
 				selectOtherMonths: true
-		@$el.find("#end-time").prop("disabled", true)
+		@$el.find("#end-time input").prop("disabled", true)
 
 	cutoffMin: ->
 		val = parseFloat(@controlValue('#cutoff-min'))
