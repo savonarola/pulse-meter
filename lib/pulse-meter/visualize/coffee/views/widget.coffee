@@ -51,9 +51,15 @@ WidgetView = Backbone.View.extend {
 	updateChart: ->
 		@chartView.updateData(@cutoffMin(), @cutoffMax())
 
+	setIds: ->
+		@$el.find('#configure-button').prop('href', "#configure-#{@model.id}")
+		@$el.find('#configure').attr('id', "configure-#{@model.id}")
+		@$el.find('#start-time input').attr('id', "start-time-#{@model.id}")
+		@$el.find('#end-time input').attr('id', "end-time-#{@model.id}")
+
 	render: ->
-		console.log @template, @model.toJSON()
 		@$el.html @template(@model.toJSON())
+		@setIds()
 		@chartView = new WidgetChartView {
 			pageInfos: @pageInfos
 			model: @model
