@@ -60,9 +60,15 @@ module PulseMeter
       end
 
       get '/dynamic_widget' do
+				start_time = params[:startTime].to_i
+				end_time = params[:endTime].to_i
+        timespan = params[:timespan].to_i
+
         content_type :json
         camelize_keys(@layout.dynamic_widget(
-          timespan:  params[:timespan],
+          timespan: timespan,
+          start_time: start_time,
+          end_time: end_time,
           sensors: params[:sensor],
           type: params[:type])
         ).to_json

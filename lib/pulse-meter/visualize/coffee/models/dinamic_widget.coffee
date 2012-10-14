@@ -1,9 +1,15 @@
 DynamicWidget = Backbone.Model.extend {
 
+	setStartTime: (@startTime) ->
+
+	setEndTime: (@endTime) ->
+
 	increaseTimespan: (inc) ->
 		@set('timespan', @timespan() + inc)
 
 	resetTimespan: ->
+		@startTime = null
+		@endTime = null
 		@set('timespan', null)
 
 	timespan: -> @get('timespan')
@@ -12,13 +18,14 @@ DynamicWidget = Backbone.Model.extend {
 		_.map(@get('sensorIds'), (name) -> "sensor[]=#{name}").join('&')
 
 	url: ->
-		url = "#{ROOT}dynamic_widget?#{@sensorArgs()}&type=#{@get('type')}"
-		
 		timespan = @timespan()
-		url = "#{url}&timespan=#{timespan}" if timespan? && !_.isNaN(timespan)
-
+		url = "#{ROOT}dynamic_widget?#{@sensorArgs()}&type=#{@get('type')}"
+		url += "&timespan=#{timespan}" if timespan? && !_.isNaN(timespan)
+		url += "&startTime=#{@startTime}" if @startTime
+		url += "&endTime=#{@endTime}" if @endTime
 		url
 
+		
 	forceUpdate: ->
 		@fetch {
 			success: (model, response) ->

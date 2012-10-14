@@ -19,7 +19,7 @@
 
 %script#dynamic-widget-error{type: 'text/template'}
   .alert.alert-error
-    .button.close{'data-dismiss' => 'alert'} ×
+    .button.close{'data-dismiss' => 'alert'} &times;
     <%- error %>
 
 %script#dynamic-widget-plotarea{type: 'text/template'}
@@ -31,6 +31,7 @@
         %button#refresh-chart.btn.btn-mini
           %i.icon-refresh
           Refresh chart
+      .form-inline
         Timespan:
         %select#extend-timespan-val.btn-mini.span1
           = partial "widgets/extend_options"
@@ -40,6 +41,18 @@
         %button#reset-timespan.btn.btn-mini
           %i.icon-arrow-right
           Reset
+      .form-inline
+        %label
+          From:
+          %span#start-time
+            %input.datepicker
+        %label
+          Till:
+          %span#end-time
+            %input.datepicker
+        %button#set-interval.btn.btn-mini
+          %i.icon-time
+          Set interval
 
 
 %script#dynamic-widget{type: 'text/template'}

@@ -18,6 +18,8 @@ class WidgetPresenter
 		{
 			title: @get('title')
 			height: 300
+			chartArea:
+				left: 10
 		}
 
 	mergedOptions: ->
