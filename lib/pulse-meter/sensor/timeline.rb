@@ -74,8 +74,9 @@ module PulseMeter
         interval_data_key = data_key(interval_id)
         multi do
           redis.del(interval_raw_data_key)
-          redis.set(interval_data_key, value)
-          redis.expire(interval_data_key, ttl)
+          if redis.setnx(interval_data_key, value)
+            redis.expire(interval_data_key, ttl)
+          end
         end
       end
 

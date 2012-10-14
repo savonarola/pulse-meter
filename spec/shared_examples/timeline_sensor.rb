@@ -160,6 +160,16 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
         redis.keys(sensor.data_key(@interval_id)).count.should == 0
       end
     end
+
+    it "should not store summarized data if it already exists" do
+      data_key = sensor.data_key(@interval_id)
+      redis.set(data_key, :dummy)
+      Timecop.freeze(@start_of_interval) do
+        sensor.event(sample_event)
+        sensor.reduce(@interval_id)
+        redis.get(data_key).should == "dummy"
+      end
+    end
   end
 
   describe "#reduce_all_raw" do
