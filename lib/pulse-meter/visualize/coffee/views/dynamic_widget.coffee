@@ -28,7 +28,6 @@ DynamicWidgetView = Backbone.View.extend {
 	error: (error)->
 		@$el.find('#errors').append(@errorTemplate()(error: error))
 
-
 	refresh: ->
 		@sensorInfo.fetch()
 

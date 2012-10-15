@@ -23,9 +23,9 @@ module PulseMeter
         extractor.point_data(last_value(now, need_incomplete))
       end
 
-      def timeline_data(now, time_span, need_incomplete = false)
+      def timeline_data(from, till, need_incomplete = false)
         sensor = real_sensor
-        timeline_data = sensor.timeline_within(now - time_span, now)
+        timeline_data = sensor.timeline_within(from, till)
         timeline_data.pop unless need_incomplete
         extractor.series_data(timeline_data)
       end

@@ -4,9 +4,9 @@
   :javascript
     var ROOT = "#{url('/')}";
   = include_gon
-  - %w{jquery-1.7.2.min.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
+  - %w{jquery-1.7.2.min.js jquery-ui-1.8.16.bootstrap.min.js jquery-ui-timepicker-addon.js json2.js underscore-min.js backbone-min.js application.js bootstrap.js}.each do |jsfile|
     %script{type: 'text/javascript', src: url("/js/#{jsfile}")}
-  - %w{bootstrap.min.css application.css}.each do |cssfile|
+  - %w{bootstrap.min.css application.css jquery-ui-1.8.16.bootstrap.css}.each do |cssfile|
     %link{rel: 'stylesheet', href: url("/css/#{cssfile}"), type: 'text/css', media: 'screen'}
   %script{type: 'text/javascript', src: "https://www.google.com/jsapi"}
   :javascript
@@ -16,7 +16,6 @@
       document.startApp();
     }
 %body
-
   - %w(area line table pie gauge).each do |wtype|
     = partial "widgets/#{wtype}"
   = partial "sensors"

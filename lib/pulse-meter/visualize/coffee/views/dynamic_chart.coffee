@@ -14,12 +14,44 @@ DynamicChartView = Backbone.View.extend {
 		"click #refresh-chart": 'update'
 		"click #extend-timespan": 'extendTimespan'
 		"click #reset-timespan": 'resetTimespan'
+		"change #start-time input": 'maybeEnableStopTime'
+		"click #set-interval": 'setTimelineInterval'
 	}
 
 	template: -> _.template($("#dynamic-widget-plotarea").html())
 
 	render: ->
 		@$el.html(@template()())
+		@initDatePickers()
+
+	initDatePickers: ->
+		@$el.find(".datepicker").each (i) ->
+			$(this).datetimepicker
+				showOtherMonths: true
+				selectOtherMonths: true
+		@$el.find("#end-time input").prop("disabled", true)
+
+	setTimelineInterval: ->
+		start = @unixtimeFromDatepicker("#start-time input")
+		end = @unixtimeFromDatepicker("#end-time input")
+		@widget.setStartTime(start)
+		@widget.setEndTime(end)
+		@update()
+
+	dateFromDatepicker: (id) ->
+		@$el.find(id).datetimepicker("getDate")
+
+	unixtimeFromDatepicker: (id) ->
+		date = @dateFromDatepicker(id)
+		if date
+			date.getTime() / 1000
+		else
+			null
+
+	maybeEnableStopTime: ->
+		date = @dateFromDatepicker("#start-time input")
+		disabled = if date then false else true
+		@$el.find("#end-time input").prop("disabled", disabled)
 
 	extendTimespan: ->
 		select = @$el.find("#extend-timespan-val")

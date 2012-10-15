@@ -5,19 +5,41 @@
       %button#refresh.btn.btn-mini
         %i.icon-refresh
         Refresh
-      %span.space
-      %label
-        Refresh:
-        %input.btn-mini#need-refresh{type: :checkbox, checked: :true}
-      %label
-        Timespan:
-        %select#extend-timespan-val.btn-mini.span1
-          = partial "widgets/extend_options"
-        %button#extend-timespan.btn.btn-mini
-          %i.icon-arrow-down
-          Extend
-        %button#reset-timespan.btn.btn-mini
-          %i.icon-arrow-up
-          Reset
-  %hr
+      %a#configure-button.btn.btn-mini{href: "#configure", role: 'button', 'data-toggle' => 'modal'} 
+        %i.icon-wrench
+        Configure...
+      .modal.hide.fade#configure
+        .modal-header
+          %button.close{type: 'button', 'data-dismiss' => 'modal', 'aria-hidden' => 'true'} &times;
+          %h3 Configure
+        .modal-body
+          %p
+            %label
+              Refresh:
+              %input.btn-mini#need-refresh{type: :checkbox, checked: :true}
+          %hr
+          %p
+            %label
+              Timespan:
+              %select#extend-timespan-val.btn-mini.span1
+                = partial "widgets/extend_options"
+              %button#extend-timespan.btn.btn-mini
+                %i.icon-arrow-left
+                Extend
+              %button#reset-timespan.btn.btn-mini
+                %i.icon-arrow-right
+                Reset
+          %hr
+          %p
+            %label
+              From:
+              %span#start-time
+                %input.datepicker
+            %label
+              Till:
+              %span#end-time
+                %input.datepicker
+            %button#set-interval.btn.btn-mini
+              %i.icon-time
+              Set interval
 
