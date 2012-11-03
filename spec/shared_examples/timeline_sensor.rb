@@ -191,7 +191,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     it "creates up to MAX_INTERVALS compresed data pieces from previously uncompressed data" do
       max_count = described_class::MAX_INTERVALS
       start = @start_of_interval - reduce_delay - max_count * interval
-      max_count.times do |i|
+      (max_count + 100).times do |i|
         Timecop.freeze(start + i * interval) {sensor.event(sample_event)}
       end
 
