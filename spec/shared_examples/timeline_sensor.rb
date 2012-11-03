@@ -6,8 +6,8 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   end
 
   let(:name){ :some_value_with_history }
-  let(:ttl){ 100 }
-  let(:raw_data_ttl){ 30 }
+  let(:ttl){ 10000 }
+  let(:raw_data_ttl){ 3000 }
   let(:interval){ 5 }
   let(:reduce_delay){ 3 }
   let(:good_init_values){ {:ttl => ttl, :raw_data_ttl => raw_data_ttl, :interval => interval, :reduce_delay => reduce_delay}.merge(extra_init_values || {}) }
@@ -179,11 +179,27 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
       Timecop.freeze(@start_of_interval + interval){ sensor.event(sample_event) }
       val1 = sensor.summarize(@next_raw_data_key)
       expect{
-        Timecop.freeze(@start_of_interval + interval + interval + reduce_delay + 1) { sensor.reduce_all_raw }
+        Timecop.freeze(@start_of_interval + interval + interval + reduce_delay + 1) do
+          sensor.reduce_all_raw
+        end
       }.to change{ redis.keys(sensor.raw_data_key('*')).count }.from(2).to(0)
 
       redis.get(sensor.data_key(@interval_id)).should == val0.to_s
       redis.get(sensor.data_key(@interval_id + interval)).should == val1.to_s
+    end
+
+    it "creates up to MAX_INTERVALS compresed data pieces from previously uncompressed data" do
+      max_count = described_class::MAX_INTERVALS
+      start = @start_of_interval - reduce_delay - max_count * interval
+      max_count.times do |i|
+        Timecop.freeze(start + i * interval) {sensor.event(sample_event)}
+      end
+
+      Timecop.freeze(@start_of_interval) do
+        expect {
+          sensor.reduce_all_raw
+        }.to change {redis.keys(sensor.data_key('*')).count}.from(0).to(max_count)
+      end
     end
 
     it "should not reduce fresh data" do

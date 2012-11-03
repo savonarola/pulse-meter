@@ -8,6 +8,7 @@ module PulseMeter
       include PulseMeter::Mixins::Utils
 
       MAX_TIMESPAN_POINTS = 1000
+      MAX_INTERVALS = 100
 
       # @!attribute [r] interval
       #   @return [Fixnum] Rotation interval
@@ -82,12 +83,21 @@ module PulseMeter
 
       # Reduces data in all raw interval
       def reduce_all_raw
-        min_time = Time.now - reduce_delay - interval
-        redis.keys(raw_data_key('*')).each do |key|
-          interval_id = key.split(':').last
-          next if Time.at(interval_id.to_i) > min_time
-          reduce(interval_id)
+        time = Time.now
+        min_time = time - reduce_delay  - interval
+        max_depth = time - reduce_delay - interval * MAX_INTERVALS
+        ids = []
+        while (time > max_depth)
+          time -= interval
+          interval_id = get_interval_id(time)
+          next if Time.at(interval_id) > min_time
+
+          reduced_key = data_key(interval_id)
+          raw_key = raw_data_key(interval_id)
+          break if redis.exists(reduced_key)
+          ids << interval_id
         end
+        ids.reverse.each {|id| reduce(id)}
       end
 
       def self.reduce_all_raw
