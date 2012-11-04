@@ -203,6 +203,23 @@ module PulseMeter
         (time.to_i / interval) * interval
       end
 
+      def self.on_interval_calculation(&proc)
+        class_eval do
+          alias_method :old_getter, :get_interval_id
+          define_method :get_interval_id do |time|
+            instance_exec(time, &proc)
+          end
+        end
+      end
+
+      def self.reset_interval_calculation
+        class_eval do
+          if method_defined? :old_getter
+            alias_method :get_interval_id, :old_getter
+          end
+        end
+      end
+
       # Returns current interval id
       # @return [Fixnum]
       def current_interval_id

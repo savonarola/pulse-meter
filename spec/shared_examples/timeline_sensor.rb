@@ -56,6 +56,29 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     end
   end
 
+  describe ".on_interval_calculation" do
+    after do
+      PulseMeter::Sensor::Timeline.reset_interval_calculation
+    end
+
+    it "allows to override interval calculation manually" do
+      PulseMeter::Sensor::Timeline.on_interval_calculation { |time| 123456 }
+      sensor = described_class.new(name, good_init_values)
+      sensor.current_interval_id.should == 123456
+    end
+  end
+
+  describe ".reset_interval_calculation" do
+    it "allows to return default interval calculator" do
+      PulseMeter::Sensor::Timeline.on_interval_calculation { |time| 123456 }
+      PulseMeter::Sensor::Timeline.reset_interval_calculation
+      sensor = described_class.new(name, good_init_values)
+      Timecop.freeze do
+        sensor.current_interval_id.should == (Time.now.to_i / interval) * interval
+      end
+    end
+  end
+
   describe "#event" do
     it "should write events to redis" do
       expect{
