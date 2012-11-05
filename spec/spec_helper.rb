@@ -23,6 +23,8 @@ Aspect.new :after, :calls_to => [:event, :event_at], :for_types => [PulseMeter::
   PulseMeter.command_aggregator.wait_for_pending_events
 end
 
+PulseMeter.command_aggregator.max_queue_length = 20
+
 RSpec.configure do |config|
   config.before(:each) do
     PulseMeter.redis = MockRedis.new
