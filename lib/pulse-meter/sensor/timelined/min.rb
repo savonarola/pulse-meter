@@ -5,8 +5,8 @@ module PulseMeter
       class Min < Timeline
 
         def aggregate_event(key, value)
-          redis.zadd(key, value, "#{value}::#{uniqid}")
-          redis.zremrangebyrank(key, 1, -1)
+          command_aggregator.zadd(key, value, "#{value}::#{uniqid}")
+          command_aggregator.zremrangebyrank(key, 1, -1)
         end
 
         def summarize(key)

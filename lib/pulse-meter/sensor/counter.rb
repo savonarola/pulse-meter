@@ -31,7 +31,7 @@ module PulseMeter
       # Processes event by incremnting counter by given value
       # @param value [Fixnum] increment
       def process_event(value)
-        redis.incrby(value_key, value.to_i)
+        command_aggregator.incrby(value_key, value.to_i)
       end
 
     end

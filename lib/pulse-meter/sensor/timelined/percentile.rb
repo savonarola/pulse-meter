@@ -11,7 +11,7 @@ module PulseMeter
         end
 
         def aggregate_event(key, value)
-          redis.zadd(key, value, "#{value}::#{uniqid}")
+          command_aggregator.zadd(key, value, "#{value}::#{uniqid}")
         end
 
         def summarize(key)

@@ -16,7 +16,7 @@ module PulseMeter
       # Sets indicator values
       # @param value [Hash] new indicator values
       def process_event(events)
-        events.each_pair {|name, value| redis.hset(value_key, name, value.to_f)}
+        events.each_pair {|name, value| command_aggregator.hset(value_key, name, value.to_f)}
       end
 
     end

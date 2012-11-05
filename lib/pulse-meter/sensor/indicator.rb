@@ -27,7 +27,7 @@ module PulseMeter
       # Sets indicator value
       # @param value [Float] new indicator value
       def process_event(value)
-        redis.set(value_key, value.to_f)
+        command_aggregator.set(value_key, value.to_f)
       end
 
     end

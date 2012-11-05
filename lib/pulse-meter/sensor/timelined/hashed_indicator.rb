@@ -8,7 +8,7 @@ module PulseMeter
       class HashedIndicator < Timeline
         def aggregate_event(key, data)
           data.each_pair do |k, v|
-            redis.hset(key, k, v) if v.respond_to?(:to_f)
+            command_aggregator.hset(key, k, v) if v.respond_to?(:to_f)
           end
         end
 
