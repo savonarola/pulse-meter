@@ -57,8 +57,11 @@ module PulseMeter
           interval_id = get_interval_id(time)
           key = raw_data_key(interval_id)
           aggregate_event(key, value)
-          redis.expire(key, raw_data_ttl)
+          command_aggregator.expire(key, raw_data_ttl)
         end
+        true
+      rescue StandardError => e
+        false
       end
 
       # Reduces data in given interval. 
@@ -247,10 +250,10 @@ module PulseMeter
       # Processes event
       # @param value event value
       def process_event(value = nil)
-        multi do
+        command_aggregator.multi do
           current_key = current_raw_data_key
           aggregate_event(current_key, value)
-          redis.expire(current_key, raw_data_ttl)
+          command_aggregator.expire(current_key, raw_data_ttl)
         end
       end
 

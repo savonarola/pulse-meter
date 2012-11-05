@@ -28,6 +28,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency('terminal-table')
   gem.add_runtime_dependency('thor')
 
+  gem.add_development_dependency('aquarium')
   gem.add_development_dependency('coffee-script')
   gem.add_development_dependency('foreman')
   gem.add_development_dependency('hashie')

@@ -5,8 +5,8 @@ module PulseMeter
       class Average < Timeline
 
         def aggregate_event(key, value)
-          redis.hincrby(key, :count, 1)
-          redis.hincrby(key, :sum, value)
+          command_aggregator.hincrby(key, :count, 1)
+          command_aggregator.hincrby(key, :sum, value)
         end
 
         def summarize(key)

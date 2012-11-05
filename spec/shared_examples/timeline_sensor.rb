@@ -59,7 +59,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
   describe "#event" do
     it "should write events to redis" do
       expect{
-          sensor.event(sample_event)
+        sensor.event(sample_event)
       }.to change{ redis.keys('*').count }.by(1)
     end
 
@@ -100,7 +100,7 @@ shared_examples_for "timeline sensor" do |extra_init_values, default_event|
     it "should write data so that it totally expires after :raw_data_ttl" do
       key_count = redis.keys('*').count
       sensor.event_at(now, sample_event)
-      Timecop.freeze(Time.now + raw_data_ttl + 1) do
+      Timecop.freeze(now + raw_data_ttl + 1) do
         redis.keys('*').count.should == key_count
       end
     end
