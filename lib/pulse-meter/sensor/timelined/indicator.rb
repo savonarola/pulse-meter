@@ -4,7 +4,7 @@ module PulseMeter
       # Saves last registered flag float value for each interval
       class Indicator < Timeline
         def aggregate_event(key, value)
-          redis.set(key, value.to_f)
+          command_aggregator.set(key, value.to_f)
         end
 
         def summarize(key)

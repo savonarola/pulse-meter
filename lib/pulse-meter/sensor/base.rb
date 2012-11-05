@@ -31,6 +31,10 @@ module PulseMeter
         PulseMeter.redis
       end
 
+      def command_aggregator
+        PulseMeter.command_aggregator
+      end
+
       # Saves annotation to Redis
       # @param description [String] Sensor annotation
       def annotate(description)
@@ -54,7 +58,7 @@ module PulseMeter
       def event(value)
         process_event(value)
         true
-      rescue StandardError
+      rescue StandardError => e
         false
       end
 

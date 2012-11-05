@@ -8,8 +8,8 @@ module PulseMeter
       class HashedCounter < Timeline
         def aggregate_event(key, data)
           data.each_pair do |k, v|
-            redis.hincrby(key, k, v)
-            redis.hincrby(key, :total, v)
+            command_aggregator.hincrby(key, k, v)
+            command_aggregator.hincrby(key, :total, v)
           end
         end
 

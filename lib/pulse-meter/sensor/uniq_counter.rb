@@ -16,7 +16,7 @@ module PulseMeter
       # Processes event
       # @param name [String] value to be counted
       def process_event(name)
-        redis.sadd(value_key, name)
+        command_aggregator.sadd(value_key, name)
       end
 
     end
