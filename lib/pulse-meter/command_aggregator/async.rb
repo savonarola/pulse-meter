@@ -67,7 +67,7 @@ module PulseMeter
               end
             end
           rescue StandardError => e
-            STDERR.puts "error in consumer_thread: #{e}, #{e.backtrace.join("\n")}"
+            PulseMeter.error "error in consumer thread: #{e}, #{e.backtrace.join("\n")}"
           end
         end
       end

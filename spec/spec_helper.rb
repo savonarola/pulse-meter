@@ -29,6 +29,7 @@ RSpec.configure do |config|
   config.before(:each) do
     PulseMeter.redis = MockRedis.new
     Timecop.return
+    PulseMeter.logger = Logger.new("/dev/null")
   end
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true

@@ -50,4 +50,23 @@ describe PulseMeter do
       ca1.should == ca2
     end
   end
+
+  describe "::logger" do
+    it "should return PulseMeter logger" do
+      PulseMeter.logger = 123
+      PulseMeter.logger.should == 123
+    end
+
+    it "should return default logger" do
+      PulseMeter.logger = nil
+      PulseMeter.logger.should be_kind_of(Logger)
+    end
+  end
+
+  describe "::error" do
+    it "should delegate error message to logger" do
+      PulseMeter.logger.should_receive(:error)
+      PulseMeter.error("foo")
+    end
+  end
 end
