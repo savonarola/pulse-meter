@@ -83,16 +83,18 @@ There are several caveats with timeline sensors:
 
 ### Observers
 
-Observer allows to notify a sensor each time some class or instance method is called
+Observer allows to notify sensors each time some class or instance method is called
 Suppose you have a user model and want to count users distribytion by name. To do this you have to observe class method `create` of User class:
 
-    counter = PulseMeter::Sensor::HashedCounter.new :users_by_name
-    PulseMeter::Observer.observe_class_method(User, :create, counter) do |execution_time, attrs|
-      event({attrs[:name] => 1})
+    sensors = PulseMeter::Sensor::Configuration.new(
+      users_by_name: {sensor_type: 'hashed_counter'}
+    )
+    PulseMeter::Observer.observe_class_method(User, :create, sensors) do |execution_time, attrs|
+      users_by_name({attrs[:name] => 1})
     end
     
-Block recieves all execution time and observed method's argements and is executed in context of sensor passed to observer (this means that event method refers to `counter`).    
-To observe instance methods use `observe_method`. 
+Each time the observed method is called, the block recieves all method's arguments prepended with method's execution time. Block is executed in context of the receiver object passed to observer (this means that `users_by_name` method refers to `sensors`).    
+One should use `observe_method` to observe instance methods.
 
 `unobserve_class_method` and `unobserve_method` remove observations from class or instace method.
 
@@ -162,62 +164,73 @@ Just create sensor objects and write data. Some examples below.
     # 2012-05-24 11:07:00 +0400: 3.0
     # 2012-05-24 11:08:00 +0400: 7.0
  
- There is also an alternative and a bit more DRY way for sensor creation, management and usage using `PulseMeter::Sensor::Configuration` class. It is also convenient for creating a bunch of sensors from some configuration data.  
+ There is also an alternative and a bit more DRY way for sensor creation, management and usage using `PulseMeter::Sensor::Configuration` class. It is also convenient for creating a bunch of sensors from some configuration data. Using and creating sensors through `PulseMeter::Sensor::Configuration` also allows to ignore any i/o errors (i.e. redis server unavailability), and this is generally the required case. 
  
-	require 'pulse-meter'
-	PulseMeter.redis = Redis.new
-	
-	sensors = PulseMeter::Sensor::Configuration.new(
-	  my_counter: {sensor_type: 'counter'},
-	  my_value: {sensor_type: 'indicator'},
-	  my_h_counter: {sensor_type: 'hashed_counter'},
-	  my_t_counter: {
-	    sensor_type: 'timelined/counter',
-	    args: {
-	      interval: 60,         # count for each minute
-	      ttl: 24 * 60 * 60     # keep data one day
-	    }
-	  },
-	  my_t_max: {
-	    sensor_type: 'timelined/max',
-	    args: {
-	      interval: 60,         # count for each minute
-	      ttl: 24 * 60 * 60     # keep data one day
-	    }
-	  }
-	)
-	
-	sensors.my_counter(1)
-	sensors.my_counter(2)
-	puts sensors.sensor(:my_counter).value
-	
-	sensors.my_value(3.14)
-	sensors.my_value(2.71)
-	puts sensors.sensor(:my_value).value
-	
-	sensors.my_h_counter(:x => 1)
-	sensors.my_h_counter(:y => 5)
-	sensors.my_h_counter(:y => 1)
-	p sensors.sensor(:my_h_counter).value
-	
-	sensors.my_t_counter(1)
-	sensors.my_t_counter(1)
-	sleep(60)
-	sensors.my_t_counter(1)
-	sensors.sensor(:my_t_counter).timeline(2 * 60).each do |v|
-	  puts "#{v.start_time}: #{v.value}"
-	end
-	
-	sensors.my_t_max(3)
-	sensors.my_t_max(1)
-	sensors.my_t_max(2)
-	sleep(60)
-	sensors.my_t_max(5)
-	sensors.my_t_max(7)
-	sensors.my_t_max(6)
-	sensors.sensor(:my_t_max).timeline(2 * 60).each do |v|
-	  puts "#{v.start_time}: #{v.value}"
-	end
+    require 'pulse-meter'
+    PulseMeter.redis = Redis.new
+    
+    sensors = PulseMeter::Sensor::Configuration.new(
+      my_counter: {sensor_type: 'counter'},
+      my_value: {sensor_type: 'indicator'},
+      my_h_counter: {sensor_type: 'hashed_counter'},
+      my_t_counter: {
+        sensor_type: 'timelined/counter',
+        args: {
+          interval: 60,         # count for each minute
+          ttl: 24 * 60 * 60     # keep data one day
+        }
+      },
+      my_t_max: {
+        sensor_type: 'timelined/max',
+        args: {
+          interval: 60,         # count for each minute
+          ttl: 24 * 60 * 60     # keep data one day
+        }
+      }
+    )
+    
+    sensors.my_counter(1)
+    sensors.my_counter(2)
+    sensors.sensor(:my_counter) do |s|
+      puts s.value
+    end
+    
+    sensors.my_value(3.14)
+    sensors.my_value(2.71)
+    sensors.sensor(:my_value) do |s|
+      puts s.value
+    end
+        
+    
+    sensors.my_h_counter(:x => 1)
+    sensors.my_h_counter(:y => 5)
+    sensors.my_h_counter(:y => 1)
+    sensors.sensor(:my_h_counter) do |s|
+      p s.value
+    end
+    
+    sensors.my_t_counter(1)
+    sensors.my_t_counter(1)
+    sleep(60)
+    sensors.my_t_counter(1)
+    sensors.sensor(:my_t_counter) do |s|
+      s.timeline(2 * 60).each do |v|
+        puts "#{v.start_time}: #{v.value}"
+      end
+    end
+    
+    sensors.my_t_max(3)
+    sensors.my_t_max(1)
+    sensors.my_t_max(2)
+    sleep(60)
+    sensors.my_t_max(5)
+    sensors.my_t_max(7)
+    sensors.my_t_max(6)
+    sensors.sensor(:my_t_max) do |s|
+      s.timeline(2 * 60).each do |v|
+          puts "#{v.start_time}: #{v.value}"
+      end
+    end
 
 ## Command line interface
 

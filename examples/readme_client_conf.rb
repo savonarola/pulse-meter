@@ -3,8 +3,6 @@ $: << File.join(File.absolute_path(__FILE__), '..', 'lib')
 require 'pulse-meter'
 PulseMeter.redis = Redis.new
 
-# static sensor examples
-
 sensors = PulseMeter::Sensor::Configuration.new(
   my_counter: {sensor_type: 'counter'},
   my_value: {sensor_type: 'indicator'},
@@ -27,23 +25,32 @@ sensors = PulseMeter::Sensor::Configuration.new(
 
 sensors.my_counter(1)
 sensors.my_counter(2)
-puts sensors.sensor(:my_counter).value
+sensors.sensor(:my_counter) do |s|
+  puts s.value
+end
 
 sensors.my_value(3.14)
 sensors.my_value(2.71)
-puts sensors.sensor(:my_value).value
+sensors.sensor(:my_value) do |s|
+  puts s.value
+end
+    
 
 sensors.my_h_counter(:x => 1)
 sensors.my_h_counter(:y => 5)
 sensors.my_h_counter(:y => 1)
-p sensors.sensor(:my_h_counter).value
+sensors.sensor(:my_h_counter) do |s|
+  p s.value
+end
 
 sensors.my_t_counter(1)
 sensors.my_t_counter(1)
 sleep(60)
 sensors.my_t_counter(1)
-sensors.sensor(:my_t_counter).timeline(2 * 60).each do |v|
-  puts "#{v.start_time}: #{v.value}"
+sensors.sensor(:my_t_counter) do |s|
+  s.timeline(2 * 60).each do |v|
+    puts "#{v.start_time}: #{v.value}"
+  end
 end
 
 sensors.my_t_max(3)
@@ -53,7 +60,9 @@ sleep(60)
 sensors.my_t_max(5)
 sensors.my_t_max(7)
 sensors.my_t_max(6)
-sensors.sensor(:my_t_max).timeline(2 * 60).each do |v|
-  puts "#{v.start_time}: #{v.value}"
+sensors.sensor(:my_t_max) do |s|
+  s.timeline(2 * 60).each do |v|
+      puts "#{v.start_time}: #{v.value}"
+  end
 end
 
