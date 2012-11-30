@@ -27,8 +27,10 @@ module PulseMeter
       # @param sensor [Object] notifications receiver
       # @param proc [Proc] proc to be called in context of receiver each time observed method called
       def observe_method(klass, method, sensor, &proc)
-        unless klass.method_defined?(method_with_observer(method))
-          klass.class_eval(&chain_block(method, sensor, &proc))
+        with_observer = method_with_observer(method)
+        unless klass.method_defined?(with_observer)
+          block = chain_block(method, sensor, &proc)
+          klass.class_eval &block
         end
       end
 
@@ -38,8 +40,11 @@ module PulseMeter
       # @param sensor [Object] notifications receiver
       # @param proc [Proc] proc to be called in context of receiver each time observed method called
       def observe_class_method(klass, method, sensor, &proc)
-        unless klass.respond_to?(method_with_observer(method))
-          metaclass(klass).instance_eval(&chain_block(method, sensor, &proc))
+        with_observer = method_with_observer(method)
+        unless klass.respond_to?(with_observer)
+          method_owner = metaclass(klass)
+          block = chain_block(method, sensor, &proc)
+          method_owner.instance_eval &block
         end
       end
 
