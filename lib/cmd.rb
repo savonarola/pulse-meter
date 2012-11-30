@@ -9,6 +9,10 @@ module Cmd
     include PulseMeter::Mixins::Utils
     include PulseMeter::Mixins::Cmd
     no_tasks do
+      def create_redis
+        Redis.new :host => options[:host], :port => options[:port], :db => options[:db]
+      end
+
       def self.common_options
         method_option :host, :default => '127.0.0.1', :desc => "Redis host"
         method_option :port, :default => 6379, :desc => "Redis port"
@@ -53,7 +57,10 @@ module Cmd
       if "json" == options[:format]
         value = JSON.parse(value)
       end
-      with_safe_restore_of(name) {|sensor| sensor.event(value)}
+      with_safe_restore_of(name) {|sensor|
+        sensor.event(value)
+      }
+      PulseMeter.command_aggregator.wait_for_pending_events
     end
 
     desc "timeline NAME SECONDS", "Get sensor's NAME timeline for last SECONDS"

@@ -5,7 +5,7 @@ module PulseMeter
     # Mixin with command-line utilities
     module Cmd
       def with_redis
-        PulseMeter.redis = Redis.new :host => options[:host], :port => options[:port], :db => options[:db]
+        PulseMeter.redis = create_redis
         yield
       end
 
