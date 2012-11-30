@@ -89,18 +89,23 @@ module PulseMeter
         time = Time.now
         min_time = time - reduce_delay  - interval
         max_depth = time - reduce_delay - interval * MAX_INTERVALS
+        ids = collect_ids_to_reduce(time, max_depth, min_time)
+        ids.reverse.each {|id| reduce(id)}
+      end
+
+      def collect_ids_to_reduce(time, time_from, time_to)
         ids = []
-        while (time > max_depth)
+        while (time > time_from) # go backwards
           time -= interval
           interval_id = get_interval_id(time)
-          next if Time.at(interval_id) > min_time
+          next if Time.at(interval_id) > time_to
 
           reduced_key = data_key(interval_id)
           raw_key = raw_data_key(interval_id)
           break if redis.exists(reduced_key)
           ids << interval_id
         end
-        ids.reverse.each {|id| reduce(id)}
+        ids
       end
 
       def self.reduce_all_raw
