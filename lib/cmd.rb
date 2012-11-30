@@ -149,13 +149,8 @@ module Cmd
     desc "drop NAME DATE_FROM(YYYYmmddHHMMSS) DATE_TO(YYYYmmddHHMMSS)", "Drop timeline data of a particular sensor"
     common_options
     def drop(name, from, to)
-      time_from, time_to = [from, to].map do |str|
-        str.match(/\A(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\z/) do |m|
-          Time.gm(*m.captures.map(&:to_i))
-        end
-      end
-      fail! "DATE_FROM is not a valid timestamp" unless time_from.is_a?(Time)
-      fail! "DATE_TO is not a valid timestamp" unless time_to.is_a?(Time)
+      time_from = parse_time(from)
+      time_to = parse_time(to)
       with_safe_restore_of(name) do |sensor|
         fail! "Sensor #{name} has no drop_within method" unless sensor.respond_to?(:drop_within)
         sensor.drop_within(time_from, time_to)

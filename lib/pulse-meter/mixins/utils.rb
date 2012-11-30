@@ -88,6 +88,20 @@ module PulseMeter
         (first_letter_upper ? first.capitalize : first.downcase) + terms.map(&:capitalize).join
       end
 
+      # Converts string of the form YYYYmmddHHMMSS (considered as UTC) to Time
+      # @param str [String] string to be converted
+      # @return [Time]
+      # @raise [ArgumentError] unless passed value responds to to_s
+      def parse_time(str)
+        raise ArgumentError unless str.respond_to?(:to_s)
+        m = str.to_s.match(/\A(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})\z/)
+        if m
+          Time.gm(*m.captures.map(&:to_i))
+        else
+          raise ArgumentError, "`#{str}' is not a YYYYmmddHHMMSS time"
+        end
+      end
+
       # Symbolizes hash keys
       def symbolize_keys(h)
         h.each_with_object({}) do |(k, v), acc|
