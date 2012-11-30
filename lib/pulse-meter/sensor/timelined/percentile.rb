@@ -2,7 +2,7 @@ module PulseMeter
   module Sensor
     module Timelined
       # Calculates n'th percentile in interval
-      class Percentile < Timeline
+      class Percentile < ZSetBased
         attr_reader :p_value
 
         def initialize(name, options)
@@ -10,25 +10,10 @@ module PulseMeter
           super(name, options)
         end
 
-        def aggregate_event(key, value)
-          command_aggregator.zadd(key, value, "#{value}::#{uniqid}")
-        end
-
-        def summarize(key)
-          count = redis.zcard(key)
-          if count > 0
-            position = @p_value > 0 ? (@p_value * count).round - 1 : 0
-            el = redis.zrange(key, position, position)[0]
-            redis.zscore(key, el)
-          else
-            nil
-          end
-        end
-
-        private
-        
-        def deflate(value)
-          value.to_f
+        def calculate(key, count)
+          position = @p_value > 0 ? (@p_value * count).round - 1 : 0
+          el = redis.zrange(key, position, position)[0]
+          redis.zscore(key, el)
         end
 
       end
