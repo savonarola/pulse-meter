@@ -65,25 +65,33 @@ module PulseMeter
           remove_method(without_observer)
         end
       end
+    
+      def define_instrumented_method(method_owner, method, receiver, &handler)
+        with_observer = method_with_observer(method)
+        without_observer = method_without_observer(method)
+        method_owner.send(:define_method, with_observer) do |*args, &block|
+          start_time = Time.now
+          begin
+            self.send(without_observer, *args, &block)
+          ensure
+            begin
+              delta = ((Time.now - start_time) * 1000).to_i
+              receiver.instance_exec(delta, *args, &handler)
+            rescue StandardError
+            end
+          end
+        end
+      end
 
       def chain_block(method, receiver, &handler)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)
+        me = self
 
         Proc.new do 
           alias_method(without_observer, method)
-          define_method(with_observer) do |*args, &block|
-            start_time = Time.now
-            begin
-              self.send(without_observer, *args, &block)
-            ensure
-              begin
-                delta = ((Time.now - start_time) * 1000).to_i
-                receiver.instance_exec(delta, *args, &handler)
-              rescue StandardError
-              end
-            end
-          end
+          method_owner = self
+          me.send(:define_instrumented_method, method_owner, method, receiver, &handler)
           alias_method(method, with_observer)
         end
       end
