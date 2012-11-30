@@ -7,14 +7,8 @@ module PulseMeter
       # @param klass [Class] class
       # @param method [Symbol] instance method name
       def unobserve_method(klass, method)
-        with_observer = method_with_observer(method)
-        without_observer = method_without_observer(method)
-
-        return unless klass.method_defined? with_observer
-        klass.class_eval do
-          alias_method method, without_observer
-          remove_method with_observer
-          remove_method without_observer
+        if klass.method_defined?(method_with_observer(method))
+          klass.class_eval(&unchain_block(method))
         end
       end
 
@@ -22,14 +16,8 @@ module PulseMeter
       # @param klass [Class] class
       # @param method [Symbol] class method name
       def unobserve_class_method(klass, method)
-        with_observer = method_with_observer(method)
-        without_observer = method_without_observer(method)
-
-        return unless klass.respond_to? with_observer
-        metaclass(klass).instance_eval do
-          alias_method method, without_observer
-          remove_method with_observer
-          remove_method without_observer
+        if klass.respond_to?(method_with_observer(method))
+          metaclass(klass).instance_eval(&unchain_block(method))
         end
       end
 
@@ -39,28 +27,8 @@ module PulseMeter
       # @param sensor [Object] notifications receiver
       # @param proc [Proc] proc to be called in context of receiver each time observed method called
       def observe_method(klass, method, sensor, &proc)
-        with_observer = method_with_observer(method)
-        without_observer = method_without_observer(method)
-
-        return if klass.method_defined? with_observer
-            
-        klass.class_eval do
-          alias_method without_observer, method
-          define_method with_observer do |*args, &block|
-            result = nil
-            start_time = Time.now
-            begin
-              result = self.send without_observer, *args, &block
-            ensure
-              begin
-                delta = ((Time.now - start_time) * 1000).to_i
-                sensor.instance_exec delta, *args, &proc
-              rescue Exception
-              end
-            end
-            result
-          end
-          alias_method method, with_observer
+        unless klass.method_defined?(method_with_observer(method))
+          klass.class_eval(&chain_block(method, sensor, &proc))
         end
       end
 
@@ -70,32 +38,45 @@ module PulseMeter
       # @param sensor [Object] notifications receiver
       # @param proc [Proc] proc to be called in context of receiver each time observed method called
       def observe_class_method(klass, method, sensor, &proc)
-        with_observer = method_with_observer(method)
-        without_observer = method_without_observer(method)
-
-        return if klass.respond_to? with_observer
-
-        metaclass(klass).instance_eval do
-          alias_method without_observer, method
-          define_method with_observer do |*args, &block|
-            result = nil
-            start_time = Time.now
-            begin
-              result = self.send without_observer, *args, &block
-            ensure
-              begin
-                delta = ((Time.now - start_time) * 1000).to_i
-                sensor.instance_exec delta, *args, &proc
-              rescue Exception
-              end
-            end
-            result
-          end
-          alias_method method, with_observer
+        unless klass.respond_to?(method_with_observer(method))
+          metaclass(klass).instance_eval(&chain_block(method, sensor, &proc))
         end
       end
 
       private
+
+      def unchain_block(method)
+        with_observer = method_with_observer(method)
+        without_observer = method_without_observer(method)
+
+        Proc.new do
+          alias_method(method, without_observer)
+          remove_method(with_observer)
+          remove_method(without_observer)
+        end
+      end
+
+      def chain_block(method, receiver, &handler)
+        with_observer = method_with_observer(method)
+        without_observer = method_without_observer(method)
+
+        Proc.new do 
+          alias_method(without_observer, method)
+          define_method(with_observer) do |*args, &block|
+            start_time = Time.now
+            begin
+              self.send(without_observer, *args, &block)
+            ensure
+              begin
+                delta = ((Time.now - start_time) * 1000).to_i
+                receiver.instance_exec(delta, *args, &handler)
+              rescue StandardError
+              end
+            end
+          end
+          alias_method(method, with_observer)
+        end
+      end
 
       def metaclass(klass)
         klass.class_eval do
