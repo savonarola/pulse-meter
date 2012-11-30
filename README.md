@@ -69,6 +69,7 @@ The following timeline sensors are available:
   * Multifactor sensor
   * Median value
   * Percentile
+  * MultiPercentile
   * Unique counter
 
 There are several caveats with timeline sensors:
