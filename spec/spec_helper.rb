@@ -10,6 +10,8 @@ SimpleCov.start
 
 require 'pulse-meter'
 require 'pulse-meter/visualizer'
+PulseMeter.redis = MockRedis.new
+
 require 'rack/test'
 
 Dir['spec/support/**/*.rb'].each{|f| require File.join(ROOT, f) }

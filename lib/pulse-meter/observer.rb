@@ -7,8 +7,10 @@ module PulseMeter
       # @param klass [Class] class
       # @param method [Symbol] instance method name
       def unobserve_method(klass, method)
-        if klass.method_defined?(method_with_observer(method))
-          klass.class_eval(&unchain_block(method))
+        with_observer = method_with_observer(method)
+        if klass.method_defined?(with_observer)
+          block = unchain_block(method)
+          klass.class_eval &block
         end
       end
 
@@ -16,8 +18,11 @@ module PulseMeter
       # @param klass [Class] class
       # @param method [Symbol] class method name
       def unobserve_class_method(klass, method)
-        if klass.respond_to?(method_with_observer(method))
-          metaclass(klass).instance_eval(&unchain_block(method))
+        with_observer = method_with_observer(method)
+        if klass.respond_to?(with_observer)
+          method_owner = metaclass(klass)
+          block = unchain_block(method)
+          method_owner.instance_eval &block
         end
       end
 
