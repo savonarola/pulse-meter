@@ -43,7 +43,7 @@ module PulseMeter
         end
 
         def series_data(from, till)
-          ensure_sensor_match!
+          ensure_equal_intervals!
           sensor_datas = sensors.map{ |s|
             s.timeline_data(from, till, show_last_point)
           }
@@ -73,7 +73,7 @@ module PulseMeter
           }
         end
 
-        def ensure_sensor_match!
+        def ensure_equal_intervals!
           intervals = []
           sensors.each do |s|
             unless s.type < PulseMeter::Sensor::Timeline
