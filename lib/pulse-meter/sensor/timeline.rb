@@ -128,31 +128,12 @@ module PulseMeter
       def timeline_within(from, till, skip_optimization = false)
         raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
         start_time, end_time = from.to_i, till.to_i
-        actual_interval = if skip_optimization
-          interval
-        else
-          optimized_interval(start_time, end_time)
-        end
-        current_interval_id = get_interval_id(start_time) + actual_interval
-        keys = []
-        ids = []
-        while current_interval_id < end_time
-          ids << current_interval_id
-          keys << data_key(current_interval_id)
-          current_interval_id += actual_interval
-        end
-        values = keys.empty? ? [] : redis.mget(*keys)
-        res = []
-        ids.zip(values) do |(id, val)|
-          res << if val.nil?
-            get_raw_value(id)
-          else
-            sensor_data(id, val)
-          end
-        end
-        res
+        actual_interval = optimized_interval(start_time, end_time, skip_optimization)
+        start_interval_id = get_interval_id(start_time) + actual_interval
+        ids, values = fetch_reduced_interval_data(start_interval_id, actual_interval, end_time)
+        zip_with_raw_data(ids, values)
       end
-
+      
       # Returns sensor data for given interval making in-memory summarization
       #   and returns calculated value
       # @param interval_id [Fixnum]
@@ -261,8 +242,9 @@ module PulseMeter
       # @param start_time [Fixnum] unix timestamp of timespan start
       # @param end_time [Fixnum] unix timestamp of timespan start
       # @return [Fixnum] optimized interval in seconds.
-      def optimized_interval(start_time, end_time)
+      def optimized_interval(start_time, end_time, skip_optimization = false)
         res_interval = interval
+        return res_interval if skip_optimization
         timespan = end_time - start_time
         while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
           res_interval *= 2
@@ -270,7 +252,30 @@ module PulseMeter
         res_interval
       end
 
+      def fetch_reduced_interval_data(start_interval_id, actual_interval, end_time)
+        keys = []
+        ids = []
+        current_interval_id = start_interval_id
+        while current_interval_id < end_time
+          ids << current_interval_id
+          keys << data_key(current_interval_id)
+          current_interval_id += actual_interval
+        end
+        values = keys.empty? ? [] : redis.mget(*keys)
+        [ids, values]
+      end
 
+      def zip_with_raw_data(ids, values)
+        res = []
+        ids.zip(values) do |(id, val)|
+          res << if val.nil?
+            get_raw_value(id)
+          else
+            sensor_data(id, val)
+          end
+        end
+        res
+      end
     end
   end
 end
