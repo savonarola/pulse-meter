@@ -4,7 +4,7 @@ describe PulseMeter::Observer do
 
   context "instance methods observation" do
   
-    class Dummy
+    class ObservedDummy
       attr_reader :count
 
       def initialize
@@ -23,20 +23,20 @@ describe PulseMeter::Observer do
       end
     end
 
-    let!(:dummy) {Dummy.new}
+    let!(:dummy) {ObservedDummy.new}
     let!(:sensor) {PulseMeter::Sensor::Counter.new(:foo)}
     before do
-      [:incr, :error].each {|m| described_class.unobserve_method(Dummy, m)}
+      [:incr, :error].each {|m| described_class.unobserve_method(ObservedDummy, m)}
     end
 
     def create_observer(method = :incr, increment = 1)
-      described_class.observe_method(Dummy, method, sensor) do |*args|
+      described_class.observe_method(ObservedDummy, method, sensor) do |*args|
         event(increment)
       end
     end
 
     def remove_observer(method = :incr)
-      described_class.unobserve_method(Dummy, method)
+      described_class.unobserve_method(ObservedDummy, method)
     end
 
     describe ".observe_method" do
@@ -53,7 +53,7 @@ describe PulseMeter::Observer do
       end
 
       it "passes methods' params to block" do
-        described_class.observe_method(Dummy, :incr, sensor) do |time, cnt|
+        described_class.observe_method(ObservedDummy, :incr, sensor) do |time, cnt|
           event(cnt)
         end
 
@@ -63,7 +63,7 @@ describe PulseMeter::Observer do
 
       it "passes execution time in milliseconds to block" do
         Timecop.freeze do
-          described_class.observe_method(Dummy, :incr, sensor) do |time, cnt|
+          described_class.observe_method(ObservedDummy, :incr, sensor) do |time, cnt|
             event(time)
           end
 
@@ -73,7 +73,7 @@ describe PulseMeter::Observer do
       end
 
       it "does not break observed method even is observer raises error" do
-        described_class.observe_method(Dummy, :incr, sensor) do |*args|
+        described_class.observe_method(ObservedDummy, :incr, sensor) do |*args|
           raise RuntimeError
         end
 
@@ -125,7 +125,7 @@ describe PulseMeter::Observer do
 
   context "class methods observation" do
   
-    class Dummy
+    class ObservedDummy
       @@count = 0
       class << self
         def count
@@ -149,21 +149,21 @@ describe PulseMeter::Observer do
       end
     end
 
-    let!(:dummy) {Dummy}
+    let!(:dummy) {ObservedDummy}
     let!(:sensor) {PulseMeter::Sensor::Counter.new(:foo)}
     before do
       dummy.reset
-      [:incr, :error].each {|m| described_class.unobserve_class_method(Dummy, m)}
+      [:incr, :error].each {|m| described_class.unobserve_class_method(ObservedDummy, m)}
     end
 
     def create_observer(method = :incr, increment = 1)
-      described_class.observe_class_method(Dummy, method, sensor) do |*args|
+      described_class.observe_class_method(ObservedDummy, method, sensor) do |*args|
         event(increment)
       end
     end
 
     def remove_observer(method = :incr)
-      described_class.unobserve_class_method(Dummy, method)
+      described_class.unobserve_class_method(ObservedDummy, method)
     end
 
     describe ".observe_class_method" do
@@ -180,7 +180,7 @@ describe PulseMeter::Observer do
       end
 
       it "passes methods' params to block" do
-        described_class.observe_class_method(Dummy, :incr, sensor) do |time, cnt|
+        described_class.observe_class_method(ObservedDummy, :incr, sensor) do |time, cnt|
           event(cnt)
         end
 
@@ -190,7 +190,7 @@ describe PulseMeter::Observer do
 
       it "passes execution time in milliseconds to block" do
         Timecop.freeze do
-          described_class.observe_class_method(Dummy, :incr, sensor) do |time, cnt|
+          described_class.observe_class_method(ObservedDummy, :incr, sensor) do |time, cnt|
             event(time)
           end
 
@@ -200,7 +200,7 @@ describe PulseMeter::Observer do
       end
 
       it "does not break observed method even is observer raises error" do
-        described_class.observe_class_method(Dummy, :incr, sensor) do |*args|
+        described_class.observe_class_method(ObservedDummy, :incr, sensor) do |*args|
           raise RuntimeError
         end
 

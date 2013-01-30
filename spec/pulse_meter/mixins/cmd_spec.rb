@@ -1,16 +1,21 @@
 require 'spec_helper'
 
 describe PulseMeter::Mixins::Cmd do
-  class Dummy
-    extend PulseMeter::Mixins::Cmd
+  class CmdDummy
+    include PulseMeter::Mixins::Cmd
 
-    def self.options
-      {host: :localhost, port: 6379, db: 0}
+    def initialize(redis)
+      @redis = redis
+    end
+
+    def create_redis
+      @redis
     end
   end
 
-  let(:dummy){ Dummy }
-  before {PulseMeter.redis = Redis.new}
+  let(:redis){ MockRedis.new }
+  let(:dummy){ CmdDummy.new(redis) }
+  before{ PulseMeter.redis = redis }
 
   describe "#fail!" do
     it "prints given message and exits" do

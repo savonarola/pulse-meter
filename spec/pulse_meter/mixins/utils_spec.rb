@@ -181,4 +181,24 @@ describe PulseMeter::Mixins::Utils do
       subsets.sort.should == [[], [1], [2], [1, 2]].sort
     end
   end
+
+  describe '#parse_time' do
+    context "when argument is a valid YYYYmmddHHMMSS string" do
+      it "should correct Time object" do
+        t = dummy.parse_time("19700101000000")
+        t.should be_kind_of(Time)
+        t.to_i.should == 0
+      end
+    end
+    context "when argument is an invalid YYYYmmddHHMMSS string" do
+      it "should raise ArgumentError" do
+        expect{ dummy.parse_time("19709901000000") }.to raise_exception(ArgumentError)
+      end
+    end
+    context "when argument is not a YYYYmmddHHMMSS string" do
+      it "should raise ArgumentError" do
+        expect{ dummy.parse_time("197099010000000") }.to raise_exception(ArgumentError)
+      end
+    end
+  end
 end

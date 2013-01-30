@@ -6,9 +6,9 @@ module PulseMeter
     #   one value for each consequent time interval.
     class Timeline < Base
       include PulseMeter::Mixins::Utils
+      include PulseMeter::Sensor::TimelineReduce
 
       MAX_TIMESPAN_POINTS = 1000
-      MAX_INTERVALS = 100
 
       # @!attribute [r] interval
       #   @return [Fixnum] Rotation interval
@@ -64,51 +64,6 @@ module PulseMeter
         false
       end
 
-      # Reduces data in given interval. 
-      # @note Interval id is
-      #   just unixtime of its lower bound. Ruduction is a process
-      #   of 'compressing' all interval's raw data to a single value.
-      #   When reduction is done summarized data is saved to Redis
-      #   separately with expiration time taken from sensor configuration.
-      # @param interval_id [Fixnum] 
-      def reduce(interval_id)
-        interval_raw_data_key = raw_data_key(interval_id)
-        return unless redis.exists(interval_raw_data_key)
-        value = summarize(interval_raw_data_key)
-        interval_data_key = data_key(interval_id)
-        multi do
-          redis.del(interval_raw_data_key)
-          if redis.setnx(interval_data_key, value)
-            redis.expire(interval_data_key, ttl)
-          end
-        end
-      end
-
-      # Reduces data in all raw interval
-      def reduce_all_raw
-        time = Time.now
-        min_time = time - reduce_delay  - interval
-        max_depth = time - reduce_delay - interval * MAX_INTERVALS
-        ids = []
-        while (time > max_depth)
-          time -= interval
-          interval_id = get_interval_id(time)
-          next if Time.at(interval_id) > min_time
-
-          reduced_key = data_key(interval_id)
-          raw_key = raw_data_key(interval_id)
-          break if redis.exists(reduced_key)
-          ids << interval_id
-        end
-        ids.reverse.each {|id| reduce(id)}
-      end
-
-      def self.reduce_all_raw
-        list_objects.each do |sensor|
-          sensor.reduce_all_raw if sensor.respond_to? :reduce_all_raw
-        end
-      end
-
       # Returts sensor data within some last seconds
       # @param time_ago [Fixnum] interval length in seconds
       # @return [Array<SensorData>]
@@ -128,31 +83,12 @@ module PulseMeter
       def timeline_within(from, till, skip_optimization = false)
         raise ArgumentError unless from.kind_of?(Time) && till.kind_of?(Time)
         start_time, end_time = from.to_i, till.to_i
-        actual_interval = if skip_optimization
-          interval
-        else
-          optimized_interval(start_time, end_time)
-        end
-        current_interval_id = get_interval_id(start_time) + actual_interval
-        keys = []
-        ids = []
-        while current_interval_id < end_time
-          ids << current_interval_id
-          keys << data_key(current_interval_id)
-          current_interval_id += actual_interval
-        end
-        values = keys.empty? ? [] : redis.mget(*keys)
-        res = []
-        ids.zip(values) do |(id, val)|
-          res << if val.nil?
-            get_raw_value(id)
-          else
-            sensor_data(id, val)
-          end
-        end
-        res
+        actual_interval = optimized_interval(start_time, end_time, skip_optimization)
+        start_interval_id = get_interval_id(start_time) + actual_interval
+        ids, values = fetch_reduced_interval_data(start_interval_id, actual_interval, end_time)
+        zip_with_raw_data(ids, values)
       end
-
+      
       # Returns sensor data for given interval making in-memory summarization
       #   and returns calculated value
       # @param interval_id [Fixnum]
@@ -261,8 +197,9 @@ module PulseMeter
       # @param start_time [Fixnum] unix timestamp of timespan start
       # @param end_time [Fixnum] unix timestamp of timespan start
       # @return [Fixnum] optimized interval in seconds.
-      def optimized_interval(start_time, end_time)
+      def optimized_interval(start_time, end_time, skip_optimization = false)
         res_interval = interval
+        return res_interval if skip_optimization
         timespan = end_time - start_time
         while timespan / res_interval > MAX_TIMESPAN_POINTS - 1
           res_interval *= 2
@@ -270,7 +207,30 @@ module PulseMeter
         res_interval
       end
 
+      def fetch_reduced_interval_data(start_interval_id, actual_interval, end_time)
+        keys = []
+        ids = []
+        current_interval_id = start_interval_id
+        while current_interval_id < end_time
+          ids << current_interval_id
+          keys << data_key(current_interval_id)
+          current_interval_id += actual_interval
+        end
+        values = keys.empty? ? [] : redis.mget(*keys)
+        [ids, values]
+      end
 
+      def zip_with_raw_data(ids, values)
+        res = []
+        ids.zip(values) do |(id, val)|
+          res << if val.nil?
+            get_raw_value(id)
+          else
+            sensor_data(id, val)
+          end
+        end
+        res
+      end
     end
   end
 end
