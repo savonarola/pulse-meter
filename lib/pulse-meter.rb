@@ -10,6 +10,9 @@ require "pulse-meter/sensor/configuration"
 
 require "pulse-meter/command_aggregator/async"
 require "pulse-meter/command_aggregator/sync"
+require "pulse-meter/command_aggregator/udp"
+
+require "pulse-meter/udp_server"
 
 module PulseMeter
   @@redis = nil
@@ -37,7 +40,7 @@ module PulseMeter
     @@command_aggregator = case command_aggregator
       when :sync; PulseMeter::CommandAggregator::Sync.instance
       when :async; PulseMeter::CommandAggregator::Async.instance
-      else raise ArgumentError
+      else command_aggregator
     end
   end
 

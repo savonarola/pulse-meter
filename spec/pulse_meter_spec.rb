@@ -27,8 +27,9 @@ describe PulseMeter do
       end
     end
     context "otherwise" do
-      it "should raise ArgumentError" do
-        expect{ PulseMeter.command_aggregator = :xxx }.to raise_exception(ArgumentError)
+      it "should set command_aggregator to the passed value" do
+        PulseMeter.command_aggregator = :xxx
+        PulseMeter.command_aggregator.should == :xxx
       end
     end
   end

@@ -157,5 +157,15 @@ module Cmd
       end
     end
 
+    desc "udp_proxy HOST PORT", "Start UDP proxy for sensor data"
+    common_options
+    def udp_proxy(host, port)
+      with_redis do
+        puts 'Starting UDP server'
+        server = PulseMeter::UDPServer.new(host, port)
+        server.start
+      end
+    end
+
   end
 end
