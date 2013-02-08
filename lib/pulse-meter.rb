@@ -12,6 +12,8 @@ require "pulse-meter/command_aggregator/async"
 require "pulse-meter/command_aggregator/sync"
 require "pulse-meter/command_aggregator/udp"
 
+require "pulse-meter/udp_server"
+
 module PulseMeter
   @@redis = nil
 
