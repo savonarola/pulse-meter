@@ -6,8 +6,8 @@ describe PulseMeter::CommandAggregator::UDP do
   let(:udp_sock){mock(:socket)}
   before do 
     UDPSocket.stub!(:new).and_return(udp_sock)
-    udp_sock.stub!(:close).and_return(nil)
-    @ca = described_class.new(host, port)
+    udp_sock.stub!(:fcntl).and_return(nil)
+    @ca = described_class.new([[host, port]])
   end
 
   describe "#multi" do
