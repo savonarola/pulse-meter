@@ -5,9 +5,13 @@ module PulseMeter
   module CommandAggregator
     class UDP
 
-      def initialize(servers = [])
-        raise ArgumentError, "No servers specified" if servers.empty?
-        @servers = servers
+      def initialize(host, port = nil)
+        @servers = if host.is_a?(Array)
+          host
+        else
+          [[host, port]]
+        end
+        raise ArgumentError, "No servers specified" if @servers.empty?
         @buffer = []
         @in_multi = false
         @sock = UDPSocket.new
