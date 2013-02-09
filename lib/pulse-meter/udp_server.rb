@@ -26,8 +26,10 @@ module PulseMeter
     def process_packet
       raw_data, _ = @socket.recvfrom(MAX_PACKET)
       data = parse_data(raw_data)
-      data.each do |command|
-        PulseMeter.redis.send(*command)
+      PulseMeter.redis.multi do
+        data.each do |command|
+          PulseMeter.redis.send(*command)
+        end
       end
     rescue StandardError => e
       PulseMeter.error "Error processing packet: #{e}"
