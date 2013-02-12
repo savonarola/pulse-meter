@@ -86,7 +86,8 @@ module PulseMeter
     end
 
     SPECIAL_SERIES_EXTRACTORS = {
-      'HashedCounter' => SeriesExtractor::Hashed
+      'HashedCounter' => SeriesExtractor::Hashed,
+      'HashedIndicator' => SeriesExtractor::Hashed
     }.freeze
 
     DEFAULT_SERIES_EXTRACTOR = SeriesExtractor::Simple
