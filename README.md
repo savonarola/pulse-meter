@@ -5,6 +5,10 @@
 
 PulseMeter is a gem for fast and convenient realtime aggregating of software internal stats through Redis.
 
+## Live Demo
+
+A small live demo is located here: [rubybox.ru](http://rubybox.ru), its source code can be found here: [https://github.com/savonarola/pulse-meter-demo](https://github.com/savonarola/pulse-meter-demo)
+
 ## Features
 
 PulseMeter is designed to provide the following features:
