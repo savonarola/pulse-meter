@@ -36,7 +36,7 @@ module PulseMeter
       def send_buffer
         data = @buffer.to_json
         @sock.send(data, 0, *@servers.sample)
-      rescue StandardError
+      rescue StandardError => e
         PulseMeter.error "error sending data: #{e}, #{e.backtrace.join("\n")}"
       ensure
         @buffer = []

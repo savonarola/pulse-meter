@@ -22,6 +22,13 @@ describe PulseMeter::CommandAggregator::UDP do
         @ca.set("yyyy", "zzzz")
       end
     end
+
+    it "should ignore standard exceptions" do
+      udp_sock.should_receive(:send).and_raise(StandardError)
+      @ca.multi do
+        @ca.set("xxxx", "zzzz")
+      end
+    end
   end
 
   describe "any other redis instance method" do
