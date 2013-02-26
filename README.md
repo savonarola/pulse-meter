@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/savonarola/pulse-meter.png)](http://travis-ci.org/savonarola/pulse-meter)
 [![Dependency Status](https://gemnasium.com/savonarola/pulse-meter.png)](https://gemnasium.com/savonarola/pulse-meter)
-[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/savonarola/pulse-meter)
+[![Code Climate](https://codeclimate.com/github/savonarola/pulse-meter.png)](https://codeclimate.com/github/savonarola/pulse-meter)
 
 # PulseMeter
 
