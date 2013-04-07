@@ -16,6 +16,7 @@ module PulseMeter
         @buffer = []
         @in_multi = false
         @consumer_thread = run_consumer
+        at_exit{ wait_for_pending_events }
       end
 
       def multi
