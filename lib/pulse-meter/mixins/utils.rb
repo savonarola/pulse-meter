@@ -88,6 +88,19 @@ module PulseMeter
         (first_letter_upper ? first.capitalize : first.downcase) + terms.map(&:capitalize).join
       end
 
+      # Converts string from CamelCase to snake_case
+      # @param str [String] string to be underscore
+      # @return [String]
+      # @raise [ArgumentError] unless passed value responds to to_s
+      def underscore(str)
+        raise ArgumentError unless str.respond_to?(:to_s)
+        str.to_s.gsub(/::/, '/').
+          gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+          gsub(/([a-z\d])([A-Z])/,'\1_\2').
+          tr("-", "_").
+          downcase
+      end
+
       # Converts string of the form YYYYmmddHHMMSS (considered as UTC) to Time
       # @param str [String] string to be converted
       # @return [Time]

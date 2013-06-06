@@ -2,6 +2,8 @@ require 'pulse-meter'
 
 module PulseMeter
   class Observer
+  extend PulseMeter::Mixins::Utils
+
     class << self
       # Removes observation from instance method
       # @param klass [Class] class
@@ -53,19 +55,8 @@ module PulseMeter
         end
       end
 
-      private
+      protected
 
-      def unchain_block(method)
-        with_observer = method_with_observer(method)
-        without_observer = method_without_observer(method)
-
-        Proc.new do
-          alias_method(method, without_observer)
-          remove_method(with_observer)
-          remove_method(without_observer)
-        end
-      end
-    
       def define_instrumented_method(method_owner, method, receiver, &handler)
         with_observer = method_with_observer(method)
         without_observer = method_without_observer(method)
@@ -80,6 +71,19 @@ module PulseMeter
             rescue StandardError
             end
           end
+        end
+      end
+
+      private
+
+      def unchain_block(method)
+        with_observer = method_with_observer(method)
+        without_observer = method_without_observer(method)
+
+        Proc.new do
+          alias_method(method, without_observer)
+          remove_method(with_observer)
+          remove_method(without_observer)
         end
       end
 
@@ -105,11 +109,11 @@ module PulseMeter
       end
 
       def method_with_observer(method)
-        "#{method}_with_observer"
+        "#{method}_with_#{underscore(self).tr('/', '_')}"
       end
 
       def method_without_observer(method)
-        "#{method}_without_observer"
+        "#{method}_without_#{underscore(self).tr('/', '_')}"
       end
     end
   end
