@@ -3,26 +3,6 @@ require 'spec_helper'
 describe PulseMeter::Observer do
 
   context "instance methods observation" do
-  
-    class ObservedDummy
-      attr_reader :count
-
-      def initialize
-        @count = 0
-      end
-
-      def incr(value = 1, &proc)
-        Timecop.travel(Time.now + 1)
-        @count += value
-        @count += proc.call if proc
-        @count
-      end
-
-      def error
-        raise RuntimeError
-      end
-    end
-
     let!(:dummy) {ObservedDummy.new}
     let!(:sensor) {PulseMeter::Sensor::Counter.new(:foo)}
     before do
@@ -124,31 +104,6 @@ describe PulseMeter::Observer do
   end
 
   context "class methods observation" do
-  
-    class ObservedDummy
-      @@count = 0
-      class << self
-        def count
-          @@count
-        end
-
-        def reset
-          @@count = 0
-        end
-
-        def incr(value = 1, &proc)
-          Timecop.travel(Time.now + 1)
-          @@count += value
-          @@count += proc.call if proc
-          @@count
-        end
-
-        def error
-          raise RuntimeError
-        end
-      end
-    end
-
     let!(:dummy) {ObservedDummy}
     let!(:sensor) {PulseMeter::Sensor::Counter.new(:foo)}
     before do

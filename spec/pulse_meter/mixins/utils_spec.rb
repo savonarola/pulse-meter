@@ -156,6 +156,14 @@ describe PulseMeter::Mixins::Utils do
     end
   end
 
+  describe "#underscore" do
+    it "should underscore string" do
+      dummy.underscore("aaBbCc").should == "aa_bb_cc"
+      dummy.underscore("AaBbCc").should == "aa_bb_cc"
+      dummy.underscore("aaBb::Cc").should == "aa_bb/cc"
+    end
+  end
+
   describe "#camelize_keys" do
     it "should deeply camelize keys in hashes" do
       dummy.camelize_keys({ :aa_bb_cc => [ { :dd_ee => 123 }, 456 ] }).should =={ 'aaBbCc' => [ { 'ddEe' => 123 }, 456 ] }
