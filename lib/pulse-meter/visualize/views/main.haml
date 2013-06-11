@@ -20,14 +20,11 @@
     = partial "widgets/#{wtype}"
   = partial "sensors"
 
-  .container#main
-    .row
-      .span10.offset1
-        .navbar
-          .navbar-inner
-            .container
-              %a{href: '#/custom'}
-                %span.brand= @title 
-                %ul.nav#page-titles
-        #widgets.row
+  .navbar.navbar-fixed-top
+    .navbar-inner
+      .container-fluid
+        %a.brand{href: '#/custom'}= @title
+        %ul.nav#page-titles
 
+  .container-fluid#main
+    .row-fluid#widgets
