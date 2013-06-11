@@ -100,8 +100,9 @@ while true
   sensors.shortest_minute_request(request_time)
   sensors.perc90_minute_request(request_time)
 
-  agent_counter = sensors.sensor(agent_names.shuffle.first)
-  agent_counter.event(1)
+  sensors.sensor(agent_names.shuffle.first) do |s|
+    s.event(1)
+  end
 
   sensors.cpu(Random.rand(100))
 
