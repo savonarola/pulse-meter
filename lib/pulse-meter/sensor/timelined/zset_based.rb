@@ -1,7 +1,6 @@
 module PulseMeter
   module Sensor
     module Timelined
-      # Calculates min value in interval
       class ZSetBased < Timeline
 
         def update(_)
