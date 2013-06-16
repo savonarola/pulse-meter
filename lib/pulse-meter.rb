@@ -1,1 +1,1 @@
-require 'pulse_meter_visuzlizer'
+require 'pulse_meter_core'

@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/pulse-meter/version', __FILE__)
-
 Gem::Specification.new do |gem|
   gem.authors       = ["Ilya Averyanov", "Sergey Averyanov"]
   gem.email         = ["av@fun-box.ru", "averyanov@gmail.com"]
@@ -23,4 +21,5 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency('pulse-meter-visualizer')
 
   gem.add_development_dependency('rake')
+  gem.add_development_dependency('foreman')
 end
