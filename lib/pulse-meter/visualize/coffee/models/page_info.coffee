@@ -1,2 +1,0 @@
-PageInfo = Backbone.Model.extend {
-}
