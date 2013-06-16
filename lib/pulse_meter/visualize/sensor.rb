@@ -1,4 +1,4 @@
-require "pulse-meter/visualize/series_extractor"
+require "pulse_meter/visualize/series_extractor"
 
 module PulseMeter
   module Visualize

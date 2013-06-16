@@ -1,32 +1,26 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/pulse-meter/version', __FILE__)
-
 Gem::Specification.new do |gem|
   gem.authors       = ["Ilya Averyanov", "Sergey Averyanov"]
   gem.email         = ["av@fun-box.ru", "averyanov@gmail.com"]
-  gem.description   = %q{Lightweight metrics processor}
+  gem.description   = %q{Customizable web interface for PulseMeter gem}
   gem.summary       = %q{
-    Lightweight Redis-based metrics aggregator and processor
-    with CLI and simple and customizable WEB interfaces
+    Customizable web interface for lightweight Redis-based metrics aggregator and processor PulseMeter
   }
-  gem.homepage      = "https://github.com/savonarola/pulse-meter"
+  gem.homepage      = "https://github.com/savonarola/pulse-meter-visualizer"
 
   gem.required_ruby_version = '>= 1.9.2'
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.name          = "pulse-meter"
+  gem.name          = "pulse-meter-visualizer"
   gem.require_paths = ["lib"]
-  gem.version       = PulseMeter::VERSION
+  gem.version       = "0.4.10"
 
+  gem.add_runtime_dependency('pulse-meter-core')
   gem.add_runtime_dependency('gon-sinatra')
   gem.add_runtime_dependency('haml')
-  gem.add_runtime_dependency('json')
-  gem.add_runtime_dependency('redis')
   gem.add_runtime_dependency('sinatra')
   gem.add_runtime_dependency('sinatra-partial')
-  gem.add_runtime_dependency('terminal-table')
-  gem.add_runtime_dependency('thor')
 
   gem.add_development_dependency('aquarium')
   gem.add_development_dependency('coffee-script')

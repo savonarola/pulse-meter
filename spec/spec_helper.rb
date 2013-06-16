@@ -8,15 +8,12 @@ Bundler.require(:default, :test, :development)
 
 SimpleCov.start
 
-require 'pulse-meter'
-require 'pulse-meter/visualizer'
+require 'pulse_meter_visualizer'
 PulseMeter.redis = MockRedis.new
 
 require 'rack/test'
 
-Dir['spec/support/**/*.rb'].each{|f| require File.join(ROOT, f) }
 Dir['spec/shared_examples/**/*.rb'].each{|f| require File.join(ROOT,f)}
-
 
 require 'aquarium'
 include Aquarium::Aspects
@@ -35,6 +32,5 @@ RSpec.configure do |config|
   end
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
-  config.include(Matchers)
 end
 
