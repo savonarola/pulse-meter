@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "pulse-meter"
   gem.require_paths = ["lib"]
-  gem.version       = "0.4.12"
+  gem.version       = "0.4.13"
 
   gem.add_runtime_dependency('pulse_meter_cli')
   gem.add_runtime_dependency('pulse_meter_visualizer')
