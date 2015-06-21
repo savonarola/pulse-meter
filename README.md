@@ -1,4 +1,4 @@
-[![PilseMeter](https://raw.githubusercontent.com/savonarola/pulse-meter/master/PulseMeterLogo.png)]
+![PulseMeter](https://raw.githubusercontent.com/savonarola/pulse-meter/master/PulseMeterLogo.png)
 
 [![Gem Version](https://badge.fury.io/rb/pulse-meter.png)](http://badge.fury.io/rb/pulse-meter)
 [![Build Status](https://secure.travis-ci.org/savonarola/pulse-meter.png)](http://travis-ci.org/savonarola/pulse-meter)
