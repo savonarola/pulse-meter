@@ -6,7 +6,7 @@
 
 # PulseMeter
 
-PulseMeter is a gem for fast and convenient realtime aggregating of software internal stats through Redis. **This gem itself does not contain any real functionality, it just contains examples and bundles dependencies with real PulseMeter features.**
+PulseMeter is a gem for fast and convenient realtime aggregating of software internal stats through Redis. **This gem itself does not contain any code, it contains examples and bundles dependencies with real PulseMeter features.**
 
 ## Live Demo
 
