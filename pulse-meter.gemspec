@@ -15,10 +15,11 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "pulse-meter"
   gem.require_paths = ["lib"]
-  gem.version       = "0.4.13"
+  gem.version       = "0.4.14"
 
-  gem.add_runtime_dependency('pulse_meter_cli')
-  gem.add_runtime_dependency('pulse_meter_visualizer')
+  gem.add_runtime_dependency('pulse_meter_cli', '~> 0.4.17')
+  gem.add_runtime_dependency('pulse_meter_core', '~> 0.5.4')
+  gem.add_runtime_dependency('pulse_meter_visualizer', '~> 0.4.21')
 
   gem.add_development_dependency('rake')
   gem.add_development_dependency('foreman')
