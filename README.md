@@ -178,6 +178,15 @@ end
 # 2012-05-24 11:07:00 +0400: 3.0
 # 2012-05-24 11:08:00 +0400: 7.0
 ```
+
+Note: if you're using simple counters (for example: timelined/counter) and you need to set their ttl, use also another option called **raw_data_ttl** (Default value is 1 hour. After 1 hour data will expire)
+```ruby
+requests_per_minute = PulseMeter::Sensor::Timelined::Counter.new(:my_t_counter,
+  interval: 60,
+  ttl: 7.days,
+  raw_data_ttl: 7.days
+)
+```
  
  There is also an alternative and a bit more DRY way for sensor creation, management and usage using `PulseMeter::Sensor::Configuration` class. It is also convenient for creating a bunch of sensors from some configuration data. Using and creating sensors through `PulseMeter::Sensor::Configuration` also allows to ignore any i/o errors (i.e. redis server unavailability), and this is generally the required case. 
  
@@ -568,6 +577,79 @@ end
 
 run layout.to_app
 ```
+
+## Rails app integration
+
+If you're going to use this gem to visualize some metrics in your rails app, you can do it by two ways.
+
+1. First way: mount as rack-app. For this you need to write something like that:
+
+    + define entry (for example in lib/)
+    
+    ```ruby
+    # lib/dashboard.rb
+    module Dashboard
+      require 'pulse-meter/visualizer'
+      class Panel
+        def self.entry
+          layout = PulseMeter::Visualizer.draw do |l|
+            l.title "Метрики"
+            l.use_utc false
+            # l.outlier_color '#FF0000'
+            l.page "Скоринг" do |p|
+    
+              p.area "Запросы" do |w|
+                w.sensor :requests_count
+    
+                w.timespan 1.day
+                w.redraw_interval 30.seconds
+                w.show_last_point true
+                w.values_label "Запросы"
+                w.width 6
+              end
+    
+            end
+          end
+          layout.to_app
+        end
+      end
+    end
+    ```
+    
+    + mount it in routes:
+    
+    ```ruby
+    # config/routes.rb
+    YourApp::Application.routes.draw do
+    ...
+      mount Dashboard::Panel.entry, at: '/dashboard'
+    ...
+    end
+    ```
+
+2. Second way to integrate lib is to define it in config.ru:
+
+    + Write entry like in previous paragraph or right down in the config/application.rb
+     
+    + modify your config.ru as below:
+    
+    ```ruby
+    # config.ru
+    
+    # This file is used by Rack-based servers to start the application.
+    require ::File.expand_path('../config/environment',  __FILE__)
+    
+    map "/" do
+      run RailsApp::Application
+    end
+    
+    map "/dashboard" do
+      run RailsApp::Dashboard::Panel.entry
+    end
+    ```
+
+Don't forget to initialize redis-database for pulse-meter and define counters (for example in config/settings.yml).
+
 
 ## Installation
 
