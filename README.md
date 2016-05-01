@@ -580,12 +580,12 @@ run layout.to_app
 
 ## Rails app integration
 
-If you're going to use this gem to visualize some metrics in your rails app, you can do it by two ways.
+If you're going to use this gem to visualize some metrics in your Rails app, you can do it in two ways.
 
-1. First way: mount as rack-app. For this you need to write something like that:
+1. First way: mount dashboard as rack-app. For this you need to write something like that:
 
     + define entry (for example in lib/)
-    
+
     ```ruby
     # lib/dashboard.rb
     module Dashboard
@@ -597,17 +597,17 @@ If you're going to use this gem to visualize some metrics in your rails app, you
             l.use_utc false
             # l.outlier_color '#FF0000'
             l.page "Скоринг" do |p|
-    
+
               p.area "Запросы" do |w|
                 w.sensor :requests_count
-    
+
                 w.timespan 1.day
                 w.redraw_interval 30.seconds
                 w.show_last_point true
                 w.values_label "Запросы"
                 w.width 6
               end
-    
+
             end
           end
           layout.to_app
@@ -615,9 +615,9 @@ If you're going to use this gem to visualize some metrics in your rails app, you
       end
     end
     ```
-    
+
     + mount it in routes:
-    
+
     ```ruby
     # config/routes.rb
     YourApp::Application.routes.draw do
@@ -627,28 +627,28 @@ If you're going to use this gem to visualize some metrics in your rails app, you
     end
     ```
 
-2. Second way to integrate lib is to define it in config.ru:
+2. Second way is to integrate lib is to define dashboard in config.ru:
 
     + Write entry like in previous paragraph or right down in the config/application.rb
-     
+
     + modify your config.ru as below:
-    
+
     ```ruby
     # config.ru
-    
+
     # This file is used by Rack-based servers to start the application.
     require ::File.expand_path('../config/environment',  __FILE__)
-    
+
     map "/" do
       run RailsApp::Application
     end
-    
+
     map "/dashboard" do
       run RailsApp::Dashboard::Panel.entry
     end
     ```
 
-Don't forget to initialize redis-database for pulse-meter and define counters (for example in config/settings.yml).
+Don't forget to initialize redis database for `PulseMeter` and define sensors (using `config/settings.yml` and `PulseMeter::Sensor::Configuration` or somehow else).
 
 
 ## Installation
