@@ -91,15 +91,6 @@ There are several caveats with timeline sensors:
     command on a regular basis. This command reduces the stored data for passed intervals to single values,
     so that they do not consume storage space.
 
-## Command line interface
-
-Gem includes a tool `pulse`, which allows to send events to sensors, list them, etc.
-You should pay attention to the command `pulse reduce`, which is generally should be
-scheduled on a regular basis to keep data in Redis small.
-
-To see available commands of this tool one can run the example above(see `examples/readme_client_example.rb`)
-and run `pulse help`.
-
 ### Observers
 
 Observer allows to notify sensors each time some class or instance method is called
@@ -118,6 +109,16 @@ Each time the observed method is called, the block recieves all method's argumen
 One should use `observe_method` to observe instance methods.
 
 `unobserve_class_method` and `unobserve_method` remove observations from class or instace method.
+
+## Command line interface
+
+Gem includes a tool `pulse`, which allows to send events to sensors, list them, etc.
+You should pay attention to the command `pulse reduce`, which is generally should be
+scheduled on a regular basis to keep data in Redis small.
+
+To see available commands of this tool one can run the example above(see `examples/readme_client_example.rb`)
+and run `pulse help`.
+
 
 ## Client usage
 
