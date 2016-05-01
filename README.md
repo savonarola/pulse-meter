@@ -91,6 +91,14 @@ There are several caveats with timeline sensors:
     command on a regular basis. This command reduces the stored data for passed intervals to single values,
     so that they do not consume storage space.
 
+## Command line interface
+
+Gem includes a tool `pulse`, which allows to send events to sensors, list them, etc.
+You should pay attention to the command `pulse reduce`, which is generally should be
+scheduled on a regular basis to keep data in Redis small.
+
+To see available commands of this tool one can run the example above(see `examples/readme_client_example.rb`)
+and run `pulse help`.
 
 ### Observers
 
@@ -179,7 +187,7 @@ end
 # 2012-05-24 11:08:00 +0400: 7.0
 ```
 
-Note: if you're using simple counters (for example: timelined/counter) and you need to set their ttl, use also another option called **raw_data_ttl** (Default value is 1 hour. After 1 hour data will expire)
+Note: if you're using simple counters (for example, `timelined/counter` or `timelined/hashed_counter`) you may just set `raw_data_ttl` parameter equal to `ttl`, then sensor data will persist for the set period even without running `pulse reduce` periodically.
 ```ruby
 requests_per_minute = PulseMeter::Sensor::Timelined::Counter.new(:my_t_counter,
   interval: 60,
@@ -257,15 +265,6 @@ sensors.sensor(:my_t_max) do |s|
   end
 end
 ```
-
-## Command line interface
-
-Gem includes a tool `pulse`, which allows to send events to sensors, list them, etc.
-You should pay attention to the command `pulse reduce`, which is generally should be
-scheduled on a regular basis to keep data in Redis small.
-
-To see available commands of this tool one can run the example above(see `examples/readme_client_example.rb`)
-and run `pulse help`.
 
 ## Visualisation
 
