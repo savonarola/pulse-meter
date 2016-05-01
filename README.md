@@ -1,8 +1,8 @@
 ![PulseMeter](https://raw.githubusercontent.com/savonarola/pulse-meter/master/PulseMeterLogo.png)
 
-[![Gem Version](https://badge.fury.io/rb/pulse-meter.png)](http://badge.fury.io/rb/pulse-meter)
-[![Build Status](https://secure.travis-ci.org/savonarola/pulse-meter.png)](http://travis-ci.org/savonarola/pulse-meter)
-[![Dependency Status](https://gemnasium.com/savonarola/pulse-meter.png)](https://gemnasium.com/savonarola/pulse-meter)
+[![Gem Version](https://badge.fury.io/rb/pulse-meter.svg)](http://badge.fury.io/rb/pulse-meter)
+[![Build Status](https://secure.travis-ci.org/savonarola/pulse-meter.svg)](http://travis-ci.org/savonarola/pulse-meter)
+[![Dependency Status](https://gemnasium.com/badges/github.com/savonarola/pulse-meter.svg)](https://gemnasium.com/github.com/savonarola/pulse-meter)
 
 # PulseMeter
 
