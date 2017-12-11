@@ -94,7 +94,7 @@ There are several caveats with timeline sensors:
 ### Observers
 
 Observer allows to notify sensors each time some class or instance method is called
-Suppose you have a user model and want to count users distribytion by name. To do this you have to observe class method `create` of User class:
+Suppose you have a user model and want to count users distribution by name. To do this you have to observe class method `create` of User class:
 
 ```ruby
 sensors = PulseMeter::Sensor::Configuration.new(
