@@ -2,15 +2,10 @@
 
 [![Gem Version](https://badge.fury.io/rb/pulse-meter.svg)](http://badge.fury.io/rb/pulse-meter)
 [![Build Status](https://secure.travis-ci.org/savonarola/pulse-meter.svg)](http://travis-ci.org/savonarola/pulse-meter)
-[![Dependency Status](https://gemnasium.com/badges/github.com/savonarola/pulse-meter.svg)](https://gemnasium.com/github.com/savonarola/pulse-meter)
 
 # PulseMeter
 
 PulseMeter is a gem for fast and convenient realtime aggregating of software internal stats through Redis. **This gem itself does not contain any code, it contains examples and bundles dependencies with real PulseMeter features.**
-
-## Live Demo
-
-A small live demo is located here: [pulse-meter.rubybox.ru](http://pulse-meter.rubybox.ru), its source code can be found here: [https://github.com/savonarola/pulse-meter-demo](https://github.com/savonarola/pulse-meter-demo)
 
 ## Features
 
